@@ -121,12 +121,19 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	
 	private synchronized Collection<XPathExpression> extractXPathExpr(String propName)
 	{
-		Collection<XPathExpression> xPathList= new Vector<XPathExpression>(); 
-		String[] xPathListStr= ((String)this.getProperty(propName).getValue()).split(",");
-		if (xPathList!= null)
-		{
-			for (String xPathString : xPathListStr)
-				xPathList.add(new XPathExpression(xPathString.trim())); 
+		Collection<XPathExpression> xPathList= new Vector<XPathExpression>();
+		PepperModuleProperty<?> prop= this.getProperty(propName); 
+		if (prop!= null)
+		{	
+			if (prop.getValue()!= null)
+			{
+				String[] xPathListStr= ((String)prop.getValue()).split(",");
+				if (xPathList!= null)
+				{
+					for (String xPathString : xPathListStr)
+						xPathList.add(new XPathExpression(xPathString.trim())); 
+				}
+			}
 		}
 		return(xPathList);
 	}

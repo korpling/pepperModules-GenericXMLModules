@@ -162,10 +162,13 @@ public class XPathExpression {
 	 */
 	public void addStep(String step)
 	{
-		if (	(steps!= null)&&
-				(step!= null)&&
+		if (steps== null)
+			steps= new Vector<String>();
+		if (	(step!= null)&&
 				(!step.isEmpty()))
-			this.steps.add(step);
+		{
+			steps.add(step);
+		}
 	}
 	/**
 	 * Removes the last step of this expression.
@@ -179,6 +182,8 @@ public class XPathExpression {
 	
 	public String toString()
 	{
-		return(this.steps.toString());
+		if (steps!= null)
+			return(this.steps.toString());
+		else return("[]");
 	}
 }
