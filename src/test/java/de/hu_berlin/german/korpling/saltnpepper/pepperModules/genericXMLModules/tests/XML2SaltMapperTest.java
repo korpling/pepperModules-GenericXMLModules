@@ -23,17 +23,14 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SDATATYPE;
 
 public class XML2SaltMapperTest extends TestCase {
 
@@ -100,6 +97,8 @@ public class XML2SaltMapperTest extends TestCase {
 	
 	/**
 	 * Checks if a simple text is mapped.
+	 * <br/>sample snippet:<br/>
+	 * &lt;text&gt;Is this example more complicated than it appears to?&lt;/text&gt;
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -123,6 +122,17 @@ public class XML2SaltMapperTest extends TestCase {
 	
 	/**
 	 * Checks if a simple text is mapped, even it is interrupted.
+	 * See:
+	 * <br/>
+	 * &lt;text&gt;Is this example more&lt;text&gt; complicated than it appears to be?&lt;/text&gt;&lt;/text&gt;
+	 * <br/>
+	 * Shall be mapped to:
+	 * <table border="1">
+	 * <tr><td colspan="2">span1</td><tr>
+	 * <tr><td>tok1</td><td>tok2</td><tr>
+	 * <tr><td>Is this example more</td><td> complicated than it appears to be?</td><tr>
+	 * </table>
+	 * 
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -131,11 +141,13 @@ public class XML2SaltMapperTest extends TestCase {
 	public void testSimpleText_Interrupt() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "Is this example more";
-		String text2= " complicated than it appears to?";
+		String text2= " complicated than it appears to be?";
 		String text= text1 + text2;
 		xmlWriter.writeStartElement("text");
+		xmlWriter.writeAttribute("no", "text1");
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeStartElement("text");
+		xmlWriter.writeAttribute("no", "text2");
 		xmlWriter.writeCharacters(text2);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
@@ -146,12 +158,18 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs());
 		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0));
 		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
-		System.out.println("text: "+ this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
 		assertEquals(text, this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
 	
 	/**
 	 * Checks if a simple text is mapped and if a token is created.
+	 * <br/>See:<br/>
+	 * &lt;text&gt;Is this example more complicated than it appears to?&lt;/text&gt;
+	 * <br/>
+	 * shall be mapped to:
+	 * <table border="1">
+	 * <tr><td>Is this example more complicated than it appears to?</td><tr>
+	 * </table>
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -174,11 +192,16 @@ public class XML2SaltMapperTest extends TestCase {
 		EList<SDataSourceSequence> sequences= this.getFixture().getsDocumentGraph().getOverlappedDSSequences(
 				this.getFixture().getsDocumentGraph().getSTokens().get(0), sRelationTypes);
 		assertEquals(new Integer(0), sequences.get(0).getSStart());
-		assertEquals(new Integer(text.length()), sequences.get(0).getSStart());
+		assertEquals(new Integer(text.length()), sequences.get(0).getSEnd());
 	}
 	
 	/**
-	 * Checks if a simple text is mapped and a token is created. Further checks if an SAnnotation was created.
+	 * Checks if a simple text is mapped and a token is created. Further checks if an {@link SAnnotation} was created.
+	 * <br/>
+	 * sample snippet:
+	 * <br/>
+	 * &lt;text attName1=&quot;attValue1&quot;&gt;Is this example more complicated than it appears to?&lt;/text&gt;
+	 * <br/>
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -205,7 +228,7 @@ public class XML2SaltMapperTest extends TestCase {
 				this.getFixture().getsDocumentGraph().getSTokens().get(0), sRelationTypes);
 		assertEquals(new Integer(0), sequences.get(0).getSStart());
 		assertEquals(new Integer(text.length()), sequences.get(0).getSEnd());
-		assertNotNull("an SAnnotation with name '"+attName1+"' does not belongs to annotation list '"+this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations()+"'", this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
+		assertNotNull("an SAnnotation with name '"+attName1+"' does not belong to annotation list '"+this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations()+"'", this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
 		assertEquals(attValue1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1).getSValue());
 	}
 	
@@ -263,7 +286,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * <tr><td colspan="3">struct</td><tr>
 	 * <tr><td>tok1</td><td>tok2</td><td>tok3</td><tr>
 	 * <tr><td>here</td><td>comes</td><td>text</td><tr>
-	 * </table
+	 * </table>
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -289,15 +312,101 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
 		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
 	}
+	/**
+	 * Tests the same as {@link #testElementNodeWithComplexContent()} but with setted flag {@link GenericXMLImporterProperties#PROP_ARTIFICIAL_SSTRUCT}.
+	 * The xml snippet:
+	 * <br/>
+	 * &lt;a&gt;here&lt;b&gt;comes&lt;/b&gt;text&lt;/a&gt;
+	 * <br/>
+	 * shall be mapped to:
+	 * 
+	 * <table border="1">
+	 * <tr><td colspan="3">struct</td><tr>
+	 * <tr><td/><td>struct1</td><td/><tr>
+	 * <tr><td>tok1</td><td>tok2</td><td>tok3</td><tr>
+	 * <tr><td>here</td><td>comes</td><td>text</td><tr>
+	 * </table>
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * @throws XMLStreamException 
+	 */
+	public void testElementNodeWithComplexContent2() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
+	{
+		String text1= "here";
+		String text2= "comes";
+		String text3= "text";
+		
+		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
+		prop.setValue(true);
+		
+		xmlWriter.writeStartElement("a");
+		xmlWriter.writeCharacters(text1);
+		xmlWriter.writeStartElement("b");
+		xmlWriter.writeCharacters(text2);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeCharacters(text3);
+		xmlWriter.writeEndElement();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+	}
+	/**
+	 * Tests the same as {@link #testElementNodeWithComplexContent()} but with setted flag {@link GenericXMLImporterProperties#PROP_ARTIFICIAL_SSTRUCT}.
+	 * The xml snippet:
+	 * <br/>
+	 * &lt;a&gt;here&lt;b&gt;&lt;c&gt;comes&lt;/c&gt;&lt;/b&gt;text&lt;/a&gt;
+	 * <br/>
+	 * shall be mapped to:
+	 * 
+	 * <table border="1">
+	 * <tr><td colspan="3">struct</td><tr>
+	 * <tr><td/><td>b</td><td/><tr>
+	 * <tr><td/><td>c</td><td/><tr>
+	 * <tr><td>tok1</td><td>tok2</td><td>tok3</td><tr>
+	 * <tr><td>here</td><td>comes</td><td>text</td><tr>
+	 * </table>
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * @throws XMLStreamException 
+	 */
+	public void testElementNodeWithComplexContent3() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
+	{
+		String text1= "here";
+		String text2= "comes";
+		String text3= "text";
+		
+		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
+		prop.setValue(true);
+		
+		xmlWriter.writeStartElement("a");
+		xmlWriter.writeCharacters(text1);
+		xmlWriter.writeStartElement("b");
+		xmlWriter.writeStartElement("c");
+		xmlWriter.writeCharacters(text2);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeCharacters(text3);
+		xmlWriter.writeEndElement();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSStructures().size());
+	}
 	
 	/**
 	 * Checks if all created {@link SToken} objects got the correct {@link SAnnotation} objects.
+	 * <br/>
 	 * The xml snippet:
 	 * <br/>
 	 * &lt;a&gt;&lt;b attB1="valB1"&gt;here&lt;b attB2="valB2"&gt;comes&lt;/b&gt;&lt;/a&gt;
 	 * <br/>
-	 * 
-	 * 
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 
@@ -308,15 +417,17 @@ public class XML2SaltMapperTest extends TestCase {
 		String text1= "here";
 		String text2= "text";
 		String attB1="attB1";
+		String valB1="valB1";
 		String attB2="attB2";
+		String valB2="valB2";
 		
 		xmlWriter.writeStartElement("a");
 		xmlWriter.writeStartElement("b");
-		xmlWriter.writeAttribute(attB1, "valB1");
+		xmlWriter.writeAttribute(attB1, valB1);
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeStartElement("b");
-		xmlWriter.writeAttribute(attB2, "valB2");
+		xmlWriter.writeAttribute(attB2, valB2);
 		xmlWriter.writeCharacters(text2);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
@@ -327,11 +438,11 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().size());
 		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations());
 		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attB1));
+		assertEquals(valB1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attB1).getSValue());
 		
 		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotations());
 		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotations().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotation(attB1));
+		assertEquals(valB2, this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotation(attB2).getSValue());
 	}
 	
 	/**
@@ -340,8 +451,6 @@ public class XML2SaltMapperTest extends TestCase {
 	 * <br/>
 	 * &lt;b&gt;text&lt;/b&gt;
 	 * <br/>
-	 * 
-	 * 
 	 * @throws IOException 
 	 * @throws SAXException 
 	 * @throws ParserConfigurationException 

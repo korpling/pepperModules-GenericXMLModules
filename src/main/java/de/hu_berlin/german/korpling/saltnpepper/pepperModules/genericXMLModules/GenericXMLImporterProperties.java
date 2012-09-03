@@ -9,9 +9,12 @@ import org.eclipse.emf.common.util.EList;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 
 /**
  * Defines the properties to be used for the {@link GenericXMLImporter}. 
@@ -20,7 +23,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
  */
 public class GenericXMLImporterProperties extends PepperModuleProperties 
 {
-	public static final String PREFIX="genericXML.importer.";
+	public static final String PREFIX="genericXml.importer.";
 	
 	/**
 	 * Name of property of the nodes to be ignored while import.
@@ -29,15 +32,24 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	/**
 	 * Name of property of element-nodes to map to an {@link SSpan} instead of an {@link SStructure}
 	 */
-	public static final String PROP_SPANS=PREFIX+"spans";
+	public static final String PROP_SPANS=PREFIX+"asSSpan";
 	/**
 	 * Name of property containing a list of all element-nodes whos attributes shall be prefixed by the name of the element-node 
 	 */
 	public static final String PROP_PREFIXED_ANNOS=PREFIX+"prefixAnnotationName";
 	/**
-	 * Name of property to determine if an artificial STOken shall be created for all text-nodes.
+	 * Name of property to determine if an artificial {@link SStructuredNode} shall be created for all text-nodes.
 	 */
-	public static final String PROP_ARTIFICIAL_STOKEN=PREFIX+"artificialSToken";
+	public static final String PROP_ARTIFICIAL_SSTRUCT=PREFIX+"artificialSStruct";
+	/**
+	 * Name of property to determine attribute-nodes to be mapped to {@link SMetaAnnotation}
+	 */
+	public static final String PROP_SMETA_ANNOTATION=PREFIX+"sMetaAnnotation";
+	/**
+	 * Name of property to determine subtrees to be mapped to {@link SMetaAnnotation} to the entire {@link SDocument}
+	 */
+	public static final String PROP_SMETA_ANNOTATION_SDOCUMENT=PREFIX+"sMetaAnnotation.sDocument";
+	
 	/**
 	 * Name of property to determine the file ending of documents to be imported.
 	 */
@@ -48,7 +60,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 		this.addProperty(new PepperModuleProperty<String>(PROP_IGNORE_LIST, String.class, "IgnoreList is a list of nodes (element nodes , attribute -nodes and text-nodes, which shall be ignored while processing. Note that if an element node is part of the ignore list, its subtree will also be ignored)", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SPANS, String.class, "In case of you don't want to map an element node to an SStructure, you can map it to an SSpan. Note that this is only possible, if the element node directly contains a text node.", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_PREFIXED_ANNOS, String.class, "You can set this flag to prefix the SName of the SAnnotation with the name of the surrounding element node.", false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ARTIFICIAL_STOKEN, Boolean.class, "If set to true, for each text node an artificial SToken will be created overlapping the text. The SSPan or SStructure given in the xml document will dominate the artificial SToken.", false, false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ARTIFICIAL_SSTRUCT, Boolean.class, "If set to true, for each text node an artificial SStructuredNode will be created and overlap the also created (always even if this property is set to false) SToken node.", false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
 	}
 	
@@ -139,11 +151,11 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	}
 	
 	/**
-	 * Returns if artificial {@link SToken} objects shall be created.
+	 * Returns if artificial {@link SStructuredNode} objects shall be created.
 	 * @return
 	 */
-	public boolean isCreateArtificialSToken()
+	public boolean isCreateSStructure()
 	{
-		return((Boolean)this.getProperty(PROP_ARTIFICIAL_STOKEN).getValue());
+		return((Boolean)this.getProperty(PROP_ARTIFICIAL_SSTRUCT).getValue());
 	}
 }
