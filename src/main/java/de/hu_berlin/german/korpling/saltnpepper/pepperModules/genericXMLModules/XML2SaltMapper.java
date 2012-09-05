@@ -19,6 +19,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAbstractAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SRelation;
@@ -84,6 +85,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		this.getsDocumentGraph().addSNode(currentSDS);
 		this.elementNodeStack= new Stack<XML2SaltMapper.ElementNodeEntry>();
 		this.isInited= true;
+		this.sLayerStack= new Stack<SLayer>();
 	}
 	/**
 	 * current {@link SDocumentGraph} to store all linguistic data in
@@ -128,7 +130,8 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		
 		String text= textBuf.toString();
 		if (	(text!= null) &&
-				(text.toString().length()>0))
+				(text.toString().length()>0)&&
+				(!isMetaSection))
 		{
 			textBuf= new StringBuffer();
 			String containedText= currentSDS.getSText();
@@ -139,35 +142,46 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			currentSDS.setSText(textBuf.toString());
 			int sEnd= text.length();
 			
-			//create a new SToken object overlapping the current text-node
-				SToken sToken= SaltFactory.eINSTANCE.createSToken();
-				sToken.setSName(this.elementNodeStack.peek().qName);
-				sDocumentGraph.addSNode(sToken);
-				if (openSToken== null)
-					openSToken= new BasicEList<SToken>();
-				openSToken.add(sToken);
-				this.copySAbstratAnnotations(sToken);
-			//create a new SToken object overlapping the current text-node
-			
-			if (this.getProps().isCreateSStructure())
-				this.elementNodeStack.peek().createSStruct= true;
-			else this.elementNodeStack.peek().createSStruct= false;
-			
-			//create a new STextualRelation object connecting the SToken and the current STextualDS object 
-				STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-				sTextRel.setSToken(sToken);
-				sTextRel.setSTextualDS(currentSDS);
-				sTextRel.setSStart(sStart);
-				sTextRel.setSEnd(sEnd);
-			//create a new STextualRelation object connecting the SToken and the current STextualDS object
+			if (!this.getProps().isTextOnly())
+			{
+				//create a new SToken object overlapping the current text-node
+					SToken sToken= SaltFactory.eINSTANCE.createSToken();
+					sToken.setSName(this.elementNodeStack.peek().qName);
+					sDocumentGraph.addSNode(sToken);
+					if (openSNodes== null)
+						openSNodes= new BasicEList<SNode>();
+					openSNodes.add(sToken);
+					this.copySAbstractAnnotations(sToken);
+					if (!this.sLayerStack.isEmpty())
+					{//add to sLayer if exist
+						this.sLayerStack.peek().getSNodes().add(sToken);
+					}//add to sLayer if exist
+				//create a new SToken object overlapping the current text-node
 				
-			sDocumentGraph.addSRelation(sTextRel);
+				if (this.getProps().isCreateSStructure())
+					this.elementNodeStack.peek().createSStruct= true;
+				else this.elementNodeStack.peek().createSStruct= false;
+				
+				//create a new STextualRelation object connecting the SToken and the current STextualDS object 
+					STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
+					sTextRel.setSToken(sToken);
+					sTextRel.setSTextualDS(currentSDS);
+					sTextRel.setSStart(sStart);
+					sTextRel.setSEnd(sEnd);
+				//create a new STextualRelation object connecting the SToken and the current STextualDS object
+					
+				sDocumentGraph.addSRelation(sTextRel);
+			}
 		}
 	}	
+//	/**
+//	 * Contains all nodes, which have been created, but not already added to the tree.
+//	 */
+//	private EList<SToken> openSToken= null;
 	/**
-	 * Contains all nodes, which have been created, but not already added to the tree.
+	 * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
 	 */
-	private EList<SToken> openSToken= null;
+	private EList<SNode> openSNodes= null;
 	/**
 	 * stack to store all information about the element node path from root to current element node 
 	 */
@@ -208,6 +222,55 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			return("["+qName+", "+ createSStruct+", "+ annotations+", "+isComplex+"]");
 		}
 	}
+	/**
+	 * Determines if currently a section for meta data is active.
+	 */
+	private boolean isMetaSection=false;
+	/**
+	 * a stack containing all active layers.
+	 */
+	private Stack<SLayer> sLayerStack= null;
+	
+	/**
+	 * Creates a list of {@link SAbstractAnnotation} objects for the given {@link Attributes} object and the 
+	 * name of the element-node given by <em>qName</em> and returns them.
+	 * @param qName
+	 * @param attributes
+	 * @return
+	 */
+	private EList<SAbstractAnnotation> createSAbstractAnnotations(	Class<? extends SAbstractAnnotation> clazz, 
+																	String qName, 
+																	Attributes attributes)
+	{
+		EList<SAbstractAnnotation> annoList= null;
+		for (int i= 0; i< attributes.getLength(); i++)
+		{//create annotation list
+			if (annoList== null)
+				annoList= new BasicEList<SAbstractAnnotation>();
+			currentXPath.addStep("@"+attributes.getQName(i));
+			if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
+			{//if element-node shall not be ignored
+				SAbstractAnnotation  sAnno= null;
+				if (this.matches(this.getProps().getSMetaAnnotationList(), currentXPath))
+					sAnno= SaltFactory.eINSTANCE.createSMetaAnnotation();
+				else
+				{
+					if (SMetaAnnotation.class.equals(clazz))
+						sAnno= SaltFactory.eINSTANCE.createSMetaAnnotation();
+					else if (SAnnotation.class.equals(clazz))
+						sAnno= SaltFactory.eINSTANCE.createSAnnotation();
+				}
+				if (this.matches(this.getProps().getPrefixedAnnoList(), currentXPath))
+					sAnno.setSName(qName+"_"+attributes.getQName(i));
+				else
+					sAnno.setSName(attributes.getQName(i));
+				sAnno.setSValue(attributes.getValue(i));
+				annoList.add(sAnno);
+			}//if element-node shall not be ignored
+			currentXPath.removeLastStep();
+		}//create annotation list
+		return(annoList);
+	}
 	
 	@Override
 	public void startElement(	String uri,
@@ -218,8 +281,45 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		if (!isInited)
 			init();
 		currentXPath.addStep(qName);
-		if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
+		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
+			this.isMetaSection= true;
+		if (this.isMetaSection)
+		{
+			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
+			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
+			if (this.getsDocumentGraph().getSDocument()!= null)
+			{
+				for (SAbstractAnnotation sAnno: annoList)
+					this.getsDocumentGraph().getSDocument().addSMetaAnnotation((SMetaAnnotation)sAnno);
+			}
+		}
+		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
+		{
+			System.out.println("---------------> sLayer found"+ qName);
+			SLayer currSLayer= null;
+			EList<SLayer> sLayers= this.getsDocumentGraph().getSLayerByName(qName);
+			if (	(sLayers!= null)&&
+					(sLayers.size()>0))
+				currSLayer= sLayers.get(0);
+			if (currSLayer== null)
+				currSLayer= SaltFactory.eINSTANCE.createSLayer();
+			
+			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
+			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
+			if (currSLayer!= null)
+			{
+				for (SAbstractAnnotation sAnno: annoList)
+					currSLayer.addSMetaAnnotation((SMetaAnnotation)sAnno);
+			}
+			if (!this.sLayerStack.isEmpty())
+				this.sLayerStack.peek().getSSubLayers().add(currSLayer);
+			this.getsDocumentGraph().addSLayer(currSLayer);
+			this.sLayerStack.push(currSLayer);
+		}
+		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
+					(!this.getProps().isTextOnly()))
 		{//if element-node shall not be ignored
+			System.out.println("---------------> not a layer: "+ qName);
 			//notify parent element, that it is complex
 			if (this.elementNodeStack.size()> 0)
 				this.elementNodeStack.peek().isComplex= true;
@@ -228,20 +328,9 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			if (attributes.getLength()> 0)
 			{//if attribute nodes are given, map them to SAnnotation objects
 				annoList= new BasicEList<SAbstractAnnotation>();
-				for (int i= 0; i< attributes.getLength(); i++)
-				{//create annotation list
-					currentXPath.addStep("@"+attributes.getQName(i));
-					if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
-					{//if element-node shall not be ignored
-						SAnnotation  sAnno= SaltFactory.eINSTANCE.createSAnnotation();
-						sAnno.setSName(attributes.getQName(i));
-						sAnno.setSValue(attributes.getValue(i));
-						annoList.add(sAnno);
-					}//if element-node shall not be ignored
-					currentXPath.removeLastStep();
-				}//create annotation list
+				annoList.addAll(this.createSAbstractAnnotations(SAnnotation.class, qName, attributes));
 			}//if attribute nodes are given, map them to SAnnotation objects
-			//create ElementNodeEntry for xurrent element node and add to stack
+			//create ElementNodeEntry for current element node and add to stack
 			ElementNodeEntry elementNode= new ElementNodeEntry(qName, annoList, true);
 			this.elementNodeStack.push(elementNode);
 		}//if element-node shall not be ignored
@@ -250,40 +339,70 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	/**
 	 * Cleans up the stack and removes first element. 
 	 * Cleans up current XPath and removes last element.
-	 * Creates a new SNode of type {@link SSpan} or {@link SStructure}, with respect to flag {@link GenericXMLImporterProperties#PROP_SPANS}.
+	 * Creates a new SNode of type {@link SSpan} or {@link SStructure}, with respect to flag {@link GenericXMLImporterProperties#PROP_AS_SPANS}.
 	 */
 	@Override
 	public void endElement(	String uri,
             				String localName,
             				String qName)throws SAXException
     {
-		if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
+		
+		if (this.isMetaSection)
+		{
+			if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
+				this.isMetaSection= false;
+			currentXPath.removeLastStep();
+		}
+		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
+		{	
+			System.out.println("---------------> end of sLayer: "+ qName);
+			if (!this.sLayerStack.isEmpty())
+				this.sLayerStack.pop();
+		}
+		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
+					(!this.getProps().isTextOnly()))
 		{//if element-node shall not be ignored
 			if (	(this.elementNodeStack.peek().createSStruct)||
 					(this.elementNodeStack.peek().isComplex))
 			{
+				System.out.println("---------------> end of not a layer: "+ qName);
 				SNode sNode= null;
 				if (this.matches(this.getProps().getAsSpans(), currentXPath))
 					sNode= SaltFactory.eINSTANCE.createSSpan();
 				else sNode= SaltFactory.eINSTANCE.createSStructure();
 				this.getsDocumentGraph().addSNode(sNode);
 				//copy all annotations to sNode
-				this.copySAbstratAnnotations(sNode);
-				if (openSToken!= null)
+				this.copySAbstractAnnotations(sNode);
+				
+				if (openSNodes!= null)
 				{//put all open SToken objects into subtree of current tree
-					for (SToken sToken: openSToken)
+					for (SNode childSNode: openSNodes)
 					{
 						SRelation sRel= null;
-						if (sNode instanceof SSpan)
-							sRel= SaltFactory.eINSTANCE.createSSpanningRelation();
+						if (	(sNode instanceof SSpan)&&
+								(childSNode instanceof SToken))
+						{
+						  sRel= SaltFactory.eINSTANCE.createSSpanningRelation();
+						}
 						else if (sNode instanceof SStructure)
 							sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
 						sRel.setSSource(sNode);
-						sRel.setSTarget(sToken);
+						sRel.setSTarget(childSNode);
 						this.getsDocumentGraph().addSRelation(sRel);
+						if (!this.sLayerStack.isEmpty())
+						{//add to sLayer if exist
+							this.sLayerStack.peek().getSRelations().add(sRel);
+						}//add to sLayer if exist
 					}
-					openSToken= null;
+					openSNodes= null;
 				}//put all open SToken objects into subtree of current tree
+				if (openSNodes== null)
+					openSNodes= new BasicEList<SNode>();
+				openSNodes.add(sNode);
+				if (!this.sLayerStack.isEmpty())
+				{//add to sLayer if exist
+					this.sLayerStack.peek().getSNodes().add(sNode);
+				}//add to sLayer if exist
 			}
 			
 			currentXPath.removeLastStep();
@@ -295,7 +414,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	 * Copies all annotations being contained in {@link #currSAbstractAnnotations} to the given {@link SNode} object
 	 * @param sNode
 	 */
-	private void copySAbstratAnnotations(SNode sNode)
+	private void copySAbstractAnnotations(SNode sNode)
 	{
 		if (elementNodeStack.peek().annotations!= null)
 		{
