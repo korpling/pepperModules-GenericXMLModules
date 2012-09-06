@@ -283,6 +283,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		currentXPath.addStep(qName);
 		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
 			this.isMetaSection= true;
+		
 		if (this.isMetaSection)
 		{
 			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
@@ -295,18 +296,21 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		}
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
 		{
-			System.out.println("---------------> sLayer found"+ qName);
 			SLayer currSLayer= null;
 			EList<SLayer> sLayers= this.getsDocumentGraph().getSLayerByName(qName);
 			if (	(sLayers!= null)&&
 					(sLayers.size()>0))
 				currSLayer= sLayers.get(0);
 			if (currSLayer== null)
+			{
 				currSLayer= SaltFactory.eINSTANCE.createSLayer();
+				currSLayer.setSName(qName);
+			}
 			
-			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
-			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
-			if (currSLayer!= null)
+			EList<SAbstractAnnotation>annoList= this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes);
+			if (	(currSLayer!= null)&&
+					(annoList!= null)&&
+					(annoList.size()> 0))
 			{
 				for (SAbstractAnnotation sAnno: annoList)
 					currSLayer.addSMetaAnnotation((SMetaAnnotation)sAnno);
@@ -319,7 +323,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
 					(!this.getProps().isTextOnly()))
 		{//if element-node shall not be ignored
-			System.out.println("---------------> not a layer: "+ qName);
 			//notify parent element, that it is complex
 			if (this.elementNodeStack.size()> 0)
 				this.elementNodeStack.peek().isComplex= true;
@@ -355,9 +358,9 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		}
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
 		{	
-			System.out.println("---------------> end of sLayer: "+ qName);
 			if (!this.sLayerStack.isEmpty())
 				this.sLayerStack.pop();
+			currentXPath.removeLastStep();
 		}
 		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
 					(!this.getProps().isTextOnly()))
@@ -365,11 +368,11 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			if (	(this.elementNodeStack.peek().createSStruct)||
 					(this.elementNodeStack.peek().isComplex))
 			{
-				System.out.println("---------------> end of not a layer: "+ qName);
 				SNode sNode= null;
 				if (this.matches(this.getProps().getAsSpans(), currentXPath))
 					sNode= SaltFactory.eINSTANCE.createSSpan();
 				else sNode= SaltFactory.eINSTANCE.createSStructure();
+				sNode.setSName(qName);
 				this.getsDocumentGraph().addSNode(sNode);
 				//copy all annotations to sNode
 				this.copySAbstractAnnotations(sNode);

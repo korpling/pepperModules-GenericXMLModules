@@ -70,6 +70,7 @@ public class XML2SaltMapperTest extends TestCase {
 	{
 		XML2SaltMapper mapper= new XML2SaltMapper();
 		mapper.setsDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		mapper.getsDocumentGraph().setSName("testGraph");
 		props= new GenericXMLImporterProperties();
 		mapper.setProps(props);
 		this.setFixture(mapper);
@@ -763,9 +764,18 @@ public class XML2SaltMapperTest extends TestCase {
 	
 	/**
 	 * Checks an element-node is read as {@link SLayer} object.
-	 * <br/>
-	 * &lt;a&gt;&lt;layer&gt;&lt;b&gt;&lt;c&gt;a&lt;/c&gt;&lt;c&gt;sample&lt;/c&gt;&lt;/b&gt;&lt;/layer&gt;&lt;/a&gt;
-	 * <br/>
+	 * <pre>
+	 * <code>
+	 * &lt;a&gt;
+	 *  &lt;layer&gt;
+	 *    &lt;b&gt;
+	 *      &lt;c&gt;a&lt;/c&gt;
+	 *      &lt;c&gt;sample&lt;/c&gt;
+	 *    &lt;/b&gt;
+	 *  &lt;/layer&gt;
+	 * &lt;/a&gt;
+	 * </pre>
+	 * </pre>
 	 * {@value GenericXMLImporterProperties#PROP_slay}= //b
 	 * shall result in a {@link SSpan} for &lt;b&gt; and a {@link SStructure} for &lt;a&gt;, both containing the two {@link SToken} objects overlapping "a" and "sample"
 	 * 
@@ -811,10 +821,98 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
 		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
 		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSSpans().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(5, this.getFixture().getsDocumentGraph().getSNodes().size());
 		
-		assertEquals(4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
-		assertEquals(4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
+		assertEquals(2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
+	}
+	
+	/**
+	 * Checks two element-nodes are read as {@link SLayer} object. Both element-nodes shall be mapped to the same {@link SLayer} object.
+	 * <pre>
+	 * <code>
+	 * &lt;root&gt;
+	 *   &lt;a&gt;
+	 *    &lt;layer&gt;
+	 *      &lt;b&gt;
+	 *        &lt;c&gt;a&lt;/c&gt;
+	 *        &lt;c&gt;sample&lt;/c&gt;
+	 *      &lt;/b&gt;
+	 *    &lt;/layer&gt;
+	 *   &lt;/a&gt;
+	 *   &lt;a&gt;
+	 *     &lt;layer&gt;
+	 *       &lt;c&gt;text&lt;/c&gt;
+	 *     &lt;/layer&gt;   
+	 *   &lt;/a&gt;
+	 * &lt;/root&gt;
+	 * </pre>
+	 * </pre>
+	 * 
+	 * {@value GenericXMLImporterProperties#PROP_slay}= //b
+	 * shall result in a {@link SSpan} for &lt;b&gt; and a {@link SStructure} for &lt;a&gt;, both containing the two {@link SToken} objects overlapping "a" and "sample"
+	 * 
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testProp_sLayer2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		String text1= "a";
+		String text2= "sample";
+		String text3= "text";
+		String elementRoot= "root";
+		String elementA= "a";
+		String elementB= "b";
+		String elementC= "c";
+		String elementLayer= "layer";
+		String layerAtt1= "layerAtt1";
+		
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
+		assertNotNull(prop);
+		prop.setValue("//"+elementLayer);
+		
+		xmlWriter.writeStartElement(elementRoot);
+		
+		xmlWriter.writeStartElement(elementA);
+		xmlWriter.writeStartElement(elementLayer);
+		xmlWriter.writeAttribute(layerAtt1, "val1");
+		xmlWriter.writeStartElement(elementB);
+		xmlWriter.writeStartElement(elementC);
+		xmlWriter.writeCharacters(text1);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeStartElement(elementC);
+		xmlWriter.writeCharacters(text2);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeStartElement(elementA);
+		xmlWriter.writeStartElement(elementLayer);
+		xmlWriter.writeStartElement(elementC);
+		xmlWriter.writeCharacters(text3);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeEndElement();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().size());
+		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0));
+		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
+		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(4, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSNodes(), 8, this.getFixture().getsDocumentGraph().getSNodes().size());
+		
+		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes(), 4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
+		assertEquals("relations: "+ this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations(), 2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
 	}	
 }
