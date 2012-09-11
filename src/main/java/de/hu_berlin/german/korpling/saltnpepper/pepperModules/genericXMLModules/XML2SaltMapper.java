@@ -286,8 +286,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		
 		if (this.isMetaSection)
 		{
-			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
-			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
+//			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
+			EList<SAbstractAnnotation>annoList= this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes);
+			
+//			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
 			if (this.getsDocumentGraph().getSDocument()!= null)
 			{
 				for (SAbstractAnnotation sAnno: annoList)

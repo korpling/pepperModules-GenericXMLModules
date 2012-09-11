@@ -1,6 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.tests;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -18,8 +17,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefin
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperImporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltCommonFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -41,6 +38,10 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 	public void setUp()
 	{
 		this.setFixture(new GenericXMLImporter());
+		
+		this.setName("GenericXMLImporter");
+		this.setTemprorariesURI(URI.createFileURI(System.getProperty("java.io.tmpdir")));
+		this.setResourcesURI(URI.createFileURI(System.getProperty("java.io.tmpdir")));
 	}
 
 	/**

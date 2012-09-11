@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -27,6 +28,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModul
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
@@ -34,6 +36,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
@@ -924,9 +927,9 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	public void testHierarchies() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
-		assertNotNull(prop);
-		prop.setValue("//span");
+		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		assertNotNull(prop2);
+		prop2.setValue("//document");
 		
 		createHierarchy(xmlWriter);
 		String xmlDocument= outStream.toString();
@@ -935,6 +938,12 @@ public class XML2SaltMapperTest extends TestCase {
 		SDocument template= SaltFactory.eINSTANCE.createSDocument();
 		SaltSample.createSyntaxStructure(template);
 		SaltSample.createSyntaxAnnotations(template);
+//		SElementId sElementId= SaltFactory.eINSTANCE.createSElementId();
+//		sElementId.setSId("null/null_graph");
+//		template.setSElementId(sElementId);
+		System.out.println("template(id): "+ template.getSId());
+		
+		System.out.println("fixture: "+ this.getFixture().getsDocumentGraph().getSElementId());
 		
 		assertNotNull(template);
 		assertTrue("all differences: "+ template.getSDocumentGraph().differences(this.getFixture().getsDocumentGraph()), template.getSDocumentGraph().equals(this.getFixture().getsDocumentGraph()));
@@ -951,13 +960,32 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	public void testSpans() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
-		createHierarchy(xmlWriter);
+		PepperModuleProperty<String> prop1= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
+		assertNotNull(prop1);
+		prop1.setValue("//span");
+		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		assertNotNull(prop2);
+		prop2.setValue("//document");
+		
+		createSpan(xmlWriter);
 		String xmlDocument= outStream.toString();
 		
 		this.start(this.getFixture(), xmlDocument);
+		this.getFixture().getsDocumentGraph().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		this.getFixture().getsDocumentGraph().getSDocument().createSMetaAnnotation(null, "author", "John Doe");
+		
 		SDocument template= SaltFactory.eINSTANCE.createSDocument();
 		SaltSample.createInformationStructureSpan(template);
 		SaltSample.createInformationStructureAnnotations(template);
+		
+		System.out.println("template(id): "+ template.getSDocumentGraph().getSElementId());
+		System.out.println("fixture: "+ this.getFixture().getsDocumentGraph().getSElementId());
+		System.out.println("template(token): "+template.getSDocumentGraph().getSTokens());
+		System.out.println("this.getFixture()(token): "+this.getFixture().getsDocumentGraph().getSTokens());
+		
+		Salt2DOT printer= new Salt2DOT();
+		printer.salt2Dot(template.getSDocumentGraph(), URI.createFileURI("d:/Test/template.dot"));
+		printer.salt2Dot(this.getFixture().getsDocumentGraph(), URI.createFileURI("d:/Test/fixture.dot"));
 		
 		assertNotNull(template);
 		assertTrue("all differences: "+ template.getSDocumentGraph().differences(this.getFixture().getsDocumentGraph()), template.getSDocumentGraph().equals(this.getFixture().getsDocumentGraph()));
@@ -1141,6 +1169,7 @@ public class XML2SaltMapperTest extends TestCase {
 				xmlWriter.writeEndElement();
 			xmlWriter.writeEndElement();
 			
+			xmlWriter.writeStartElement(elemSpan);
 			xmlWriter.writeAttribute(attInf, "topic");
 			xmlWriter.writeStartElement(elemTok);
 			xmlWriter.writeCharacters("this");
