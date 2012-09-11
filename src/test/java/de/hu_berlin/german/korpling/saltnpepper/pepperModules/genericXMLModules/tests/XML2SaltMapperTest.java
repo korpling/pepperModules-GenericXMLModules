@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -28,8 +27,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModul
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
@@ -38,6 +35,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
 public class XML2SaltMapperTest extends TestCase {
 
@@ -915,4 +913,275 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes(), 4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
 		assertEquals("relations: "+ this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations(), 2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
 	}	
+	
+	/**
+	 * Tests the hierarchie structure created in {@link #createHierarchy()} and compares it to 
+	 * {@link SaltSample#createSyntaxStructure(SDocument)} and {@link SaltSample#createSyntaxAnnotations(SDocument)}.
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * @throws XMLStreamException 
+	 */
+	public void testHierarchies() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
+		assertNotNull(prop);
+		prop.setValue("//span");
+		
+		createHierarchy(xmlWriter);
+		String xmlDocument= outStream.toString();
+		
+		this.start(this.getFixture(), xmlDocument);
+		SDocument template= SaltFactory.eINSTANCE.createSDocument();
+		SaltSample.createSyntaxStructure(template);
+		SaltSample.createSyntaxAnnotations(template);
+		
+		assertNotNull(template);
+		assertTrue("all differences: "+ template.getSDocumentGraph().differences(this.getFixture().getsDocumentGraph()), template.getSDocumentGraph().equals(this.getFixture().getsDocumentGraph()));
+	}
+	
+	/**
+	 * Tests the span structure created in {@link #createSpan()} and compares it to 
+	 * {@link SaltSample#createInformationStructureSpan(SDocument)} and 
+	 * {@link SaltSample#createInformationStructureAnnotations(SDocument)}
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * @throws XMLStreamException 
+	 */
+	public void testSpans() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		createHierarchy(xmlWriter);
+		String xmlDocument= outStream.toString();
+		
+		this.start(this.getFixture(), xmlDocument);
+		SDocument template= SaltFactory.eINSTANCE.createSDocument();
+		SaltSample.createInformationStructureSpan(template);
+		SaltSample.createInformationStructureAnnotations(template);
+		
+		assertNotNull(template);
+		assertTrue("all differences: "+ template.getSDocumentGraph().differences(this.getFixture().getsDocumentGraph()), template.getSDocumentGraph().equals(this.getFixture().getsDocumentGraph()));
+	}
+	
+	/**
+	 * Reads the following xml-document, which represents the structure of {@link SaltSample#createSyntaxStructure(SDocument)} and
+	 * {@link SaltSample#createSyntaxAnnotations(SDocument)}.
+	 * 
+	 * <pre>
+	 * <code>
+	 *&lt;document author="John Doe"&gt;
+	 *    &lt;struct const="SQ"&gt;
+	 *        &lt;tok&gt;Is&lt;/tok&gt;
+	 *        &lt;struct const="NP"&gt;
+	 *            &lt;tok&gt;this&lt;/tok&gt;
+	 *            &lt;tok&gt;example&lt;/tok&gt;
+	 *        &lt;/struct&gt;
+	 *        &lt;struct const="ADJP"&gt;
+	 *            &lt;struct const="ADJP"&gt;
+	 *                &lt;tok&gt;more&lt;/tok&gt;
+	 *                &lt;tok&gt;complicated&lt;/tok&gt;
+	 *            &lt;/struct&gt;
+	 *            &lt;struct const="SBAR"&gt;
+	 *                &lt;tok&gt;than&lt;/tok&gt;
+	 *                &lt;struct const="S"&gt;
+	 *                    &lt;struct const="NP"&gt;
+	 *                        &lt;tok&gt;it&lt;/tok&gt;
+	 *                    &lt;/struct&gt;
+	 *                    &lt;struct const="VP"&gt;
+	 *                        &lt;tok&gt;appears&lt;/tok&gt;
+	 *                        &lt;struct const="S"&gt;
+	 *                            &lt;struct const="VP"&gt;
+	 *                                &lt;tok&gt;to&lt;/tok&gt;
+	 *                                &lt;struct const="VP"&gt;
+	 *                                    &lt;tok&gt;be&lt;/tok&gt;
+	 *                                &lt;/struct&gt;
+	 *                            &lt;/struct&gt;
+	 *                        &lt;/struct&gt;
+	 *                    &lt;/struct&gt;
+	 *                &lt;/struct&gt;
+	 *            &lt;/struct&gt;
+	 *        &lt;/struct&gt;
+	 *    &lt;/struct&gt;
+	 *    &lt;tok&gt;?&lt;/tok&gt;
+	 *&lt;/document&gt;
+	 * </code>
+	 * </pre>
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 */
+	public static void createHierarchy(XMLStreamWriter xmlWriter) throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		String elemDocument="document";
+		String elemStruct="struct";
+		String attConst="const";
+		String elemTok="tok";
+		
+		xmlWriter.writeStartElement(elemDocument);
+		xmlWriter.writeAttribute("author", "John Doe");
+			xmlWriter.writeStartElement(elemStruct);
+			xmlWriter.writeAttribute(attConst, "SQ");
+				xmlWriter.writeStartElement(elemTok);
+				xmlWriter.writeCharacters("Is");
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(elemStruct);
+				xmlWriter.writeAttribute(attConst, "NP");
+					xmlWriter.writeStartElement(elemTok);
+					xmlWriter.writeCharacters("this");
+					xmlWriter.writeEndElement();
+					xmlWriter.writeStartElement(elemTok);
+					xmlWriter.writeCharacters("example");
+					xmlWriter.writeEndElement();
+				xmlWriter.writeEndElement();
+				
+				xmlWriter.writeStartElement(elemStruct);
+				xmlWriter.writeAttribute(attConst, "ADJP");
+					xmlWriter.writeStartElement(elemStruct);
+					xmlWriter.writeAttribute(attConst, "ADJP");
+						xmlWriter.writeStartElement(elemTok);
+						xmlWriter.writeCharacters("more");
+						xmlWriter.writeEndElement();
+						xmlWriter.writeStartElement(elemTok);
+						xmlWriter.writeCharacters("complicated");
+						xmlWriter.writeEndElement();
+					xmlWriter.writeEndElement();
+					
+					xmlWriter.writeStartElement(elemStruct);
+					xmlWriter.writeAttribute(attConst, "SBAR");
+						xmlWriter.writeStartElement(elemTok);
+						xmlWriter.writeCharacters("than");
+						xmlWriter.writeEndElement();
+						
+						xmlWriter.writeStartElement(elemStruct);
+						xmlWriter.writeAttribute(attConst, "S");
+							xmlWriter.writeStartElement(elemStruct);
+							xmlWriter.writeAttribute(attConst, "NP");
+								xmlWriter.writeStartElement(elemTok);
+								xmlWriter.writeCharacters("it");
+								xmlWriter.writeEndElement();
+								
+								xmlWriter.writeStartElement(elemStruct);
+								xmlWriter.writeAttribute(attConst, "VP");
+									xmlWriter.writeStartElement(elemTok);
+									xmlWriter.writeCharacters("appears");
+									xmlWriter.writeEndElement();
+									
+									xmlWriter.writeStartElement(elemStruct);
+									xmlWriter.writeAttribute(attConst, "S");
+										xmlWriter.writeStartElement(elemStruct);
+										xmlWriter.writeAttribute(attConst, "VP");
+										
+											xmlWriter.writeStartElement(elemTok);
+											xmlWriter.writeCharacters("to");
+											xmlWriter.writeEndElement();
+											
+											xmlWriter.writeStartElement(elemStruct);
+											xmlWriter.writeAttribute(attConst, "VP");
+												xmlWriter.writeStartElement(elemTok);
+												xmlWriter.writeCharacters("be");
+												xmlWriter.writeEndElement();
+											xmlWriter.writeEndElement();
+										xmlWriter.writeEndElement();
+									xmlWriter.writeEndElement();
+								xmlWriter.writeEndElement();
+							xmlWriter.writeEndElement();
+						xmlWriter.writeEndElement();
+					xmlWriter.writeEndElement();
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+	}
+	
+	/**
+	 * Reads the following xml-document, which represents the structure of {@link SaltSample#createInformationStructureSpan(SDocument)}
+	 * and {@link SaltSample#createInformationStructureAnnotations(SDocument)}.
+	 * 
+	 * <pre>
+	 * <code>
+	 *&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+	 *&lt;document author="John Doe"&gt;
+	 *    &lt;span inf-struct="contrast-focus"&gt;
+	 *        &lt;tok&gt;Is&lt;/tok&gt;
+	 *    &lt;/span&gt;
+	 *    &lt;span inf-struct="topic"&gt;
+	 *        &lt;tok&gt;this&lt;/tok&gt;
+	 *        &lt;tok&gt;example&lt;/tok&gt;
+	 *        &lt;tok&gt;more&lt;/tok&gt;
+	 *        &lt;tok&gt;complicated&lt;/tok&gt;
+	 *        &lt;tok&gt;than&lt;/tok&gt;
+	 *        &lt;tok&gt;it&lt;/tok&gt;
+	 *        &lt;tok&gt;appears&lt;/tok&gt;
+	 *        &lt;tok&gt;to&lt;/tok&gt;
+	 *        &lt;tok&gt;be&lt;/tok&gt;
+	 *        &lt;tok&gt;?&lt;/tok&gt;
+	 *    &lt;/span&gt;
+	 *&lt;/document&gt;
+	 * </code>
+	 * </pre>
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 */
+	public static void createSpan(XMLStreamWriter xmlWriter) throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		String elemDocument="document";
+		String elemSpan="span";
+		String attInf="inf-struct";
+		String elemTok="tok";
+		
+		xmlWriter.writeStartElement(elemDocument);
+		xmlWriter.writeAttribute("author", "John Doe");
+			xmlWriter.writeStartElement(elemSpan);
+			xmlWriter.writeAttribute(attInf, "contrast-focus");
+				xmlWriter.writeStartElement(elemTok);
+				xmlWriter.writeCharacters("Is");
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeAttribute(attInf, "topic");
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("this");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("example");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("more");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("complicated");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("than");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("it");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("appears");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("to");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("be");
+			xmlWriter.writeEndElement();
+			
+			xmlWriter.writeStartElement(elemTok);
+			xmlWriter.writeCharacters("?");
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+	}
 }

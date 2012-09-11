@@ -63,6 +63,10 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	 * Name of property to determine the file ending of documents to be imported.
 	 */
 	public static final String PROP_FILE_ENDINGS=PREFIX+"file.endings";
+	/**
+	 * When the list of file endings contain this string, all file endings will be accepted
+	 */
+	public static final String KW_ALL=PREFIX+"ALL";
 	
 	public GenericXMLImporterProperties()
 	{
