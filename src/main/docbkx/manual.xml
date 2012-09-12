@@ -375,14 +375,14 @@
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop8" endterm="importer_prop8_title"
-                            /></entry>
+                                /></entry>
                             <entry>XPath expression of described subset</entry>
                             <entry>optional</entry>
                             <entry>--</entry>
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop8" endterm="importer_prop8_title"
-                            /></entry>
+                                /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
                             <entry>xml</entry>
@@ -476,12 +476,12 @@
             <sect2 xml:id="prop_prop6">
                 <title xml:id="importer_prop6_title"
                     >genericXml.importer.sMetaAnnotation.sDocument</title>
-                <para>Xml documents often also contains sections for meta-data of the entire
+                <para>Xml documents often also contain sections for meta-data of the entire
                     document, for instance the name of the author of the document, the year of
                     creation, or the mothers tongue of the author etc.. For dealing with such a
-                    case, you can use this flag, to mark an entire subtree as a meta-data section.
-                    Each attribute-node of such a subtree is mapped to a
-                        <classname>SMetaAnnotation</classname> object having its name as
+                    case, you can use this flag, to mark an element or an entire subtree as a
+                    meta-data section. Each attribute-node of such an element or subtree is mapped
+                    to a <classname>SMetaAnnotation</classname> object having its name as
                         <varname>SName</varname> and its value as <varname>SValue</varname> and is
                     added to the list of meta-data of the <classname>SDocument</classname>. </para>
                 <para>The following xml fragment
@@ -501,10 +501,22 @@
                             concatenate the name of the element-node with the name of the
                             attribute-node.</para>
                     </note>
-                    <note>
-                        <para>When using this property, the entire subtree of a given element-node
-                            is interpreted as meta-data.</para>
-                    </note></para>
+                </para>
+                <para>To interprete an entire subtree of an xml element as a meta-data containing
+                    subtree, use the wildcard notation at the end of your XPath expression.</para>
+                <para>The following xml fragment
+                    <programlisting>&lt;a>
+    &lt;b att_1="value">
+        &lt;c att2="value"/>
+    &lt;/b>
+    &lt;d>a sample text&lt;/d>
+&lt;/a></programlisting>
+                    when using the
+                    property<programlisting>genericXml.importer.sMetaAnnotation.sDocument=//b, //b//</programlisting>
+                    results in one <classname>SToken</classname> object overlapping the primary text
+                    'a sample text' being dominated by a <classname>SStructure</classname> object
+                    corresponing to element &lt;a>. The xml-element &lt;b> and its entire subtree is
+                    interpreted as meta-data for the <classname>SDocument</classname> object.</para>
             </sect2>
             <sect2 xml:id="prop_prop7">
                 <title xml:id="importer_prop7_title">genericXml.importer.textOnly</title>
