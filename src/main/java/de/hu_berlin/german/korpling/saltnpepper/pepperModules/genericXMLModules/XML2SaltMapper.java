@@ -1,7 +1,9 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
+import java.util.Vector;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -130,8 +132,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		
 		String text= textBuf.toString();
 		if (	(text!= null) &&
-				(text.toString().length()>0)&&
-				(!isMetaSection))
+				(text.toString().length()>0))
 		{
 			textBuf= new StringBuffer();
 			String containedText= currentSDS.getSText();
@@ -148,9 +149,9 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					SToken sToken= SaltFactory.eINSTANCE.createSToken();
 					sToken.setSName(this.elementNodeStack.peek().qName);
 					sDocumentGraph.addSNode(sToken);
-					if (openSNodes== null)
-						openSNodes= new BasicEList<SNode>();
-					openSNodes.add(sToken);
+					if (this.elementNodeStack.size()>1)
+						this.elementNodeStack.get(elementNodeStack.size()-2).openSNodes.add(sToken);
+					
 					this.copySAbstractAnnotations(sToken);
 					if (!this.sLayerStack.isEmpty())
 					{//add to sLayer if exist
@@ -174,14 +175,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			}
 		}
 	}	
-//	/**
-//	 * Contains all nodes, which have been created, but not already added to the tree.
-//	 */
-//	private EList<SToken> openSToken= null;
-	/**
-	 * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
-	 */
-	private EList<SNode> openSNodes= null;
 	/**
 	 * stack to store all information about the element node path from root to current element node 
 	 */
@@ -192,6 +185,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	 */
 	private class ElementNodeEntry
 	{
+		/**
+		 * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
+		 */
+		public List<SNode> openSNodes= null;
 		/**
 		 * Temporary stores the name of an element-node. First it has to be checked if the 
 		 * current element-node is a {@link SToken} or not. 
@@ -215,6 +212,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			this.qName= qName;
 			this.annotations= annotations;
 			this.createSStruct= createSStruct;
+			this.openSNodes= new Vector<SNode>();
 		}
 		
 		public String toString()
@@ -222,10 +220,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			return("["+qName+", "+ createSStruct+", "+ annotations+", "+isComplex+"]");
 		}
 	}
-	/**
-	 * Determines if currently a section for meta data is active.
-	 */
-	private boolean isMetaSection=false;
 	/**
 	 * a stack containing all active layers.
 	 */
@@ -281,15 +275,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		if (!isInited)
 			init();
 		currentXPath.addStep(qName);
+
 		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
-			this.isMetaSection= true;
-		
-		if (this.isMetaSection)
 		{
-//			EList<SAbstractAnnotation>annoList= new BasicEList<SAbstractAnnotation>();
 			EList<SAbstractAnnotation>annoList= this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes);
-			
-//			annoList.addAll(this.createSAbstractAnnotations(SMetaAnnotation.class, qName, attributes));
 			if (this.getsDocumentGraph().getSDocument()!= null)
 			{
 				for (SAbstractAnnotation sAnno: annoList)
@@ -352,10 +341,8 @@ public class XML2SaltMapper extends DefaultHandler2 {
             				String qName)throws SAXException
     {
 		
-		if (this.isMetaSection)
+		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
 		{
-			if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
-				this.isMetaSection= false;
 			currentXPath.removeLastStep();
 		}
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
@@ -379,9 +366,9 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				//copy all annotations to sNode
 				this.copySAbstractAnnotations(sNode);
 				
-				if (openSNodes!= null)
+				if (this.elementNodeStack.peek().openSNodes.size()>0)
 				{//put all open SToken objects into subtree of current tree
-					for (SNode childSNode: openSNodes)
+					for (SNode childSNode: this.elementNodeStack.peek().openSNodes)
 					{
 						SRelation sRel= null;
 						if (	(sNode instanceof SSpan)&&
@@ -391,6 +378,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 						}
 						else if (sNode instanceof SStructure)
 							sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
+						
+						System.out.println("childSNode: "+childSNode);
+						System.out.println("sNode: "+sNode);
+						
 						sRel.setSSource(sNode);
 						sRel.setSTarget(childSNode);
 						this.getsDocumentGraph().addSRelation(sRel);
@@ -399,11 +390,11 @@ public class XML2SaltMapper extends DefaultHandler2 {
 							this.sLayerStack.peek().getSRelations().add(sRel);
 						}//add to sLayer if exist
 					}
-					openSNodes= null;
 				}//put all open SToken objects into subtree of current tree
-				if (openSNodes== null)
-					openSNodes= new BasicEList<SNode>();
-				openSNodes.add(sNode);
+				//put current node to open nodes of father node 
+				if (this.elementNodeStack.size()>1)
+					this.elementNodeStack.get(this.elementNodeStack.size()-2).openSNodes.add(sNode);
+				
 				if (!this.sLayerStack.isEmpty())
 				{//add to sLayer if exist
 					this.sLayerStack.peek().getSNodes().add(sNode);

@@ -71,6 +71,7 @@ public class XML2SaltMapperTest extends TestCase {
 	{
 		XML2SaltMapper mapper= new XML2SaltMapper();
 		mapper.setsDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		mapper.getsDocumentGraph().setSDocument(SaltFactory.eINSTANCE.createSDocument());
 		mapper.getsDocumentGraph().setSName("testGraph");
 		props= new GenericXMLImporterProperties();
 		mapper.setProps(props);
@@ -527,6 +528,61 @@ public class XML2SaltMapperTest extends TestCase {
 	 * Checks if spans are correctly created in hierarchies when using the prop genericXml.importer.asSSpan
 	 * Create a test for snippet:
 	 * <br/>
+	 * <pre>
+	 * 	&lt;document author="John Doe"&gt;
+	 *    &lt;struct const="S"&gt;
+	 *        &lt;tok&gt;a sample text&lt;/tok&gt;
+	 *    &lt;/struct&gt;
+	 *	&lt;/document&gt;
+	 * </pre>
+	 * <br/>
+	 * {@value GenericXMLImporterProperties#PROP_SMETA_ANNOTATION_SDOCUMENT}= //document
+	 * shall result in a {@link SStructure} for &lt;struct&gt; and a {@link SToken} for &lt;tok&gt. &lt;document&gt; shall be ignored,
+	 * but its attributes shall be mapped to {@link SMetaAnnotation} of {@link SDocument}.
+	 * 
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testProp_sMetaAnnotation2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		String text= "a sample text";
+		String elementDocument= "document";
+		String elementStuct= "struct";
+		String elementTok= "tok";
+		
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		assertNotNull(prop);
+		prop.setValue("//"+elementDocument);
+		
+		xmlWriter.writeStartElement(elementDocument);
+		xmlWriter.writeAttribute("author", "John Doe");
+			xmlWriter.writeStartElement(elementStuct);
+			xmlWriter.writeAttribute("const", "S");
+				xmlWriter.writeStartElement(elementTok);
+				xmlWriter.writeCharacters(text);
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertNotNull(this.getFixture().getsDocumentGraph().getSDocument());
+		assertNotNull(this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotations());
+		assertEquals(1, this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotations().size());
+		assertEquals("John Doe", this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotation("author").getSValue());
+		
+		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().get(0).getSAnnotations().size());
+		assertEquals("S", this.getFixture().getsDocumentGraph().getSStructures().get(0).getSAnnotation("const").getSValue());
+	}	
+	/**
+	 * Checks if spans are correctly created in hierarchies when using the prop genericXml.importer.asSSpan
+	 * Create a test for snippet:
+	 * <br/>
 	 * &lt;a&gt;&lt;b&gt;&lt;c&gt;a&lt;/c&gt;&lt;c&gt;sample&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;
 	 * <br/>
 	 * {@value GenericXMLImporterProperties#PROP_AS_SPANS}= //b
@@ -706,7 +762,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * <br/>
 	 * &lt;a&gt;&lt;meta att1="val1"&gt;&lt;anothermeta att2="val1"/&gt;&lt;/meta&gt;&lt;b&gt;&lt;c&gt;a&lt;/c&gt;&lt;c&gt;sample&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;
 	 * <br/>
-	 * {@value GenericXMLImporterProperties#PROP_SMETA_ANNOTATION_SDOCUMENT}= //meta
+	 * {@value GenericXMLImporterProperties#PROP_SMETA_ANNOTATION_SDOCUMENT}= //meta//
 	 * shall result in a {@link SSpan} for &lt;b&gt; and a {@link SStructure} for &lt;a&gt;, both containing the two {@link SToken} objects overlapping "a" and "sample"
 	 * 
 	 * @throws XMLStreamException 
@@ -729,23 +785,23 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop);
-		prop.setValue("//"+elementMeta1);
+		prop.setValue("//"+elementMeta1+"//, //"+elementMeta1);
 		
 		xmlWriter.writeStartElement(elementA);
-		xmlWriter.writeStartElement(elementMeta1);
-		xmlWriter.writeAttribute(att1, "val1");
-		xmlWriter.writeStartElement(elementMeta2);
-		xmlWriter.writeAttribute(att2, "val2");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeStartElement(elementB);
-		xmlWriter.writeStartElement(elementC);
-		xmlWriter.writeCharacters(text1);
-		xmlWriter.writeEndElement();
-		xmlWriter.writeStartElement(elementC);
-		xmlWriter.writeCharacters(text2);
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement(elementMeta1);
+			xmlWriter.writeAttribute(att1, "val1");
+			xmlWriter.writeStartElement(elementMeta2);
+			xmlWriter.writeAttribute(att2, "val2");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement(elementB);
+			xmlWriter.writeStartElement(elementC);
+			xmlWriter.writeCharacters(text1);
+			xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement(elementC);
+			xmlWriter.writeCharacters(text2);
+			xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
 		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
