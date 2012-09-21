@@ -131,20 +131,32 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			textBuf.append(ch[i]);
 		
 		String text= textBuf.toString();
+		
 		if (	(text!= null) &&
 				(text.toString().length()>0))
 		{
+			System.out.println("-----");
+			System.out.println("text:"+text+"#");
+			
 			textBuf= new StringBuffer();
 			String containedText= currentSDS.getSText();
 			if (containedText!= null)
 				textBuf.append(containedText);
+			
 			int sStart= textBuf.length();
+			System.out.println("textBuf: "+ textBuf);
+			System.out.println("sStart: "+ sStart);
 			textBuf.append(text);
 			currentSDS.setSText(textBuf.toString());
-			int sEnd= text.length();
-			
-			if (!this.getProps().isTextOnly())
+			int sEnd= textBuf.length();
+			System.out.println("textBuf: "+ textBuf);
+			System.out.println("sEnd: "+ sEnd);
+			System.out.println("complexity: "+ this.elementNodeStack.peek().isComplex);
+			System.out.println("entire stack head: "+ this.elementNodeStack.peek());
+			if (	(!this.getProps().isTextOnly())&&
+					(!this.elementNodeStack.peek().isComplex))
 			{
+			    System.out.println("create token");
 				//create a new SToken object overlapping the current text-node
 					SToken sToken= SaltFactory.eINSTANCE.createSToken();
 					sToken.setSName(this.elementNodeStack.peek().qName);
@@ -164,6 +176,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				else this.elementNodeStack.peek().createSStruct= false;
 				
 				//create a new STextualRelation object connecting the SToken and the current STextualDS object 
+					System.out.println("srel: "+ sStart+" - "+ sEnd);
 					STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
 					sTextRel.setSToken(sToken);
 					sTextRel.setSTextualDS(currentSDS);
@@ -183,7 +196,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	 * A class for storing information about an element node.
 	 * @author Florian Zipser
 	 */
-	private class ElementNodeEntry
+	private static class ElementNodeEntry
 	{
 		/**
 		 * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
@@ -217,7 +230,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		
 		public String toString()
 		{
-			return("["+qName+", "+ createSStruct+", "+ annotations+", "+isComplex+"]");
+			return("["+qName+", createSStruct: "+ createSStruct+", annotations: "+ annotations+", isComplex: "+isComplex+"]");
 		}
 	}
 	/**
@@ -316,7 +329,9 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		{//if element-node shall not be ignored
 			//notify parent element, that it is complex
 			if (this.elementNodeStack.size()> 0)
+			{
 				this.elementNodeStack.peek().isComplex= true;
+			}
 			
 			BasicEList<SAbstractAnnotation> annoList= null;
 			if (attributes.getLength()> 0)
@@ -378,9 +393,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 						}
 						else if (sNode instanceof SStructure)
 							sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
-						
-						System.out.println("childSNode: "+childSNode);
-						System.out.println("sNode: "+sNode);
 						
 						sRel.setSSource(sNode);
 						sRel.setSTarget(childSNode);

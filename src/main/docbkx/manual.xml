@@ -450,7 +450,7 @@
                     primary data "a sample" and a <classname>SStructure</classname> object
                     dominating the <classname>SToken</classname> object.</para>
                 <note>
-                    <para>When using this flag, an artificial SSPan can be created instead of an
+                    <para>When using this flag, an artificial SSpan can be created instead of an
                         SStructure object, when adding an XPath expressiion addressing the
                         terminal-node to the set of expressions of the property <xref
                             linkend="prop_prop2" endterm="importer_prop2_title"/></para>

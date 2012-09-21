@@ -218,7 +218,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	}
 	
 	/**
-	 * Returns if artificial {@link SStructuredNode} objects shall be created.
+	 * Returns true if artificial {@link SStructuredNode} object shall be created.
 	 * @return
 	 */
 	public boolean isCreateSStructure()
