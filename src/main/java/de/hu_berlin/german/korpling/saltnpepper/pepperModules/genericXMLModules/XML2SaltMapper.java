@@ -208,27 +208,15 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		if (	(text!= null) &&
 				(text.toString().length()>0))
 		{
-			System.out.println("-----");
-			System.out.println("text:"+text+"#");
-			
 			textBuf= new StringBuffer();
 			String containedText= currentSDS.getSText();
 			if (containedText!= null)
 				textBuf.append(containedText);
 			
 			int sStart= textBuf.length();
-			System.out.println("textBuf: "+ textBuf);
-			System.out.println("sStart: "+ sStart);
 			textBuf.append(text);
 			currentSDS.setSText(textBuf.toString());
 			int sEnd= textBuf.length();
-			System.out.println("textBuf: "+ textBuf);
-			System.out.println("sEnd: "+ sEnd);
-			System.out.println("complexity: "+ this.elementNodeStack.peek().isComplex);
-			System.out.println("entire stack head: "+ this.elementNodeStack.peek());
-//			if (	(!this.getProps().isTextOnly())&&
-//					(!this.elementNodeStack.peek().isComplex))
-			System.out.println("'"+text+"' only whitespace"+ this.onlyContainsIgnorableCharacters(text));
 			if (    (!this.getProps().isTextOnly())&&
 			        (!this.onlyContainsIgnorableCharacters(text)))
 			{
@@ -236,8 +224,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					SToken sToken= SaltFactory.eINSTANCE.createSToken();
 					sToken.setSName(this.elementNodeStack.peek().qName);
 					sDocumentGraph.addSNode(sToken);
-					
-					System.out.println("create token: "+ sToken.getSId());
 					
 					this.copySAbstractAnnotations(sToken);
 					if (!this.sLayerStack.isEmpty())
@@ -247,7 +233,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				//create a new SToken object overlapping the current text-node
 				
 				//create a new STextualRelation object connecting the SToken and the current STextualDS object 
-                    System.out.println("srel: "+ sStart+" - "+ sEnd);
                     STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
                     sTextRel.setSToken(sToken);
                     sTextRel.setSTextualDS(currentSDS);
@@ -258,10 +243,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					
 				if (this.getProps().isCreateSStructure())
                 {//if prop for creating artificial structure is set
-//				    this.elementNodeStack.peek().isComplex= true;
-//				    this.elementNodeStack.peek().openSNodes.add(sToken);
-				    System.out.println("now on stack: "+ this.elementNodeStack.peek());
-				    
 			        SNode sNode= null;
 	                if (this.matches(this.getProps().getAsSpans(), currentXPath))
 	                    sNode= SaltFactory.eINSTANCE.createSSpan();
@@ -269,8 +250,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	                sNode.setSName("art");
 		            this.getsDocumentGraph().addSNode(sNode);
 		                
-		            
-		            System.out.println("created node: "+ sNode.getSId());
                     SRelation sRel= null;
                     if (sNode instanceof SSpan)
                       sRel= SaltFactory.eINSTANCE.createSSpanningRelation();
@@ -338,12 +317,15 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					else if (SAnnotation.class.equals(clazz))
 						sAnno= SaltFactory.eINSTANCE.createSAnnotation();
 				}
-				if (this.matches(this.getProps().getPrefixedAnnoList(), currentXPath))
-					sAnno.setSName(qName+"_"+attributes.getQName(i));
-				else
-					sAnno.setSName(attributes.getQName(i));
-				sAnno.setSValue(attributes.getValue(i));
-				annoList.add(sAnno);
+				if (sAnno!= null)
+				{ 
+    				if (this.matches(this.getProps().getPrefixedAnnoList(), currentXPath))
+    					sAnno.setSName(qName+"_"+attributes.getQName(i));
+    				else
+    					sAnno.setSName(attributes.getQName(i));
+    				sAnno.setSValue(attributes.getValue(i));
+    				annoList.add(sAnno);
+				}
 			}//if element-node shall not be ignored
 			currentXPath.removeLastStep();
 		}//create annotation list
@@ -490,10 +472,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					this.sLayerStack.peek().getSNodes().add(sNode);
 				}//add to sLayer if exist
 			}//map a complex node
-		    else
-		    {//node was not complex
-		        System.out.println("end of non complex node");
-		    }//node was not complex
 			currentXPath.removeLastStep();
 			this.elementNodeStack.pop();
 		}//if element-node shall not be ignored

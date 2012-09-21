@@ -346,7 +346,14 @@
                             <entry>--</entry>
                         </row>
                         <row>
-                            <entry><xref linkend="prop_prop8" endterm="importer_prop8_title"
+                            <entry><xref linkend="prop_prop9" endterm="importer_prop9_title"
+                            /></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>'\n','\r','\t',' '</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop10" endterm="importer_prop10_title"
                                 /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
@@ -521,6 +528,23 @@
                     object l2 are contained in the layer l2.</para>
             </sect2>
             <sect2 xml:id="prop_prop9">
+                <title xml:id="importer_prop9_title">genericXml.importer.ignoreWhitepsaces</title>
+                <para>Determines a list of whitespace characters, which are igrnored, if an text-node only contains characters of this list. This is a necessary property, to avoid for instance the tokenization of blanks.</para>
+                <para>The following xml fragment
+                    <programlisting>&lt;document>&lt;a>a&lt;/a> &lt;b>sample&lt;/b> &lt;c>text&lt;/c>&lt;/document></programlisting>
+                    with the use of the property
+                    <programlisting>genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '</programlisting>results
+                    in three <classname>SToken</classname> objects overlapping the text 'a',
+                    'sample' and 'text' instead of 5 <classname>SToken</classname> objects
+                    additionally overlapping the blanks ' '. A sequence of characters will only be
+                    ignored, if it only contains characters being conatined in that list. Therefore,
+                    following xml fragment<programlisting>&lt;a>a sample&lt;/a></programlisting>
+                    with the use of the property
+                    <programlisting>genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '</programlisting>results
+                    in one <classname>SToken</classname> overlapping the text 'a sample' including
+                    th blank.</para>
+            </sect2>
+            <sect2 xml:id="prop_prop10">
                 <title xml:id="importer_prop10_title">genericXml.importer.file.endings</title>
                 <para>Determines a list, containing the file endings, which files are imported. If
                     you want to import all contained files no matter to their ending, add the string
