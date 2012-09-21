@@ -115,6 +115,79 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	 * current {@link STextualDS} object to store textual primary data.
 	 */
 	private STextualDS currentSDS= null;
+	
+	   /**
+     * stack to store all information about the element node path from root to current element node 
+     */
+    private Stack<ElementNodeEntry> elementNodeStack= null;
+    /**
+     * A class for storing information about an element node.
+     * @author Florian Zipser
+     */
+    private static class ElementNodeEntry
+    {
+        /**
+         * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
+         */
+        public List<SNode> openSNodes= null;
+        /**
+         * Temporary stores the name of an element-node. First it has to be checked if the 
+         * current element-node is a {@link SToken} or not. 
+         */
+        public String qName= null;
+        /**
+         * Stores all annotations corresponding to the current {@link SNode} object. This list can contain {@link SAnnotation} objects
+         * and {@link SMetaAnnotation} objects as well.
+         */
+        public EList<SAbstractAnnotation> annotations= null;
+//      public Boolean createSStruct= null;
+        /**
+         * Determines if element node is a complex node (contains further element nodes) 
+         */
+        public Boolean isComplex= false;
+        
+        public ElementNodeEntry(    final String qName, 
+                                    final EList<SAbstractAnnotation> annotations 
+//                                  final Boolean createSStruct)
+                                    )
+        {
+            this.qName= qName;
+            this.annotations= annotations;
+//          this.createSStruct= createSStruct;
+            this.openSNodes= new Vector<SNode>();
+        }
+        
+        public String toString()
+        {
+//          return("["+qName+", createSStruct: "+ createSStruct+", annotations: "+ annotations+", isComplex: "+isComplex+"]");
+            return("["+qName+", annotations: "+ annotations+", isComplex: "+isComplex+", openSNodes: "+this.openSNodes+"]");
+        }
+    }
+	
+    /**
+     * returns wether a given text only contains ignorable whitespace characters or not. 
+     * @param text
+     * @return
+     */
+    public boolean onlyContainsIgnorableCharacters(String text)
+    {
+        int ignorableCharacters= 0;
+        for (Character ch:text.toCharArray())
+        {
+            for (String ignorableWhitespace: this.getProps().getIgnorableWhitespaces())
+            {
+                if (ignorableWhitespace.equals(ch.toString()))
+                {
+                    ignorableCharacters++;
+                    break;
+                }
+            } 
+        }
+        if (ignorableCharacters== text.length())
+            return(true);
+        else return(false);
+    }
+	
 	/**
 	 * Adds the read text node to the current {@link STextualDS} node. If a text was found also a {@link SToken} node
 	 * and a {@link STextualRelation} will be add to {@link SDocumentGraph}.
@@ -153,16 +226,18 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			System.out.println("sEnd: "+ sEnd);
 			System.out.println("complexity: "+ this.elementNodeStack.peek().isComplex);
 			System.out.println("entire stack head: "+ this.elementNodeStack.peek());
-			if (	(!this.getProps().isTextOnly())&&
-					(!this.elementNodeStack.peek().isComplex))
+//			if (	(!this.getProps().isTextOnly())&&
+//					(!this.elementNodeStack.peek().isComplex))
+			System.out.println("'"+text+"' only whitespace"+ this.onlyContainsIgnorableCharacters(text));
+			if (    (!this.getProps().isTextOnly())&&
+			        (!this.onlyContainsIgnorableCharacters(text)))
 			{
-			    System.out.println("create token");
 				//create a new SToken object overlapping the current text-node
 					SToken sToken= SaltFactory.eINSTANCE.createSToken();
 					sToken.setSName(this.elementNodeStack.peek().qName);
 					sDocumentGraph.addSNode(sToken);
-					if (this.elementNodeStack.size()>1)
-						this.elementNodeStack.get(elementNodeStack.size()-2).openSNodes.add(sToken);
+					
+					System.out.println("create token: "+ sToken.getSId());
 					
 					this.copySAbstractAnnotations(sToken);
 					if (!this.sLayerStack.isEmpty())
@@ -171,68 +246,64 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					}//add to sLayer if exist
 				//create a new SToken object overlapping the current text-node
 				
-				if (this.getProps().isCreateSStructure())
-					this.elementNodeStack.peek().createSStruct= true;
-				else this.elementNodeStack.peek().createSStruct= false;
-				
 				//create a new STextualRelation object connecting the SToken and the current STextualDS object 
-					System.out.println("srel: "+ sStart+" - "+ sEnd);
-					STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(currentSDS);
-					sTextRel.setSStart(sStart);
-					sTextRel.setSEnd(sEnd);
-				//create a new STextualRelation object connecting the SToken and the current STextualDS object
+                    System.out.println("srel: "+ sStart+" - "+ sEnd);
+                    STextualRelation sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
+                    sTextRel.setSToken(sToken);
+                    sTextRel.setSTextualDS(currentSDS);
+                    sTextRel.setSStart(sStart);
+                    sTextRel.setSEnd(sEnd);
+                    sDocumentGraph.addSRelation(sTextRel);
+                //create a new STextualRelation object connecting the SToken and the current STextualDS object
 					
-				sDocumentGraph.addSRelation(sTextRel);
+				if (this.getProps().isCreateSStructure())
+                {//if prop for creating artificial structure is set
+//				    this.elementNodeStack.peek().isComplex= true;
+//				    this.elementNodeStack.peek().openSNodes.add(sToken);
+				    System.out.println("now on stack: "+ this.elementNodeStack.peek());
+				    
+			        SNode sNode= null;
+	                if (this.matches(this.getProps().getAsSpans(), currentXPath))
+	                    sNode= SaltFactory.eINSTANCE.createSSpan();
+	                else sNode= SaltFactory.eINSTANCE.createSStructure();
+	                sNode.setSName("art");
+		            this.getsDocumentGraph().addSNode(sNode);
+		                
+		            
+		            System.out.println("created node: "+ sNode.getSId());
+                    SRelation sRel= null;
+                    if (sNode instanceof SSpan)
+                      sRel= SaltFactory.eINSTANCE.createSSpanningRelation();
+                    else if (sNode instanceof SStructure)
+                        sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
+                    if (sRel!= null)
+                    {
+                        sRel.setSSource(sNode);
+                        sRel.setSTarget(sToken);
+                        this.getsDocumentGraph().addSRelation(sRel);
+                        if (!this.sLayerStack.isEmpty())
+                        {//add to sLayer if exist
+                            this.sLayerStack.peek().getSRelations().add(sRel);
+                        }//add to sLayer if exist
+                    }
+	                //put current node to open nodes of father node 
+	                if (this.elementNodeStack.size()>1)
+	                    this.elementNodeStack.get(this.elementNodeStack.size()-2).openSNodes.add(sNode);
+	                
+	                if (!this.sLayerStack.isEmpty())
+	                {//add to sLayer if exist
+	                    this.sLayerStack.peek().getSNodes().add(sNode);
+	                }//add to sLayer if exist
+				}//if prop for creating artificial structure is set
+				else
+				{//add token to list of open nodes
+				    if (this.elementNodeStack.size()>1)
+                        this.elementNodeStack.get(elementNodeStack.size()-2).openSNodes.add(sToken);
+				}//add token to list of open nodes
 			}
 		}
 	}	
-	/**
-	 * stack to store all information about the element node path from root to current element node 
-	 */
-	private Stack<ElementNodeEntry> elementNodeStack= null;
-	/**
-	 * A class for storing information about an element node.
-	 * @author Florian Zipser
-	 */
-	private static class ElementNodeEntry
-	{
-		/**
-		 * Contains all {@link SNode} objects, which have been created, but not already added to the tree.
-		 */
-		public List<SNode> openSNodes= null;
-		/**
-		 * Temporary stores the name of an element-node. First it has to be checked if the 
-		 * current element-node is a {@link SToken} or not. 
-		 */
-		public String qName= null;
-		/**
-		 * Stores all annotations corresponding to the current {@link SNode} object. This list can contain {@link SAnnotation} objects
-		 * and {@link SMetaAnnotation} objects as well.
-		 */
-		public EList<SAbstractAnnotation> annotations= null;
-		public Boolean createSStruct= null;
-		/**
-		 * Determines if element node is a complex node (contains further element nodes) 
-		 */
-		public Boolean isComplex= false;
-		
-		public ElementNodeEntry(	final String qName, 
-									final EList<SAbstractAnnotation> annotations, 
-									final Boolean createSStruct)
-		{
-			this.qName= qName;
-			this.annotations= annotations;
-			this.createSStruct= createSStruct;
-			this.openSNodes= new Vector<SNode>();
-		}
-		
-		public String toString()
-		{
-			return("["+qName+", createSStruct: "+ createSStruct+", annotations: "+ annotations+", isComplex: "+isComplex+"]");
-		}
-	}
+
 	/**
 	 * a stack containing all active layers.
 	 */
@@ -340,7 +411,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				annoList.addAll(this.createSAbstractAnnotations(SAnnotation.class, qName, attributes));
 			}//if attribute nodes are given, map them to SAnnotation objects
 			//create ElementNodeEntry for current element node and add to stack
-			ElementNodeEntry elementNode= new ElementNodeEntry(qName, annoList, true);
+			//ElementNodeEntry elementNode= new ElementNodeEntry(qName, annoList, true);
+			if (this.elementNodeStack.size()> 0)
+			    this.elementNodeStack.peek().isComplex= true;
+			ElementNodeEntry elementNode= new ElementNodeEntry(qName, annoList);
 			this.elementNodeStack.push(elementNode);
 		}//if element-node shall not be ignored
     }
@@ -369,9 +443,10 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
 					(!this.getProps().isTextOnly()))
 		{//if element-node shall not be ignored
-			if (	(this.elementNodeStack.peek().createSStruct)||
-					(this.elementNodeStack.peek().isComplex))
-			{
+//			if (	(this.elementNodeStack.peek().createSStruct)||
+//					(this.elementNodeStack.peek().isComplex))
+		    if        (this.elementNodeStack.peek().isComplex)
+			{//map a complex node
 				SNode sNode= null;
 				if (this.matches(this.getProps().getAsSpans(), currentXPath))
 					sNode= SaltFactory.eINSTANCE.createSSpan();
@@ -394,13 +469,16 @@ public class XML2SaltMapper extends DefaultHandler2 {
 						else if (sNode instanceof SStructure)
 							sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
 						
-						sRel.setSSource(sNode);
-						sRel.setSTarget(childSNode);
-						this.getsDocumentGraph().addSRelation(sRel);
-						if (!this.sLayerStack.isEmpty())
-						{//add to sLayer if exist
-							this.sLayerStack.peek().getSRelations().add(sRel);
-						}//add to sLayer if exist
+						if (sRel!= null)
+						{
+    						sRel.setSSource(sNode);
+    						sRel.setSTarget(childSNode);
+    						this.getsDocumentGraph().addSRelation(sRel);
+    						if (!this.sLayerStack.isEmpty())
+    						{//add to sLayer if exist
+    							this.sLayerStack.peek().getSRelations().add(sRel);
+    						}//add to sLayer if exist
+						}
 					}
 				}//put all open SToken objects into subtree of current tree
 				//put current node to open nodes of father node 
@@ -411,8 +489,11 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				{//add to sLayer if exist
 					this.sLayerStack.peek().getSNodes().add(sNode);
 				}//add to sLayer if exist
-			}
-			
+			}//map a complex node
+		    else
+		    {//node was not complex
+		        System.out.println("end of non complex node");
+		    }//node was not complex
 			currentXPath.removeLastStep();
 			this.elementNodeStack.pop();
 		}//if element-node shall not be ignored

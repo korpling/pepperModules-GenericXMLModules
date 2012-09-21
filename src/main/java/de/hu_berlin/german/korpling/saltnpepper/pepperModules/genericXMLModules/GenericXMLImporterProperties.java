@@ -13,6 +13,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
@@ -60,13 +62,26 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	 */
 	public static final String PROP_SLAYER=PREFIX+"sLayer";
 	/**
+     * Name of property to determine which whitespace characters are ignored and add to {@link STextualDS} object, 
+     * but do not get an own {@link SToken} object. A list separated by ',' for instance /n,/r, ,... for linefeed, 
+     * carriage return and blank.
+     * Default is {@value #DEFAULT_WHITESPACES}.
+     */
+    public static final String PROP_IGNORABLE_WHITESPACES =PREFIX+"ignoreWhitepsaces";
+	/**
 	 * Name of property to determine the file ending of documents to be imported.
 	 */
 	public static final String PROP_FILE_ENDINGS=PREFIX+"file.endings";
+	
 	/**
 	 * When the list of file endings contain this string, all file endings will be accepted
 	 */
 	public static final String KW_ALL=PREFIX+"ALL";
+	
+	/**
+	 * Default whitespaces to be ignored.
+	 */
+	public static final String DEFAULT_WHITESPACES= "'\n','\r','\t',' '";
 	
 	public GenericXMLImporterProperties()
 	{
@@ -78,6 +93,11 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 		this.addProperty(new PepperModuleProperty<String>(PROP_SLAYER, String.class, "Determines a list of element-nodes which are mapped to a SLayer object.", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ARTIFICIAL_SSTRUCT, Boolean.class, "If set to true, for each text node an artificial SStructuredNode will be created and overlap the also created (always even if this property is set to false) SToken node.", false, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_TEXT_ONLY, Boolean.class, "Determines if only text-nodes are mapped.", false, false));
+		this.addProperty(new PepperModuleProperty<String>(   PROP_IGNORABLE_WHITESPACES, 
+		                                                      String.class, 
+		                                                      "Determine which whitespace characters are ignored and add to {@link STextualDS} object,     * but do not get an own {@link SToken} object. A list separated by ',' for instance \\n,\\r, ,... for linefeed, carriage return and blank.", 
+		                                                      DEFAULT_WHITESPACES, 
+		                                                      false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
 	}
 	
@@ -233,4 +253,31 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	{
 		return((Boolean)this.getProperty(PROP_TEXT_ONLY).getValue());
 	}
+	/**
+	 * Determine which whitespace characters are ignored and add to {@link STextualDS} object, 
+     * but do not get an own {@link SToken} object. A list separated by ',' for instance /n,/r, ,... for linefeed, 
+     * carriage return and blank.
+	 */
+	private Collection<String> ignorableWhitespaces= null;
+	/**
+     * determine which whitespace characters are ignored and add to {@link STextualDS} object, 
+     * but do not get an own {@link SToken} object. A list separated by ',' for instance /n,/r, ,... for linefeed, 
+     * carriage return and blank.
+     */
+    public Collection<String> getIgnorableWhitespaces() {
+        if (ignorableWhitespaces== null)
+        {
+            PepperModuleProperty<String> prop= (PepperModuleProperty<String>) this.getProperty(PROP_IGNORABLE_WHITESPACES);
+            if (prop.getValue()!= null)
+            {
+                ignorableWhitespaces= new Vector<String>();
+                String[] parts= prop.getValue().split(",");
+                for (String part: parts)
+                {
+                    ignorableWhitespaces.add(part.replace("'", ""));
+                }
+            }
+        }
+        return ignorableWhitespaces;
+    }
 }

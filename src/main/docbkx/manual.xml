@@ -47,7 +47,7 @@
             single module can be identified via its coordinates (module-name, format-name,
             format-version) also given in <xref linkend="table_overview"/>. You can use these
             coordinates in a pepper workflow description file to identify the modules in a pepper
-            conversion process. A description of how to model a workfloe description file can be
+            conversion process. A description of how to model a workflow description file can be
             found under https://korpling.german.hu-berlin.de/saltnpepper/.</para>
         <table xml:id="table_overview" frame="all">
             <title>pepper modules contained in this project</title>
@@ -79,42 +79,7 @@
             <title><xref linkend="genericXml_importer_name"/></title>
         <itemizedlist spacing="compact">
             <listitem>
-                <para>If a {@link BasicTranscription} object contains the not empty attribute
-                    referencedFile, a {@link SAudioDataSource} will be created containing the given
-                    {@link URI}. all @time attributes will be mapped to a SAudioDSRelation, if an
-                    event mapped to an SToken only contains sStart or SEnd, only these values will
-                    be set (an automatic interpolation can be provided). </para>
-
-            </listitem>
-            <listitem>
-                <para>in case of some tli objects are not covered by event objects of the
-                    token-tier, artificial events will be created, including the primary text "" for
-                    instance </para>
-                <table>
-                    <title/>
-                    <tgroup cols="3" align="left" colsep="1" rowsep="1">
-                        <tbody>
-                            <row>
-                                <entry/>
-                                <entry>token</entry>
-                                <entry/>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
-                <para>will be enhanced to</para>
-                <table>
-                    <title/>
-                    <tgroup cols="3" align="left" colsep="1" rowsep="1">
-                        <tbody>
-                            <row>
-                                <entry>EMPTY_STRING</entry>
-                                <entry>token</entry>
-                                <entry>EMPTY_STRING</entry>
-                            </row>
-                        </tbody>
-                    </tgroup>
-                </table>
+                <para></para>
             </listitem>
         </itemizedlist>
         </section>
@@ -129,7 +94,7 @@
             model.</para>
         <sect1>
             <title>Mapping to Salt</title>
-            <para>The GenericXMLImporter maps elemtent-nodes, text-nodes and attribute-nodes to Salt
+            <para>The GenericXMLImporter maps element-nodes, text-nodes and attribute-nodes to Salt
                 model objects. Comment-nodes, processing-instruction-nodes etc. will be ignored and
                 not be mapped. </para>
             <para>The textual value of all text-nodes of the xml document will be concatenated to
@@ -147,7 +112,7 @@
                 mapped to a <classname>STexualDS</classname> object having the
                     <varname>sText</varname> "This is a sample text" and two
                     <classname>SToken</classname> objects, one overlapping the text "This is" and
-                one overlaping the text " a sample text". </para>
+                one overlapping the text " a sample text". </para>
             <note>
                 <para>The importer does not take care about the given tokenization and does not
                     retokenize it.</para>
@@ -163,11 +128,11 @@
                     <classname>SToken</classname> (corresponding to the element-node &lt;a>) object
                 overlapping the primary text "a sample" and a <classname>SStructure</classname>
                 (corresponding to the element-node &lt;b>) object dominating the SToken object. Both
-                nodes are conneted with a <classname>SDominanceRelation</classname> having the
+                nodes are connected with a <classname>SDominanceRelation</classname> having the
                     <classname>SStructure</classname> object as source and the
-                    <classname>SToken</classname> object as target. Since SStrcuture objects are
-                used for hierarchies, the same goes for a element-node containing another element
-                node. </para>
+                    <classname>SToken</classname> object as target. Since
+                    <classname>SStructure</classname> objects are used for hierarchies, the same
+                goes for a element-node containing another element node. </para>
             <para>The following xml fragment
                 <programlisting>&lt;a>&lt;b>...&lt;/b>&lt;/a></programlisting>is mapped to a
                     <classname>SStructure</classname> object representing the element-node &lt;a>
@@ -178,7 +143,7 @@
                 nodes (for nodes having a mixed content). These kind of nodes are mapped to a
                     <classname>SStructure</classname> object in Salt. The element-nodes contained
                 their subtree are mapped to either <classname>SToken</classname> objects or
-                    <classname>SStructure</classname> objects, depending on their contant. For a
+                    <classname>SStructure</classname> objects, depending on their content. For a
                 text-node, an artificial <classname>SToken</classname> object is created and added
                 to the subtree of the <classname>SStructure</classname> object in Salt.</para>
             <para>The following xml fragment
@@ -445,13 +410,13 @@
                     object. </para>
                 <para>The xml fragment <programlisting>&lt;a>a sample&lt;/a></programlisting> when
                     using the property
-                    <programlisting>genericXml.importer.artificialSStruct= true</programlisting> the
-                    mapping will create a <classname>SToken</classname> object overlaping the the
-                    primary data "a sample" and a <classname>SStructure</classname> object
-                    dominating the <classname>SToken</classname> object.</para>
+                    <programlisting>genericXml.importer.artificialSStruct= true</programlisting>results
+                    in a <classname>SToken</classname> object overlapping the primary data "a
+                    sample" and a <classname>SStructure</classname> object dominating the
+                        <classname>SToken</classname> object.</para>
                 <note>
                     <para>When using this flag, an artificial SSpan can be created instead of an
-                        SStructure object, when adding an XPath expressiion addressing the
+                        SStructure object, when adding an XPath expression addressing the
                         terminal-node to the set of expressions of the property <xref
                             linkend="prop_prop2" endterm="importer_prop2_title"/></para>
                 </note>
