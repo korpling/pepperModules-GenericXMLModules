@@ -76,7 +76,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	/**
 	 * When the list of file endings contain this string, all file endings will be accepted
 	 */
-	public static final String KW_ALL=PREFIX+"ALL";
+	public static final String KW_ALL="ALL";
 	
 	/**
 	 * Default whitespaces to be ignored.

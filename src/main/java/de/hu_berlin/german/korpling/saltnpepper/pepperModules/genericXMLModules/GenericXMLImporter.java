@@ -73,6 +73,9 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 		EList<String> fileEndings= ((GenericXMLImporterProperties)this.getProperties()).getFileEndings();
 		if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL))
 			fileEndings= new BasicEList<String>();
+		
+		this.setSCorpusGraph(sCorpusGraph);
+		
 		try {
 			this.documentResourceTable= this.createCorpusStructure(this.getCorpusDefinition().getCorpusPath(), null, fileEndings);
 		} catch (IOException e) {
