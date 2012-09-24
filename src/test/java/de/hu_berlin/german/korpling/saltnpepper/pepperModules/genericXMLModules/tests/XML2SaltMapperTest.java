@@ -79,7 +79,13 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		outStream = new ByteArrayOutputStream();
 		XMLOutputFactory o= XMLOutputFactory.newFactory();
-		xmlWriter= o.createXMLStreamWriter(outStream);
+		xmlWriter= o.createXMLStreamWriter(outStream);		
+	}
+	
+	@Override
+	public void tearDown()
+	{
+		outStream.reset();
 	}
 	
 	
@@ -99,7 +105,7 @@ public class XML2SaltMapperTest extends TestCase {
 		 
 		InputSource is = new InputSource(reader);
 		is.setEncoding("UTF-8");
-		 
+		
 		xmlReader.parse(is);
 	}	
 	
@@ -126,9 +132,12 @@ public class XML2SaltMapperTest extends TestCase {
 	public void testSimpleText() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text= "Is this example more complicated than it appears to?";
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeCharacters(text);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -161,6 +170,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String text1= "Is this example more";
 		String text2= " complicated than it appears to be?";
 		String text= text1 + text2;
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeAttribute("no", "text1");
 		xmlWriter.writeCharacters(text1);
@@ -169,6 +179,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeCharacters(text2);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -195,9 +207,13 @@ public class XML2SaltMapperTest extends TestCase {
 	public void testSimpleToken() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text= "Is this example more complicated than it appears to?";
+		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeCharacters(text);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -229,10 +245,14 @@ public class XML2SaltMapperTest extends TestCase {
 		String text= "Is this example more complicated than it appears to?";
 		String attName1= "attName1";
 		String attValue1= "attValue1";
+		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeAttribute(attName1, attValue1);
 		xmlWriter.writeCharacters(text);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -268,11 +288,14 @@ public class XML2SaltMapperTest extends TestCase {
 		prop.setValue("//"+ attName1);
 		String text= "Is this example more complicated than it appears to?";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeAttribute(attName1, attValue1);
 		xmlWriter.writeAttribute(attName2, attValue2);
 		xmlWriter.writeCharacters(text);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -315,6 +338,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String text2= "comes";
 		String text3= "text";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("a");
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeStartElement("b");
@@ -322,6 +346,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeCharacters(text3);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -357,6 +383,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementB= "b";
 		String elementC= "c";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementA);
 		xmlWriter.writeStartElement(elementB);
 		xmlWriter.writeStartElement(elementC);
@@ -370,6 +397,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeCharacters(text3);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -399,6 +428,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String attB2="attB2";
 		String valB2="valB2";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("a");
 		xmlWriter.writeStartElement("b");
 		xmlWriter.writeAttribute(attB1, valB1);
@@ -409,6 +439,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeCharacters(text2);
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -437,9 +469,12 @@ public class XML2SaltMapperTest extends TestCase {
 	{
 		String text1= "text";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("b");
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -476,11 +511,14 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//@"+ attA1);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(element);
 		xmlWriter.writeAttribute(attA1, valA1);
 		xmlWriter.writeAttribute(attA2, valA2);
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -519,11 +557,14 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//@"+ attA1);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(element);
 		xmlWriter.writeAttribute(attA1, valA1);
 		xmlWriter.writeAttribute(attA2, valA2);
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -569,6 +610,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//"+elementDocument);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementDocument);
 		xmlWriter.writeAttribute("author", "John Doe");
 			xmlWriter.writeStartElement(elementStuct);
@@ -578,6 +620,8 @@ public class XML2SaltMapperTest extends TestCase {
 				xmlWriter.writeEndElement();
 			xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -618,6 +662,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//"+elementB);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementA);
 		xmlWriter.writeStartElement(elementB);
 		xmlWriter.writeStartElement(elementC);
@@ -628,6 +673,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -666,6 +713,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue(true);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("a");
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeStartElement("b");
@@ -673,6 +721,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeCharacters(text3);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -710,6 +760,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue(true);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("a");
 		xmlWriter.writeCharacters(text1);
 		xmlWriter.writeStartElement("b");
@@ -719,6 +770,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeCharacters(text3);
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -753,6 +806,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue(true);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementA);
 		xmlWriter.writeStartElement(elementB);
 		xmlWriter.writeStartElement(elementC);
@@ -763,6 +817,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -800,6 +856,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//"+elementMeta1+"//, //"+elementMeta1);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementA);
 			xmlWriter.writeStartElement(elementMeta1);
 			xmlWriter.writeAttribute(att1, "val1");
@@ -816,6 +873,8 @@ public class XML2SaltMapperTest extends TestCase {
 			xmlWriter.writeEndElement();
 			xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
 		this.getFixture().getsDocumentGraph().setSDocument(sDocument);
@@ -869,6 +928,7 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//"+elementLayer);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementA);
 		xmlWriter.writeStartElement(elementLayer);
 		xmlWriter.writeAttribute(layerAtt1, "val1");
@@ -882,6 +942,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -945,8 +1007,8 @@ public class XML2SaltMapperTest extends TestCase {
 		assertNotNull(prop);
 		prop.setValue("//"+elementLayer);
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elementRoot);
-		
 		xmlWriter.writeStartElement(elementA);
 		xmlWriter.writeStartElement(elementLayer);
 		xmlWriter.writeAttribute(layerAtt1, "val1");
@@ -970,6 +1032,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndElement();
 		
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
@@ -1124,6 +1188,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String attConst="const";
 		String elemTok="tok";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elemDocument);
 		xmlWriter.writeAttribute("author", "John Doe");
 			xmlWriter.writeStartElement(elemStruct);
@@ -1198,6 +1263,8 @@ public class XML2SaltMapperTest extends TestCase {
 				xmlWriter.writeEndElement();
 			xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 	}
 	
 	/**
@@ -1241,6 +1308,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elemMorphologie= SaltSample.MORPHOLOGY_LAYER;
 		String attInf="inf-struct";
 		
+		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement(elemDocument);
 		xmlWriter.writeAttribute("author", "John Doe");
 			xmlWriter.writeStartElement("sSpan1");
@@ -1304,5 +1372,7 @@ public class XML2SaltMapperTest extends TestCase {
 			xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
 	}
 }

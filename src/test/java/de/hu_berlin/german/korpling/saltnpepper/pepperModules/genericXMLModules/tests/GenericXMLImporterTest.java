@@ -23,6 +23,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
+
 public class GenericXMLImporterTest extends PepperImporterTest {
 	
 	private GenericXMLImporter fixture= null;
@@ -174,4 +175,3 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 	}
 	
 }
-

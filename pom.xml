@@ -47,9 +47,6 @@
     <url>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/GenericXMLModules/</url>
   </scm>
  
-  <dependencies>
-    <!-- TODO /10/ ... put here all the dependencies you need, which are not already included in the parent project...-->
-  </dependencies>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
@@ -92,13 +89,6 @@
             <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
             <Service-Component>OSGI-INF/${component.descriptor.name}</Service-Component>
             <Include-Resource>{maven-resources}, LICENSE, NOTICE</Include-Resource>
-            <!-- 	TODO /13/ 
-            		In case of you want to add not mavenized 3rd party libraries, put the into the project structure 
-            		under path RESOURCE_PATH and fullfill the following two entries. The alias RESOURCE_ALIAS can be any String
-            		Don't forget to remove the <Include-Resource> tag above.
-	            <Bundle-ClassPath>.,{maven-dependencies}, RESOURCE_ALIAS</Bundle-ClassPath> 
-	            <Include-Resource>{maven-resources}, LICENSE, NOTICE, RESOURCE_ALIAS=RESOURCE_PATH</Include-Resource>
-             -->
           </instructions>
         </configuration>
       </plugin>
