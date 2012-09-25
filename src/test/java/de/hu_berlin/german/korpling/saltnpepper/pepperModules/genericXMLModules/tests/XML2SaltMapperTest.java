@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -28,7 +27,6 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModul
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.dot.Salt2DOT;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
@@ -1072,9 +1070,6 @@ public class XML2SaltMapperTest extends TestCase {
 		SaltSample.createSyntaxStructure(template);
 		SaltSample.createSyntaxAnnotations(template);
 		
-		Salt2DOT salt2dot= new Salt2DOT();
-        salt2dot.salt2Dot(this.getFixture().getsDocumentGraph(), URI.createFileURI("d:/Test/generic/bla.dot"));
-        		
 		assertNotNull(template);
 		//TODO: just some tests to check if numbers of elements are equal, this test is a simplifictaion until an isomorphy tests exists for graphs 
         assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getsDocumentGraph().getSNodes().size());
