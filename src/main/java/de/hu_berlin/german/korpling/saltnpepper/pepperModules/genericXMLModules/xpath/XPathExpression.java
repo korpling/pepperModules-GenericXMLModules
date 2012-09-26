@@ -2,6 +2,8 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 import java.util.List;
 import java.util.Vector;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLModuleException;
+
 
 
 /**
@@ -104,7 +106,7 @@ public class XPathExpression {
 	{
 		if (	(xPathExpression1== null)||
 				(xPathExpression2== null))
-			throw new NullPointerException("Cannot math against an empty XPath expression.");
+			throw new GenericXMLModuleException("Cannot match against an empty XPath expression.");
 		
 		boolean goOn= true;
 		int step1= 0;
@@ -167,7 +169,10 @@ public class XPathExpression {
 		if (	(step!= null)&&
 				(!step.isEmpty()))
 		{
-			steps.add(step);
+			if ("//".equals(step))
+				steps.add(WILDCARD_ALIAS);
+			else
+				steps.add(step);
 		}
 	}
 	/**

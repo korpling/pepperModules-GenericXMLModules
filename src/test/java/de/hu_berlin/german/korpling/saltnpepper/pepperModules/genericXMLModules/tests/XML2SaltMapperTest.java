@@ -36,6 +36,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
 public class XML2SaltMapperTest extends TestCase {
@@ -98,7 +99,7 @@ public class XML2SaltMapperTest extends TestCase {
         xmlReader= parser.getXMLReader();
         xmlReader.setContentHandler(mapper);
         InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes());
-        
+        System.out.println("xml: "+xmlString);
         Reader reader = new InputStreamReader(inputStream, "UTF-8");
 		 
 		InputSource is = new InputSource(reader);
@@ -481,6 +482,147 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 2, this.getFixture().getsDocumentGraph().getSNodes().size());
 	}
 	
+	/**
+	 *  Checks that the following snippet is mapped to one root {@link SStructure} overlapping another
+	 *  {@link SStructure} object overlapping three {@link SToken} objects.
+	 * The xml snippet:
+	 * <pre>
+	 * &lt;a&gt;&lt;b att="val"&gt;a&lt;/b&gt; sample&lt;c/&gt;text &lt;/a&gt;
+	 * </pre>
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testElementNodeMixedContent() throws XMLStreamException, ParserConfigurationException, SAXException, IOException 
+	{
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("root");
+			xmlWriter.writeStartElement("a");
+				xmlWriter.writeStartElement("b");
+					xmlWriter.writeAttribute("att", "val");
+					xmlWriter.writeCharacters("a");
+				xmlWriter.writeEndElement();
+				xmlWriter.writeCharacters("sample");
+				xmlWriter.writeStartElement("c");
+				xmlWriter.writeEndElement();
+				xmlWriter.writeCharacters("text");
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+		SStructure sStruct= null;
+		if ("a".equals(this.getFixture().getsDocumentGraph().getSStructures().get(0).getSName()))
+			sStruct=this.getFixture().getsDocumentGraph().getSStructures().get(0);
+		else this.getFixture().getsDocumentGraph().getSStructures().get(1);
+		assertEquals(3, this.getFixture().getsDocumentGraph().getOutEdges(sStruct.getSId()).size());
+		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 6, this.getFixture().getsDocumentGraph().getSNodes().size());
+	}
+	
+	/**
+	 *  This test is similar to {@link #testElementNodeMixedContent()}, but has a slightly different xml structure
+	 *  Checks that the following snippet is mapped to one root {@link SStructure} overlapping another
+	 *  {@link SStructure} object overlapping three {@link SToken} objects.
+	 * The xml snippet:
+	 * <pre>
+	 * &lt;a&gt;a &lt;b att="val"&gt;sample&lt;/b&gt;&lt;c/&gt;text &lt;/a&gt;
+	 * </pre>
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testElementNodeMixedContent2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException 
+	{
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("root");
+			xmlWriter.writeStartElement("a");
+			xmlWriter.writeCharacters("a");	
+				xmlWriter.writeStartElement("b");
+					xmlWriter.writeAttribute("att", "val");
+					xmlWriter.writeCharacters("sample");
+				xmlWriter.writeEndElement();
+				xmlWriter.writeStartElement("c");
+				xmlWriter.writeEndElement();
+				xmlWriter.writeCharacters("text");
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+		SStructure sStruct= null;
+		if ("a".equals(this.getFixture().getsDocumentGraph().getSStructures().get(0).getSName()))
+			sStruct=this.getFixture().getsDocumentGraph().getSStructures().get(0);
+		else this.getFixture().getsDocumentGraph().getSStructures().get(1);
+		assertEquals(3, this.getFixture().getsDocumentGraph().getOutEdges(sStruct.getSId()).size());
+		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 6, this.getFixture().getsDocumentGraph().getSNodes().size());
+	}
+	
+	/**
+	 * Checks that xml-namespaces and use of namespace prefixes are ignored.
+	 * <pre>
+	 *  &lt;document xmlns="some namespace" xmlns:ns="some namespace"&gt;
+	 *     &lt;ns:a ns:att="val"/&gt;
+	 *  &lt;/document&gt;
+	 * </pre>
+	 * @throws XMLStreamException
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	public void testXMLNamespaces() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("document");
+			xmlWriter.writeDefaultNamespace("someNamespace");
+			xmlWriter.writeNamespace("ns", "someNamespace");
+			xmlWriter.writeStartElement("ns", "a", "someNamespace");
+//			xmlWriter.writeStartElement("ns", "a");
+//			xmlWriter.writeAttribute("ns", "att", "val");
+			xmlWriter.writeAttribute("ns", "someNamespace", "att", "val");
+			xmlWriter.writeCharacters("a sample text");
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		SNode a = null;
+		SNode document = null;
+		for (SNode sNode : this.getFixture().getsDocumentGraph().getSNodes())
+		{
+			System.out.println("sNode.getSName(): "+ sNode.getSName());
+			if ("ns:a".equals(sNode.getSName()))
+				a= sNode;
+			else if ("document".equals(sNode.getSName()))
+				document= sNode;
+		}
+		
+		System.out.println("element a: "+ a);
+		System.out.println("element dcoument: "+ document);
+		
+		assertNotNull(a);
+		assertNotNull(document);
+		assertEquals(0, document.getSAnnotations().size());
+		assertEquals("all annos: "+a.getSAnnotations(), 1, a.getSAnnotations().size());
+		assertEquals("att", a.getSAnnotations().get(0).getSName());
+		assertEquals("val", a.getSAnnotations().get(0).getSValue());
+	}
 	/**
 	 * Tests if when the property {@link GenericXMLImporterProperties#PROP_PREFIXED_ANNOS} is set, the {@link SAnnotation} 
 	 * sName is correct.

@@ -354,6 +354,13 @@
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop10" endterm="importer_prop10_title"
+                            /></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>true</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop11" endterm="importer_prop11_title"
                                 /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
@@ -545,7 +552,32 @@
                     th blank.</para>
             </sect2>
             <sect2 xml:id="prop_prop10">
-                <title xml:id="importer_prop10_title">genericXml.importer.file.endings</title>
+                <title xml:id="importer_prop10_title">genericXml.importer.ignoreNamespaces</title>
+                <para>Determines that all xml-namespace declarations and xml-namespace prefixes are
+                    ignored.</para>
+                <para>The following xml fragment
+                    <programlisting>&lt;document xmlns="some namespace" xmlns:ns="some namespace">
+    &lt;ns:a ns:att="val"/>
+&lt;/document></programlisting>
+                    with the use of the property
+                    <programlisting>genericXml.importer.ignoreNamespaces=true</programlisting>results
+                    in a <classname>SStructure</classname> object representing the element-node
+                    'document' having no <classname>SAnnotation</classname> objects. A further
+                        <classname>SStructure</classname> object representing the element-node 'a'
+                    is created having the <varname>sName</varname> 'a' and a
+                        <classname>SAnnotation</classname> object hving the <varname>sName</varname>
+                    'att'.</para>
+                <para>The same fragment with the use of the property
+                    <programlisting>genericXml.importer.ignoreNamespaces=false</programlisting>results
+                    in a <classname>SStructure</classname> object representing the element-node
+                    'document' having two <classname>SAnnotation</classname> object. First with
+                        <varname>sName</varname> 'xmlns' and <varname>sValue</varname> 'some
+                    namespace' and second with <varname>sName</varname> 'xmlns:ns' and
+                        <varname>sValue</varname> 'some namespace'. Same goes for the
+                        <classname>SStructure</classname> representing the element-node 'a'.</para>
+            </sect2>
+            <sect2 xml:id="prop_prop11">
+                <title xml:id="importer_prop11_title">genericXml.importer.file.endings</title>
                 <para>Determines a list, containing the file endings, which files are imported. If
                     you want to import all contained files no matter to their ending, add the string
                     'ALL' to the list. If you want a file having a specific ending not to be

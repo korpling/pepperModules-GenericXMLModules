@@ -69,6 +69,11 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
      */
     public static final String PROP_IGNORABLE_WHITESPACES =PREFIX+"ignoreWhitepsaces";
 	/**
+     * Name of property to determine if namespaces are ignored.
+     * Default is true.
+     */
+    public static final String PROP_IGNORABLE_NAMESPACES =PREFIX+"ignoreNamespaces";
+	/**
 	 * Name of property to determine the file ending of documents to be imported.
 	 */
 	public static final String PROP_FILE_ENDINGS=PREFIX+"file.endings";
@@ -98,6 +103,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 		                                                      "Determine which whitespace characters are ignored and add to {@link STextualDS} object,     * but do not get an own {@link SToken} object. A list separated by ',' for instance \\n,\\r, ,... for linefeed, carriage return and blank.", 
 		                                                      DEFAULT_WHITESPACES, 
 		                                                      false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_IGNORABLE_NAMESPACES, Boolean.class, "Determines if xml-namespaces and namespace declarations are ignored.", true, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
 	}
 	
@@ -252,6 +258,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public boolean isTextOnly()
 	{
 		return((Boolean)this.getProperty(PROP_TEXT_ONLY).getValue());
+	}
+	/**
+	 * Returns if xml-namespaces and namespace declarations are ignored..
+	 * @return
+	 */
+	public boolean isIgnoreNamespaces()
+	{
+		return((Boolean)this.getProperty(PROP_IGNORABLE_NAMESPACES).getValue());
 	}
 	/**
 	 * Determine which whitespace characters are ignored and add to {@link STextualDS} object, 

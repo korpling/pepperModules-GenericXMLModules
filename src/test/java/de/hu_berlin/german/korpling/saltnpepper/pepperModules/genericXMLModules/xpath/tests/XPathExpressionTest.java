@@ -65,6 +65,32 @@ public class XPathExpressionTest extends TestCase {
 	}
 	
 	/**
+	 * test element-node wildcard and checks if it also works with using {@link XPathExpression#addStep(String)}
+	 */
+	public void testElementNode_Wildcards2()
+	{		
+		XPathExpression xpr1= new XPathExpression();
+		xpr1.addStep("//");
+		xpr1.addStep("head");
+		xpr1.addStep("//");
+		
+		XPathExpression xpr2= new XPathExpression();
+		xpr2.addStep("text");
+		xpr2.addStep("body");
+		xpr2.addStep("div");
+		xpr2.addStep("head");
+		xpr2.addStep("foreign");
+		
+		assertTrue("xpr '"+xpr1+"' shall match '"+xpr2+"'", XPathExpression.matches(xpr1, xpr2));
+		
+		xpr2.removeLastStep();
+		xpr2.removeLastStep();
+		xpr2.addStep("p");
+		
+		assertFalse("xpr '"+xpr1+"' shall not match '"+xpr2+"'", XPathExpression.matches(xpr1, new XPathExpression("/text/body/div/p")));
+	}
+	
+	/**
 	 * test attribute-node wildcard
 	 */
 	public void testAttributeNode_Wildcard()
