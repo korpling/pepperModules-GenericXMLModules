@@ -99,7 +99,6 @@ public class XML2SaltMapperTest extends TestCase {
         xmlReader= parser.getXMLReader();
         xmlReader.setContentHandler(mapper);
         InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes());
-        System.out.println("xml: "+xmlString);
         Reader reader = new InputStreamReader(inputStream, "UTF-8");
 		 
 		InputSource is = new InputSource(reader);
@@ -606,15 +605,11 @@ public class XML2SaltMapperTest extends TestCase {
 		SNode document = null;
 		for (SNode sNode : this.getFixture().getsDocumentGraph().getSNodes())
 		{
-			System.out.println("sNode.getSName(): "+ sNode.getSName());
 			if ("ns:a".equals(sNode.getSName()))
 				a= sNode;
 			else if ("document".equals(sNode.getSName()))
 				document= sNode;
 		}
-		
-		System.out.println("element a: "+ a);
-		System.out.println("element dcoument: "+ document);
 		
 		assertNotNull(a);
 		assertNotNull(document);
