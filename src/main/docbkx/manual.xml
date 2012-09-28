@@ -504,11 +504,25 @@
     &lt;d>a sample text&lt;/d>
 &lt;/a></programlisting>
                     when using the
-                    property<programlisting>genericXml.importer.sMetaAnnotation.sDocument=//b, //b//</programlisting>
-                    results in one <classname>SToken</classname> object overlapping the primary text
-                    'a sample text' being dominated by a <classname>SStructure</classname> object
+                    property<programlisting>genericXml.importer.sMetaAnnotation.sDocument=//b, //b//</programlisting>results
+                    in one <classname>SToken</classname> object overlapping the primary text 'a
+                    sample text' being dominated by a <classname>SStructure</classname> object
                     corresponing to element &lt;a>. The xml-element &lt;b> and its entire subtree is
                     interpreted as meta-data for the <classname>SDocument</classname> object.</para>
+                <para>You can also just address attribute-nodes. In that case only the attribute
+                    nodes are mapped to a <classname>SMetaAnnotation</classname> object. If an
+                    attribute-node is mapped to a <classname>SMetaAnnotation</classname> object, it
+                    is not mapped to a usual <classname>SAnnotation</classname> object. The
+                    following xml fragment
+                    <programlisting>&lt;a>
+    &lt;b att_1="value">
+        &lt;c>a sample text&lt;/c>
+    &lt;/b>
+&lt;/a></programlisting>
+                    when using the
+                    property<programlisting>genericXml.importer.sMetaAnnotation.sDocument=//b/@att_1</programlisting>
+                    results in a <classname>SMetaAnnotation</classname> object added to the
+                        <classname>SDocument</classname> object.</para>
             </sect2>
             <sect2 xml:id="prop_prop7">
                 <title xml:id="importer_prop7_title">genericXml.importer.textOnly</title>
