@@ -13,8 +13,10 @@ import org.xml.sax.ext.DefaultHandler2;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
@@ -482,7 +484,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
             				String localName,
             				String qName)throws SAXException
     {
-		
 		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
 			;
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
@@ -503,7 +504,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				this.getsDocumentGraph().addSNode(sNode);
 				//copy all annotations to sNode
 				this.copySAbstractAnnotations(sNode);
-				
 				if (this.elementNodeStack.peek().openSNodes.size()>0)
 				{//put all open SToken objects into subtree of current tree
 					for (SNode childSNode: this.elementNodeStack.peek().openSNodes)
@@ -516,6 +516,33 @@ public class XML2SaltMapper extends DefaultHandler2 {
 						}
 						else if (sNode instanceof SStructure)
 							sRel= SaltFactory.eINSTANCE.createSDominanceRelation();
+						else if (	(sNode instanceof SSpan)&&
+									(childSNode instanceof SSpan))
+						{
+							
+							EList<Edge> outEdges= this.getsDocumentGraph().getOutEdges(childSNode.getSId());
+							if (outEdges!= null)
+							{
+								for (Edge outEdge: outEdges)
+								{
+									if (outEdge instanceof SSpanningRelation)
+									{
+										SSpanningRelation sSpanRel= SaltFactory.eINSTANCE.createSSpanningRelation();
+										sSpanRel.setSSource(sNode);
+										sSpanRel.setSTarget(((SSpanningRelation) outEdge).getSToken());
+			    						this.getsDocumentGraph().addSRelation(sSpanRel);
+			    						if (!this.sLayerStack.isEmpty())
+			    						{//add to sLayer if exist
+			    							this.sLayerStack.peek().getSRelations().add(sSpanRel);
+			    						}//add to sLayer if exist
+									}
+								}
+							}
+						}
+//						else if (	(sNode instanceof SSpan)&&
+//									(childSNode instanceof SStructure))
+//						{	
+//						}
 						
 						if (sRel!= null)
 						{
@@ -532,7 +559,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				//put current node to open nodes of father node 
 				if (this.elementNodeStack.size()>1)
 					this.elementNodeStack.get(this.elementNodeStack.size()-2).openSNodes.add(sNode);
-				
 				if (!this.sLayerStack.isEmpty())
 				{//add to sLayer if exist
 					this.sLayerStack.peek().getSNodes().add(sNode);
