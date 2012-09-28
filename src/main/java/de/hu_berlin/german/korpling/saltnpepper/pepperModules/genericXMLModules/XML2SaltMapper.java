@@ -419,23 +419,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					this.getsDocumentGraph().getSDocument().addSMetaAnnotation((SMetaAnnotation)sAnno);
 			}
 		}
-//		else if (this.getProps().getSMetaAnnotationSDocumentList()!= null)
-//		{
-//			if (attributes.getLength()>0)
-//			{
-//				for (int i= 0; i< attributes.getLength(); i++)
-//				{
-//					String name= attributes.getQName(i);
-//					currentXPath.addStep(name);
-//					if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
-//					{
-//						if (this.getsDocumentGraph().getSDocument()!= null)
-//							this.getsDocumentGraph().getSDocument().createSAnnotation(null, name, attributes.getValue(i));
-//					}
-//					currentXPath.removeLastStep();
-//				}
-//			}
-//		}
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
 		{
 			SLayer currSLayer= null;
