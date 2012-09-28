@@ -589,8 +589,6 @@ public class XML2SaltMapperTest extends TestCase {
 			xmlWriter.writeDefaultNamespace("someNamespace");
 			xmlWriter.writeNamespace("ns", "someNamespace");
 			xmlWriter.writeStartElement("ns", "a", "someNamespace");
-//			xmlWriter.writeStartElement("ns", "a");
-//			xmlWriter.writeAttribute("ns", "att", "val");
 			xmlWriter.writeAttribute("ns", "someNamespace", "att", "val");
 			xmlWriter.writeCharacters("a sample text");
 			xmlWriter.writeEndElement();
@@ -1184,6 +1182,65 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes(), 4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
 		assertEquals("relations: "+ this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations(), 2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
 	}	
+	/**
+	 * Tests if for the given xml fragment artificial {@link SAnnotation} objects containing the name of the element-node as sname and
+	 * svalue are created. 
+	 * <br/>
+	 * <pre>
+	 * &lt;a&gt;here&lt;b&gt;&lt;c att="val"&gt;&lt;d&gt;comes&lt;/d&gt;&lt;/c&gt;&lt;/b&gt;text&lt;/a&gt;
+	 * </pre>
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * @throws XMLStreamException 
+	 */
+	public void testProp_PrefixElementNameAsSAnno() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
+	{
+		String text1= "here";
+		String text2= "comes";
+		String text3= "text";
+		
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ELEMENTNAME_AS_SANNO);
+		assertNotNull(prop);
+		prop.setValue("//b, //b//");
+		
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("a");
+			xmlWriter.writeCharacters(text1);
+			xmlWriter.writeStartElement("b");
+				xmlWriter.writeStartElement("c");
+					xmlWriter.writeAttribute("att", "val");
+					xmlWriter.writeStartElement("d");
+						xmlWriter.writeCharacters(text2);
+					xmlWriter.writeEndElement();
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+			xmlWriter.writeCharacters(text3);
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
+		assertEquals(3, this.getFixture().getsDocumentGraph().getSStructures().size());
+		SNode b= null;
+		SNode c= null;
+		for (SNode sNode: this.getFixture().getsDocumentGraph().getSNodes())
+		{
+			if ("b".equals(sNode.getSName()))
+				b= sNode;
+			else if("c".equals(sNode.getSName()))
+				c= sNode;
+		}
+		assertNotNull(b);
+		assertNotNull(c);
+		assertEquals(1, b.getSAnnotations().size());
+		assertEquals("b", b.getSAnnotation("b").getSValue());
+		assertEquals(2, c.getSAnnotations().size());
+		assertEquals("c", c.getSAnnotation("c").getSValue());
+	}
 	
 	/**
 	 * Tests the hierarchie structure created in {@link #createHierarchy()} and compares it to 

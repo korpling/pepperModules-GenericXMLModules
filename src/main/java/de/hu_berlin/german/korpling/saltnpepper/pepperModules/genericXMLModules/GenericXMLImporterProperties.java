@@ -39,7 +39,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	/**
 	 * Name of property containing a list of all element-nodes whos attributes shall be prefixed by the name of the element-node 
 	 */
-	public static final String PROP_PREFIXED_ANNOS=PREFIX+"prefixAnnotationName";
+	public static final String PROP_PREFIXED_ANNOS=PREFIX+"prefixSAnnotationName";
 	/**
 	 * Name of property to determine if an artificial {@link SStructuredNode} shall be created for all text-nodes.
 	 */
@@ -73,6 +73,11 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
      * Default is true.
      */
     public static final String PROP_IGNORABLE_NAMESPACES =PREFIX+"ignoreNamespaces";
+    /**
+     * Name of property to determine a list of element-nodes whichs names are mapped to {@link SAnnotation} objects having that
+     * name as sName and sValue
+     */
+    public static final String PROP_ELEMENTNAME_AS_SANNO =PREFIX+"elementNameAsSAnno";
 	/**
 	 * Name of property to determine the file ending of documents to be imported.
 	 */
@@ -104,6 +109,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 		                                                      DEFAULT_WHITESPACES, 
 		                                                      false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_IGNORABLE_NAMESPACES, Boolean.class, "Determines if xml-namespaces and namespace declarations are ignored.", true, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_ELEMENTNAME_AS_SANNO, String.class, " Determines a list of element-nodes whichs names are mapped to SAnnotation objects having that name as sName and sValue", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
 	}
 	
@@ -294,4 +300,21 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
         }
         return ignorableWhitespaces;
     }
+	/**
+	 * see {@link #PROP_ELEMENTNAME_AS_SANNO}
+	 */
+	private Collection<XPathExpression> elementNameAsSAnnoList= null;
+	/**
+	 * see {@link #PROP_ELEMENTNAME_AS_SANNO}
+	 * @return
+	 */
+	public Collection<XPathExpression> getElementNameAsSAnnoList() {
+		if (elementNameAsSAnnoList== null)
+		{
+			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_ELEMENTNAME_AS_SANNO); 
+			if (elementNameAsSAnnoList== null)
+				elementNameAsSAnnoList= xPathList;
+		}
+		return elementNameAsSAnnoList;
+	}
 }

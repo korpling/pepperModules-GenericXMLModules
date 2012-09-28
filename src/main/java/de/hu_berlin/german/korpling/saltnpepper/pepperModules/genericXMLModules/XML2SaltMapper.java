@@ -220,7 +220,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		if (!isInited)
 			init();
 		
-		currentXPath.addStep("text(");
+		currentXPath.addStep(XPathExpression.XML_TEXT);
 		if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
 		{//if text-node is not to ignore	
 			StringBuffer textBuf= new StringBuffer();
@@ -314,6 +314,21 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	}	
 
 	/**
+	 * Creates an artificial {@link SAnnotation} for the given {@link ElementNodeEntry} having the sName and sValue
+	 * of {@link ElementNodeEntry#nodeName}.
+	 * @param entry
+	 */
+	private void createArtificialSAnno(ElementNodeEntry entry)
+	{
+		SAnnotation sAnno= SaltFactory.eINSTANCE.createSAnnotation();
+		sAnno.setSName(entry.nodeName);
+		sAnno.setSValue(entry.nodeName);
+		if (entry.annotations== null)
+			entry.annotations= new BasicEList<SAbstractAnnotation>();
+		entry.annotations.add(sAnno);
+	}
+	
+	/**
 	 * a stack containing all active layers.
 	 */
 	private Stack<SLayer> sLayerStack= null;
@@ -361,6 +376,7 @@ public class XML2SaltMapper extends DefaultHandler2 {
 	    				if (parts.length> 1)
 	    					sName= parts[parts.length-1];
 	    				else sName= attributes.getQName(i);
+	    				
 						if (this.matches(this.getProps().getPrefixedAnnoList(), currentXPath))
 	    					sAnno.setSName(nodeName+"_"+sName);
 	    				else
@@ -383,7 +399,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
     {
 		if (!isInited)
 			init();
-		
 		currentXPath.addStep(qName);
 		
 		if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
@@ -424,7 +439,6 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		else if (	(!this.matches(this.getProps().getIgnoreList(), currentXPath))&&
 					(!this.getProps().isTextOnly()))
 		{//if element-node shall not be ignored
-			
 			if (this.elementNodeStack.size()> 0)
 			{//notify parent element, that it is complex
 				this.elementNodeStack.peek().setIsComplex(true);
@@ -440,6 +454,11 @@ public class XML2SaltMapper extends DefaultHandler2 {
 			if (this.elementNodeStack.size()> 0)
 			    this.elementNodeStack.peek().setIsComplex(true);
 			ElementNodeEntry elementNode= new ElementNodeEntry(qName, annoList);
+			
+			//creates an artificial SAnnotation out of the element name is prop is set
+			if (this.matches(this.getProps().getElementNameAsSAnnoList(), currentXPath))
+				this.createArtificialSAnno(elementNode);
+			
 			this.elementNodeStack.push(elementNode);
 		}//if element-node shall not be ignored
     }

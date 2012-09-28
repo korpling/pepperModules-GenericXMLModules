@@ -37,7 +37,7 @@
         <title>Foreword</title>
         <para>The intention of this document is first to give a guide to the user of how to use the
             here mentioned pepper modules and how to utilize a mapping performed by them. Second
-            this document shall give a closer view in the details of such a mapping in a declarative
+            this document shall give a closer view of the details of such a mapping in a declarative
             way, to give the user a chance to understand how specific data will be mapped by the
             presented pepper modules.</para>
     </preface>
@@ -87,11 +87,11 @@
     -->
     <chapter xml:id="genericXml_importer">
         <title xml:id="genericXml_importer_name">GenericXMLImporter</title>
-        <para>Imports data coming from any XML file to a Salt model in a customizable but generic
-            way. This importer provides a wide range of customizing possibilities via the here
-            described set of Properties. Before we talk about the possibility of customizing the
-            mapping, we describe the general and default mapping from an xml file to a Salt
-            model.</para>
+        <para>The GenericXMLImporter data coming from any xml file to a Salt model in a customizable
+            but generic way. This importer provides a wide range of customizing possibilities via
+            the here described set of properties. Before we talk about the possibility of
+            customizing the mapping, we describe the general and default mapping from an xml file to
+            a Salt model.</para>
         <sect1>
             <title>Mapping to Salt</title>
             <para>The GenericXMLImporter maps element-nodes, text-nodes and attribute-nodes to Salt
@@ -101,7 +101,7 @@
                 one single primary text. This primary text is stored in a
                     <classname>STextualDS</classname> object and can be accessed via the method
                     <methodname>STextualDS.getSText()</methodname>. Each element-node containing a
-                primary text and no further element-nodes (so called terminal-node) is mapped to a
+                primary text and no further element-nodes (called terminal-node) is mapped to a
                     <classname>SToken</classname> object overlapping the part of the primary data
                 given by the contained text-node. To realize the offset to the start and end
                 position of the overlapping text, a <classname>STextualRelation</classname> is
@@ -117,7 +117,7 @@
                 <para>The importer does not take care about the given tokenization and does not
                     retokenize it.</para>
             </note>
-            <para>A element-node not containing further element-nodes (so called complex-node) is
+            <para>A element-node not containing further element-nodes (called complex-node) is
                 mapped to a <classname>SStructure</classname> object in the Salt model. Since
                     <classname>SStructure</classname> objects in Salt represent a hierarchical
                 structure, a <classname>SStructure</classname> object is connected to
@@ -132,7 +132,7 @@
                     <classname>SStructure</classname> object as source and the
                     <classname>SToken</classname> object as target. Since
                     <classname>SStructure</classname> objects are used for hierarchies, the same
-                goes for a element-node containing another element node. </para>
+                goes for an element-node containing another element node. </para>
             <para>The following xml fragment
                 <programlisting>&lt;a>&lt;b>...&lt;/b>&lt;/a></programlisting>is mapped to a
                     <classname>SStructure</classname> object representing the element-node &lt;a>
@@ -141,13 +141,13 @@
             <para>In many xml formats element-nodes can have further element-nodes and text-nodes in
                 the first level of their subtree as well. These kind of nodes are often called mixed
                 nodes (for nodes having a mixed content). These kind of nodes are mapped to a
-                    <classname>SStructure</classname> object in Salt. The element-nodes contained
+                    <classname>SStructure</classname> object in Salt. The element-nodes contained in
                 their subtree are mapped to either <classname>SToken</classname> objects or
                     <classname>SStructure</classname> objects, depending on their content. For a
                 text-node, an artificial <classname>SToken</classname> object is created and added
                 to the subtree of the <classname>SStructure</classname> object in Salt.</para>
             <para>The following xml fragment
-                <programlisting>&lt;a>This is &lt;b>a sample&lt;/b> text&lt;/a></programlisting>is
+                <programlisting>&lt;a>This is &lt;!-- t1 -->&lt;b>a sample&lt;!-- t2 -->&lt;/b> text&lt;!-- t3 -->&lt;/a></programlisting>is
                 mapped to three <classname>SToken</classname> objects t1 overlapping the text "This
                 is ", t2 overlapping the text "a sample" and t3 overlapping the text " text".
                 Because the <classname>SToken</classname> object t2 is the only one having an
@@ -198,7 +198,7 @@
                         </thead>
                         <tbody>
                             <row>
-                                <entry>//element</entry>
+                                <entry>/element</entry>
                                 <entry>addresses the xml element-node having the name element and
                                     which is the root node</entry>
                             </row>
@@ -206,6 +206,11 @@
                                 <entry>//element</entry>
                                 <entry>addresses the xml element-node having the name element
                                     anywhere in the document</entry>
+                            </row>
+                            <row>
+                                <entry>//element//</entry>
+                                <entry>addresses all xml element-nodes in the subtree of each
+                                    element-node having the name element</entry>
                             </row>
                             <row>
                                 <entry>/father/element</entry>
@@ -347,21 +352,28 @@
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop9" endterm="importer_prop9_title"
-                            /></entry>
+                                /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
                             <entry>'\n','\r','\t',' '</entry>
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop10" endterm="importer_prop10_title"
-                            /></entry>
+                                /></entry>
                             <entry>Boolean</entry>
                             <entry>optional</entry>
                             <entry>true</entry>
                         </row>
                         <row>
-                            <entry><xref linkend="prop_prop11" endterm="importer_prop11_title"
+                            <entry><xref linkend="prop_prop12" endterm="importer_prop12_title"
                                 /></entry>
+                            <entry>XPath expression of described subset (only element-nodes are addressable)</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop11" endterm="importer_prop11_title"
+                            /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
                             <entry>xml</entry>
@@ -375,30 +387,31 @@
                     text-nodes) which are ignored for the mapping to a Salt model. Imagine for
                     instance the follwing xml fragment
                     <programlisting>&lt;a>&lt;b>&lt;/b>&lt;/a></programlisting>and the property
-                    value of ignore-list //b. This will result, that the element-node &lt;b> will
+                    value of ignore-list //b. This list enables, that the element-node &lt;b> will
                     completle be ignored. <note>
                         <para>If an element-node is part of the ignore list, its subtree, its
                             attribute-nodes and contained text-nodes will also be ignored. For
                             instance remember the last example fragment and the property value of
-                            //a. This will result, that neither the element-node &lt;a> nor the
-                            element-node &lt;b> are mapped.</para>
+                            //a. Using the ignore list in this case, neither the element-node &lt;a>
+                            nor the element-node &lt;b> are mapped.</para>
                     </note></para>
                 <para>Here we give a sample of the usage of the ignore list:
                     <programlisting>genericXml.importer.ignoreList= /a/b, //c</programlisting></para>
             </sect2>
             <sect2 xml:id="prop_prop2">
                 <title xml:id="importer_prop2_title">genericXml.importer.asSSpan</title>
-                <para>In case of you don't want to map an element node to a
+                <para>In case you do not want to map an element node to a
                         <classname>SStructure</classname> object, you can also map defined
                     element-nodes to an <classname>SSpan</classname> object.
                         <classname>SSpan</classname> in contrast to
                         <classname>SStructure</classname> objects are not hierarchical and are used
                     to create span-like structures, similar to cells in a table.</para>
-                <para>Here we give a sample of the usage of the ignore list:
+                <para>Here we give a sample of the usage of this property:
                     <programlisting>genericXml.importer.asSSpans= //element1, //father/element2</programlisting></para>
             </sect2>
             <sect2 xml:id="prop_prop3">
-                <title xml:id="importer_prop3_title">genericXml.importer.prefixSAnnotation</title>
+                <title xml:id="importer_prop3_title"
+                    >genericXml.importer.prefixSAnnotationName</title>
                 <para>In general the <varname>SName</varname> of a
                         <classname>SAnnotation</classname> is given by the name of the
                     attribute-node given in the xml document. sometimes it might be necessary, to
@@ -437,13 +450,13 @@
             </sect2>
             <sect2 xml:id="prop_prop5">
                 <title xml:id="importer_prop5_title">genericXml.importer.sMetaAnnotation</title>
-                <para>Normaly a attribute-node is mapped to <classname>SAnnotation</classname>
+                <para>Usually, an attribute-node is mapped to <classname>SAnnotation</classname>
                     object. But sometimes you may want to map it to a
                         <classname>SMetaAnnotation</classname> object instead. A
                         <classname>SMetaAnnotation</classname> in Salt marks an attribute-value pair
                     to be not directly a linguistic annotation, and therefore not processed or
                     exported as one. Often such annotations are used to mark the annotator of an
-                    annotation, or a probaility of an annotation and so on. </para>
+                    annotation, or a probability of an annotation and so on. </para>
                 <para>The xml fragment <programlisting>&lt;a att="value"/></programlisting> using
                     the property
                     <programlisting>genericXml.importer.sMetaAnnotation=//a/@att</programlisting>
@@ -520,7 +533,7 @@
                 <para>The following xml fragment
                     <programlisting>&lt;a att="value">&lt;b>a sample &lt;c>text&lt;/c>&lt;/b>&lt;/a></programlisting>
                     with the use of the property
-                    <programlisting>genericXml.importer.sLayer=//a, //c</programlisting> results in
+                    <programlisting>genericXml.importer.sLayer=//a, //c</programlisting>results in
                     two <classname>SToken</classname> t1 and t2 objects, overlapping the text 'a
                     sample' (t1) and 'text' (2). The <classname>SToken</classname> object t2 is part
                     of a created <classname>SLayer</classname> object l1 corresponding to the
@@ -536,7 +549,9 @@
             </sect2>
             <sect2 xml:id="prop_prop9">
                 <title xml:id="importer_prop9_title">genericXml.importer.ignoreWhitepsaces</title>
-                <para>Determines a list of whitespace characters, which are igrnored, if an text-node only contains characters of this list. This is a necessary property, to avoid for instance the tokenization of blanks.</para>
+                <para>Determines a list of whitespace characters, which are igrnored, if an
+                    text-node only contains characters of this list. This is a necessary property,
+                    to avoid for instance the tokenization of blanks.</para>
                 <para>The following xml fragment
                     <programlisting>&lt;document>&lt;a>a&lt;/a> &lt;b>sample&lt;/b> &lt;c>text&lt;/c>&lt;/document></programlisting>
                     with the use of the property
@@ -544,7 +559,7 @@
                     in three <classname>SToken</classname> objects overlapping the text 'a',
                     'sample' and 'text' instead of 5 <classname>SToken</classname> objects
                     additionally overlapping the blanks ' '. A sequence of characters will only be
-                    ignored, if it only contains characters being conatined in that list. Therefore,
+                    ignored, if it only contains characters being contained in that list. Therefore,
                     following xml fragment<programlisting>&lt;a>a sample&lt;/a></programlisting>
                     with the use of the property
                     <programlisting>genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '</programlisting>results
@@ -553,7 +568,7 @@
             </sect2>
             <sect2 xml:id="prop_prop10">
                 <title xml:id="importer_prop10_title">genericXml.importer.ignoreNamespaces</title>
-                <para>Determines that all xml-namespace declarations and xml-namespace prefixes are
+                <para>Determines that all xml namespace declarations and xml namespace prefixes are
                     ignored.</para>
                 <para>The following xml fragment
                     <programlisting>&lt;document xmlns="some namespace" xmlns:ns="some namespace">
@@ -577,9 +592,25 @@
                         <classname>SStructure</classname> representing the element-node 'a'.</para>
             </sect2>
             <sect2 xml:id="prop_prop11">
-                <title xml:id="importer_prop11_title">genericXml.importer.file.endings</title>
+                <title xml:id="importer_prop11_title">genericXml.importer.elementNameAsSAnno</title>
+                <para>Determines a list, of element-nodes which names are mapped to artificial
+                        <classname>SAnnotation</classname> objects adding to the corresponding
+                        <classname>SNode</classname> object.The following xml fragment
+                    <programlisting>&lt;a>
+    &lt;b/>
+&lt;/a></programlisting> with the use of the
+                    property
+                    <programlisting>genericXml.importer.elementNameAsSAnno=//a, //a//</programlisting>results
+                    in a one <classname>SNode</classname> object representing the element-node 'a'
+                    which is annotated with a <classname>SAnnotation</classname> whichs
+                        <varname>sName</varname> and <varname>sValue</varname> is 'a'. The same goes
+                    for the second <classname>SNode</classname> object which gets an annotation
+                    b=b.</para>
+            </sect2>
+            <sect2 xml:id="prop_prop12">
+                <title xml:id="importer_prop12_title">genericXml.importer.file.endings</title>
                 <para>Determines a list, containing the file endings, which files are imported. If
-                    you want to import all contained files no matter to their ending, add the string
+                    you want to import all contained files no matter of their ending, add the string
                     'ALL' to the list. If you want a file having a specific ending not to be
                     imported, use the prefix '-'.</para>
             </sect2>

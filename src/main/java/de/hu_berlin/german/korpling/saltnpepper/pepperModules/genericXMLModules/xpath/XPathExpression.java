@@ -20,7 +20,8 @@ public class XPathExpression {
 	/**
 	 * An alias for a wildcard. This alias is used to replace a removed // in an XPath expression.
 	 */
-	public static final String WILDCARD_ALIAS="WILDCARD";
+	public static final String XML_WILDCARD_ALIAS="WILDCARD";
+	public static final String XML_TEXT="text()";
 	/**
 	 * steps of this expression
 	 */
@@ -51,7 +52,7 @@ public class XPathExpression {
 		if (xPathExpression== null)
 			throw new NullPointerException("an empty XPathExpression was given.");
 		
-		xPathExpression= xPathExpression.replace("//", "/"+WILDCARD_ALIAS+"/");
+		xPathExpression= xPathExpression.replace("//", "/"+XML_WILDCARD_ALIAS+"/");
 		if (xPathExpression.startsWith("/"))
 			xPathExpression= xPathExpression.replaceFirst("/", "");
 		steps= new Vector<String>();
@@ -133,7 +134,7 @@ public class XPathExpression {
 			
 			if (xPathExpression1.getSteps().get(step1).equals(xPathExpression2.getSteps().get(step2)))
 				step1++;
-			else if (WILDCARD_ALIAS.toString().equals(xPathExpression1.getSteps().get(step1)))
+			else if (XML_WILDCARD_ALIAS.toString().equals(xPathExpression1.getSteps().get(step1)))
 			{// if current step in xPathExpression1 is wildcard
 				if (step1== xPathExpression1.getSteps().size()-1)
 				{//wildcard is last step of xPathExpression1
@@ -170,7 +171,7 @@ public class XPathExpression {
 				(!step.isEmpty()))
 		{
 			if ("//".equals(step))
-				steps.add(WILDCARD_ALIAS);
+				steps.add(XML_WILDCARD_ALIAS);
 			else
 				steps.add(step);
 		}
