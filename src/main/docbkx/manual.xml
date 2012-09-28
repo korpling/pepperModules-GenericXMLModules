@@ -367,13 +367,14 @@
                         <row>
                             <entry><xref linkend="prop_prop12" endterm="importer_prop12_title"
                                 /></entry>
-                            <entry>XPath expression of described subset (only element-nodes are addressable)</entry>
+                            <entry>XPath expression of described subset (only element-nodes are
+                                addressable)</entry>
                             <entry>optional</entry>
                             <entry>--</entry>
                         </row>
                         <row>
                             <entry><xref linkend="prop_prop11" endterm="importer_prop11_title"
-                            /></entry>
+                                /></entry>
                             <entry>String</entry>
                             <entry>optional</entry>
                             <entry>xml</entry>
@@ -388,15 +389,12 @@
                     instance the follwing xml fragment
                     <programlisting>&lt;a>&lt;b>&lt;/b>&lt;/a></programlisting>and the property
                     value of ignore-list //b. This list enables, that the element-node &lt;b> will
-                    completle be ignored. <note>
-                        <para>If an element-node is part of the ignore list, its subtree, its
-                            attribute-nodes and contained text-nodes will also be ignored. For
-                            instance remember the last example fragment and the property value of
-                            //a. Using the ignore list in this case, neither the element-node &lt;a>
-                            nor the element-node &lt;b> are mapped.</para>
-                    </note></para>
+                    completly be ignored. </para>
                 <para>Here we give a sample of the usage of the ignore list:
                     <programlisting>genericXml.importer.ignoreList= /a/b, //c</programlisting></para>
+                <para>To ignore an entire subtree, use the subtree address mechanism e.g.
+                <programlisting>genericXml.importer.ignoreList= /a//</programlisting>To ignore all nodes in the subtree of 'a'. </para>
+                <note><para>In this example, only the subtree of element-node 'a' is ignored, not 'a' itself.</para></note>
             </sect2>
             <sect2 xml:id="prop_prop2">
                 <title xml:id="importer_prop2_title">genericXml.importer.asSSpan</title>
