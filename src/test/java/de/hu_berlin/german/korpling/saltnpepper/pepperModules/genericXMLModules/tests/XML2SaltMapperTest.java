@@ -1025,6 +1025,64 @@ public class XML2SaltMapperTest extends TestCase {
 	}	
 	
 	/**
+	 * Tests map an attribute node to {@link SMetaAnnotation} of {@link SDocument}.
+	 * <br/>
+	 * &lt;a&gt;&lt;b att1="val1" att2="val2"&gt;&lt;c&gt;text&lt;/c&gt;&lt;/b&gt;&lt;a&gt;
+	 * <br/>
+	 * {@value GenericXMLImporterProperties#PROP_SMETA_ANNOTATION_SDOCUMENT}= //meta//
+	 * shall result in a {@link SSpan} for &lt;b&gt; and a {@link SStructure} for &lt;a&gt;, both containing the two {@link SToken} objects overlapping "a" and "sample"
+	 * 
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testProp_sMetaAnnotationSDocument_Attribute() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		assertNotNull(prop);
+		prop.setValue("//b/@att1");
+		
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("a");
+			xmlWriter.writeStartElement("b");
+				xmlWriter.writeAttribute("att1", "val1");
+				xmlWriter.writeAttribute("att2", "val2");
+				xmlWriter.writeStartElement("c");
+					xmlWriter.writeCharacters("text");
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
+		this.getFixture().getsDocumentGraph().setSDocument(sDocument);
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		SNode a= null;
+		SNode b= null;
+		SNode c= null;
+		for (SNode sNode: this.getFixture().getsDocumentGraph().getSNodes())
+		{
+			if ("a".equals(sNode.getSName()))
+				a= sNode;
+			else if("b".equals(sNode.getSName()))
+				b= sNode;
+			else if("c".equals(sNode.getSName()))
+				c= sNode;
+		}
+		assertNotNull(a);
+		assertNotNull(b);
+		assertNotNull(c);
+		assertEquals(0, a.getSAnnotations().size());
+		assertEquals(1, b.getSAnnotations().size());
+		assertEquals(0, c.getSAnnotations().size());
+	}	
+	
+	/**
 	 * Checks an element-node is read as {@link SLayer} object.
 	 * <pre>
 	 * <code>
@@ -1227,12 +1285,15 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals(3, this.getFixture().getsDocumentGraph().getSStructures().size());
 		SNode b= null;
 		SNode c= null;
+		SNode d= null;
 		for (SNode sNode: this.getFixture().getsDocumentGraph().getSNodes())
 		{
 			if ("b".equals(sNode.getSName()))
 				b= sNode;
 			else if("c".equals(sNode.getSName()))
 				c= sNode;
+			else if("d".equals(sNode.getSName()))
+				d= sNode;
 		}
 		assertNotNull(b);
 		assertNotNull(c);
@@ -1240,6 +1301,8 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals("b", b.getSAnnotation("b").getSValue());
 		assertEquals(2, c.getSAnnotations().size());
 		assertEquals("c", c.getSAnnotation("c").getSValue());
+		assertEquals(1, d.getSAnnotations().size());
+		assertEquals("d", d.getSAnnotation("d").getSValue());
 	}
 	
 	/**

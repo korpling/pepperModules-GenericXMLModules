@@ -347,10 +347,19 @@ public class XML2SaltMapper extends DefaultHandler2 {
 		EList<SAbstractAnnotation> annoList= null;
 		for (int i= 0; i< attributes.getLength(); i++)
 		{//create annotation list
+			String attName= attributes.getQName(i);
 			if (annoList== null)
 				annoList= new BasicEList<SAbstractAnnotation>();
-			currentXPath.addStep("@"+attributes.getQName(i));
-			if (!this.matches(this.getProps().getIgnoreList(), currentXPath))
+			currentXPath.addStep("@"+attName);
+			
+			if (this.matches(this.getProps().getIgnoreList(), currentXPath))
+				;//do nothing
+			else if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
+			{
+				if (this.getsDocumentGraph().getSDocument()!= null)
+					this.getsDocumentGraph().getSDocument().createSAnnotation(null, attName, attributes.getValue(i));
+			}
+			else
 			{//if element-node shall not be ignored
 				SAbstractAnnotation  sAnno= null;
 				if (this.matches(this.getProps().getSMetaAnnotationList(), currentXPath))
@@ -366,16 +375,16 @@ public class XML2SaltMapper extends DefaultHandler2 {
 				{ 
 					//if xml-namespaces and prefixes shall not be mapped
 					if (	(this.getProps().isIgnoreNamespaces())&&
-							(	("xmlns".equals(attributes.getQName(i))))||
-								(attributes.getQName(i).contains("xmlns")))
+							(	("xmlns".equals(attName)))||
+								(attName.contains("xmlns")))
 						;//do nothing
 					else
 					{
-	    				String[] parts= attributes.getQName(i).split(":");
+	    				String[] parts= attName.split(":");
 	    				String sName;
 	    				if (parts.length> 1)
 	    					sName= parts[parts.length-1];
-	    				else sName= attributes.getQName(i);
+	    				else sName= attName;
 	    				
 						if (this.matches(this.getProps().getPrefixedAnnoList(), currentXPath))
 	    					sAnno.setSName(nodeName+"_"+sName);
@@ -410,6 +419,23 @@ public class XML2SaltMapper extends DefaultHandler2 {
 					this.getsDocumentGraph().getSDocument().addSMetaAnnotation((SMetaAnnotation)sAnno);
 			}
 		}
+//		else if (this.getProps().getSMetaAnnotationSDocumentList()!= null)
+//		{
+//			if (attributes.getLength()>0)
+//			{
+//				for (int i= 0; i< attributes.getLength(); i++)
+//				{
+//					String name= attributes.getQName(i);
+//					currentXPath.addStep(name);
+//					if (this.matches(this.getProps().getSMetaAnnotationSDocumentList(), currentXPath))
+//					{
+//						if (this.getsDocumentGraph().getSDocument()!= null)
+//							this.getsDocumentGraph().getSDocument().createSAnnotation(null, name, attributes.getValue(i));
+//					}
+//					currentXPath.removeLastStep();
+//				}
+//			}
+//		}
 		else if (this.matches(this.getProps().getSLayerList(), currentXPath))
 		{
 			SLayer currSLayer= null;
