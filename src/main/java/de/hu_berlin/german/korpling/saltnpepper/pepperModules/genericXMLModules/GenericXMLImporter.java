@@ -20,11 +20,10 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
@@ -43,7 +42,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
  *
  */
 @Component(name="GenericXMLImporterComponent", factory="PepperImporterComponentFactory")
-@Service(value=PepperImporter.class)
 public class GenericXMLImporter extends PepperImporterImpl implements PepperImporter
 {
 	public GenericXMLImporter()
