@@ -17,19 +17,16 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
@@ -48,62 +45,40 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 	{
 		super();
 		this.name= "GenericXMLImporter";
-		this.addSupportedFormat("xml", "1.0", null);
+		this.addSupportedFormat(ENDING_XML, "1.0", null);
 		this.setProperties(new GenericXMLImporterProperties());
 	}
 	
 	/**
-	 * A table to map physical resources on disk to logical Salt objects (see {@link SDocument}).
+	 * Called by Pepper framework and initializes supported file endings.
 	 */
-	private Map<SElementId, URI> documentResourceTable= null;
-	
-	/**
-	 * This method is called by Pepper at the start of conversion process. 
-	 * It shall create the structure the corpus to import. That means creating all necessary SCorpus, 
-	 * SDocument and all Relation-objects between them. The path tp the corpus to import is given by
-	 * this.getCorpusDefinition().getCorpusPath().
-	 * @param an empty graph given by Pepper, which shall contains the corpus structure
-	 */
-	@Override
-	public void importCorpusStructure(SCorpusGraph sCorpusGraph)
-			throws PepperModuleException
+	public boolean isReadyToStart()
 	{
-		EList<String> fileEndings= ((GenericXMLImporterProperties)this.getProperties()).getFileEndings();
-		if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL))
-			fileEndings= new BasicEList<String>();
-		
-		this.setSCorpusGraph(sCorpusGraph);
-		
-		try {
-			this.documentResourceTable= this.createCorpusStructure(this.getCorpusDefinition().getCorpusPath(), null, fileEndings);
-		} catch (IOException e) {
-			throw new PepperModuleException("Cannot import corpus-structure. ", e);
+		List<String> fileEndings= ((GenericXMLImporterProperties)this.getProperties()).getFileEndings();
+		if(fileEndings== null)
+		{
+			this.getSDocumentEndings().add(ENDING_XML);
 		}
+		else if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL))
+		{
+			this.getSDocumentEndings().add(ENDING_ALL_FILES);
+		}
+		else if (	(fileEndings!= null)&&
+				(!fileEndings.contains(GenericXMLImporterProperties.KW_ALL)))
+		{
+			this.getSDocumentEndings().addAll(fileEndings);
+		}
+		return(true);
 	}
 	
 	/**
-	 * This method is called by method start() of superclass PepperImporter, if the method was not overwritten
-	 * by the current class. If this is not the case, this method will be called for every document which has
-	 * to be processed.
-	 * @param sElementId the id value for the current document or corpus to process  
+	 * Creates a mapper of type {@link PAULA2SaltMapper}.
+	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
 	 */
 	@Override
-	public void start(SElementId sElementId) throws PepperModuleException 
+	public PepperMapper createPepperMapper(SElementId sElementId)
 	{
-		if (	(sElementId!= null) &&
-				(sElementId.getSIdentifiableElement()!= null) &&
-				((sElementId.getSIdentifiableElement() instanceof SDocument)))
-		{//only if given sElementId belongs to an object of type SDocument or SCorpus	
-			SDocument sDocument= (SDocument)sElementId.getIdentifiableElement();
-			XML2SaltMapper mapper= new XML2SaltMapper();
-			mapper.setProps((GenericXMLImporterProperties)this.getProperties());
-			if (sDocument.getSDocumentGraph()==  null)
-				sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-			mapper.setsDocumentGraph(sDocument.getSDocumentGraph());
-			URI sDocumentUri= documentResourceTable.get(sElementId);
-			if (sDocumentUri== null)
-				throw new GenericXMLModuleException("No uri was found for SElementId '"+sElementId+"' in mapping table '"+documentResourceTable+"'. No entry has been generated during importCorpusStructure-phase. This might be a bug.");
-			this.readXMLResource(mapper, sDocumentUri);
-		}//only if given sElementId belongs to an object of type SDocument or SCorpus
+		XML2SaltMapper mapper= new XML2SaltMapper();
+		return(mapper);
 	}
 }
