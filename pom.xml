@@ -94,7 +94,7 @@
       <!-- end: creation of bundle jar -->
       
       
-            <!-- start: maven site plugin -->
+      <!-- start: maven site plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -251,6 +251,7 @@
         </executions>
       </plugin>
       <!-- start: copying of OSGI-INF -->
+	  <!--
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resources-plugin.version}</version>
@@ -290,6 +291,7 @@
 
         </executions>
       </plugin>
+	  -->
       <!-- end of docbook plugin -->
     </plugins>
   </build>
