@@ -78,8 +78,10 @@ public class XML2SaltMapper extends PepperMapperImpl {
 			this.readXMLResource(reader, this.getResourceURI());
 		}catch (Exception e)
 		{
+			e.printStackTrace();
 			return(MAPPING_RESULT.FAILED);
 		}
+		System.out.println("--------------------------------> FINISHED");
 		return(MAPPING_RESULT.FINISHED); 
 	}
 	

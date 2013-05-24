@@ -130,7 +130,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
 	}
 	
-	public EList<String> getFileEndings()
+	public synchronized EList<String> getFileEndings()
 	{
 		EList<String> retVal= new BasicEList<String>();
 		String endingList= (String)this.getProperty(PROP_FILE_ENDINGS).getValue();
@@ -154,9 +154,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getIgnoreList() {
 		if (ignoreList== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_IGNORE_LIST); 
-			if (ignoreList== null)
-				ignoreList= xPathList;
+			synchronized (this) {
+				if (ignoreList== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_IGNORE_LIST); 
+					if (ignoreList== null)
+						ignoreList= xPathList;
+				}
+			}
 		}
 		return ignoreList;
 	}
@@ -172,9 +177,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getAsSpans() {
 		if (asSpans== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_AS_SPANS); 
-			if (asSpans== null)
-				asSpans= xPathList;
+			synchronized (this) {
+				if (asSpans== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_AS_SPANS); 
+					if (asSpans== null)
+						asSpans= xPathList;
+				}
+			}
 		}
 		return asSpans;
 	}
@@ -190,9 +200,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getPrefixedAnnoList() {
 		if (prefixedAnnoList== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_PREFIXED_ANNOS); 
-			if (prefixedAnnoList== null)
-				prefixedAnnoList= xPathList;
+			synchronized (this) {
+				if (prefixedAnnoList== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_PREFIXED_ANNOS); 
+					if (prefixedAnnoList== null)
+						prefixedAnnoList= xPathList;
+				}
+			}
 		}
 		return prefixedAnnoList;
 	}
@@ -207,9 +222,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getSMetaAnnotationList() {
 		if (sMetaAnnoList== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_SMETA_ANNOTATION); 
-			if (sMetaAnnoList== null)
-				sMetaAnnoList= xPathList;
+			synchronized (this) {
+				if (sMetaAnnoList== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_SMETA_ANNOTATION); 
+					if (sMetaAnnoList== null)
+						sMetaAnnoList= xPathList;
+				}
+			}
 		}
 		return sMetaAnnoList;
 	}
@@ -224,9 +244,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getSMetaAnnotationSDocumentList() {
 		if (sMetaAnnoSDocumentList== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_SMETA_ANNOTATION_SDOCUMENT); 
-			if (sMetaAnnoSDocumentList== null)
-				sMetaAnnoSDocumentList= xPathList;
+			synchronized (this) {
+				if (sMetaAnnoSDocumentList== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_SMETA_ANNOTATION_SDOCUMENT); 
+					if (sMetaAnnoSDocumentList== null)
+						sMetaAnnoSDocumentList= xPathList;
+				}
+			}
 		}
 		return sMetaAnnoSDocumentList;
 	}
@@ -304,16 +329,21 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
     public Collection<String> getIgnorableWhitespaces() {
         if (ignorableWhitespaces== null)
         {
-            PepperModuleProperty<String> prop= (PepperModuleProperty<String>) this.getProperty(PROP_IGNORABLE_WHITESPACES);
-            if (prop.getValue()!= null)
-            {
-                ignorableWhitespaces= new Vector<String>();
-                String[] parts= prop.getValue().split(",");
-                for (String part: parts)
+        	synchronized (this) {
+        		if (ignorableWhitespaces== null)
                 {
-                    ignorableWhitespaces.add(part.replace("'", ""));
+					PepperModuleProperty<String> prop= (PepperModuleProperty<String>) this.getProperty(PROP_IGNORABLE_WHITESPACES);
+		            if (prop.getValue()!= null)
+		            {
+		                ignorableWhitespaces= new Vector<String>();
+		                String[] parts= prop.getValue().split(",");
+		                for (String part: parts)
+		                {
+		                    ignorableWhitespaces.add(part.replace("'", ""));
+		                }
+		            }
                 }
-            }
+        	}
         }
         return ignorableWhitespaces;
     }
@@ -328,9 +358,14 @@ public class GenericXMLImporterProperties extends PepperModuleProperties
 	public Collection<XPathExpression> getElementNameAsSAnnoList() {
 		if (elementNameAsSAnnoList== null)
 		{
-			Collection<XPathExpression> xPathList= extractXPathExpr(PROP_ELEMENTNAME_AS_SANNO); 
-			if (elementNameAsSAnnoList== null)
-				elementNameAsSAnnoList= xPathList;
+			synchronized (this) {
+				if (elementNameAsSAnnoList== null)
+				{
+					Collection<XPathExpression> xPathList= extractXPathExpr(PROP_ELEMENTNAME_AS_SANNO); 
+					if (elementNameAsSAnnoList== null)
+						elementNameAsSAnnoList= xPathList;
+				}
+			}
 		}
 		return elementNameAsSAnnoList;
 	}
