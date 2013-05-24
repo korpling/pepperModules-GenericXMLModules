@@ -81,7 +81,6 @@ public class XML2SaltMapper extends PepperMapperImpl {
 			e.printStackTrace();
 			return(MAPPING_RESULT.FAILED);
 		}
-		System.out.println("--------------------------------> FINISHED");
 		return(MAPPING_RESULT.FINISHED); 
 	}
 	
@@ -145,17 +144,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 			this.isInited= true;
 			this.sLayerStack= new Stack<SLayer>();
 		}
-//		/**
-//		 * current {@link SDocumentGraph} to store all linguistic data in
-//		 */
-//		private SDocumentGraph sDocumentGraph= null;
-//		/**
-//		 * Sets current {@link SDocumentGraph} to store all linguistic data in
-//		 * @param sDocumentGraph
-//		 */
-//		public void setsDocumentGraph(SDocumentGraph sDocumentGraph) {
-//			this.sDocumentGraph = sDocumentGraph;
-//		}
+
 		/**
 		 * returns current {@link SDocumentGraph} to store all linguistic data in
 		 * @return

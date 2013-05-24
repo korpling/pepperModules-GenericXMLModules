@@ -150,8 +150,6 @@ public class GenericXMLImporterTest extends PepperImporterTest
 		//runs the PepperModule
 		this.start();
 		
-		System.out.println("--------------------------------> ENDED WITH MAPPING");
-		
 		//check importCorpusStructure
 		assertNotNull(importedSCorpusGraph.getSCorpora());
 		assertEquals(3, importedSCorpusGraph.getSCorpora().size());

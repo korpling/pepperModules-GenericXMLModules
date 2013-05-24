@@ -120,23 +120,6 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		this.getFixture().setResourceURI(URI.createFileURI(tmpFile.getAbsolutePath()));
 		this.getFixture().mapSDocument();
-		
-		
-//		SAXParser parser;
-//        XMLReader xmlReader;
-//        
-//        SAXParserFactory factory= SAXParserFactory.newInstance();
-//        
-//    	parser= factory.newSAXParser();
-//        xmlReader= parser.getXMLReader();
-//        xmlReader.setContentHandler(mapper);
-//        InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes());
-//        Reader reader = new InputStreamReader(inputStream, "UTF-8");
-//		 
-//		InputSource is = new InputSource(reader);
-//		is.setEncoding("UTF-8");
-//		
-//		xmlReader.parse(is);
 	}	
 	
 	public void testOnlyContainsIgnorableCharacters()
