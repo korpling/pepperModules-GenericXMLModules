@@ -48,10 +48,13 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 	/**
 	 * Called by Pepper framework and initializes supported file endings.
 	 */
+	@Override
 	public boolean isReadyToStart()
 	{
 		List<String> fileEndings= ((GenericXMLImporterProperties)this.getProperties()).getFileEndings();
-		if(fileEndings== null)
+		
+		if(		(fileEndings== null)||
+				(fileEndings.size()== 0))
 		{
 			this.getSDocumentEndings().add(ENDING_XML);
 		}
@@ -60,11 +63,16 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 			this.getSDocumentEndings().add(ENDING_ALL_FILES);
 		}
 		else if (	(fileEndings!= null)&&
-				(!fileEndings.contains(GenericXMLImporterProperties.KW_ALL)))
+					(!fileEndings.contains(GenericXMLImporterProperties.KW_ALL)))
 		{
 			this.getSDocumentEndings().addAll(fileEndings);
 		}
 		return(true);
+	}
+	
+	public void start()
+	{
+		super.start();
 	}
 	
 	/**

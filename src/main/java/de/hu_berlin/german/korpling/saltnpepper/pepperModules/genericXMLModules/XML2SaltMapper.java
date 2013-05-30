@@ -89,7 +89,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
      * @param text
      * @return
      */
-    public boolean onlyContainsIgnorableCharacters(String text)
+    public synchronized boolean onlyContainsIgnorableCharacters(String text)
     {
         int ignorableCharacters= 0;
         for (Character ch:text.toCharArray())
@@ -429,6 +429,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 	            					String qName,
 	            					Attributes attributes)throws SAXException
 	    {
+			
 			if (!isInited)
 				init();
 			currentXPath.addStep(qName);
@@ -436,7 +437,8 @@ public class XML2SaltMapper extends PepperMapperImpl {
 			if (this.matches(((GenericXMLImporterProperties)getProperties()).getSMetaAnnotationSDocumentList(), currentXPath))
 			{
 				EList<SAbstractAnnotation>annoList= this.createSAbstractAnnotations(SMetaAnnotation.class, localName, attributes);
-				if (this.getsDocumentGraph().getSDocument()!= null)
+				if (	(this.getsDocumentGraph().getSDocument()!= null)&&
+						(annoList!= null))
 				{
 					for (SAbstractAnnotation sAnno: annoList)
 						this.getsDocumentGraph().getSDocument().addSMetaAnnotation((SMetaAnnotation)sAnno);
