@@ -144,7 +144,7 @@ public class GenericXMLImporterTest extends PepperImporterTest
 			this.getFixture().setCorpusDefinition(corpDef);
 		//end: creating and setting corpus definition
 		
-		SCorpusGraph importedSCorpusGraph= SaltCommonFactory.eINSTANCE.createSCorpusGraph();
+		SCorpusGraph importedSCorpusGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
 		this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
 		
 		//runs the PepperModule

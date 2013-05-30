@@ -17,17 +17,13 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.tests;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
+import java.io.PrintWriter;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -36,9 +32,8 @@ import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.xml.sax.InputSource;
+import org.eclipse.emf.common.util.URI;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
@@ -86,11 +81,11 @@ public class XML2SaltMapperTest extends TestCase {
 	public void setUp() throws XMLStreamException
 	{
 		XML2SaltMapper mapper= new XML2SaltMapper();
-		mapper.setsDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		mapper.getsDocumentGraph().setSDocument(SaltFactory.eINSTANCE.createSDocument());
-		mapper.getsDocumentGraph().setSName("testGraph");
+		mapper.setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		mapper.getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		mapper.getSDocument().getSDocumentGraph().setSName("testGraph");
 		props= new GenericXMLImporterProperties();
-		mapper.setProps(props);
+		mapper.setProperties(props);
 		this.setFixture(mapper);
 		
 		outStream = new ByteArrayOutputStream();
@@ -107,21 +102,24 @@ public class XML2SaltMapperTest extends TestCase {
 	
 	private void start(XML2SaltMapper mapper, String xmlString) throws ParserConfigurationException, SAXException, IOException
 	{
-		SAXParser parser;
-        XMLReader xmlReader;
-        
-        SAXParserFactory factory= SAXParserFactory.newInstance();
-        
-    	parser= factory.newSAXParser();
-        xmlReader= parser.getXMLReader();
-        xmlReader.setContentHandler(mapper);
-        InputStream inputStream = new ByteArrayInputStream(xmlString.getBytes());
-        Reader reader = new InputStreamReader(inputStream, "UTF-8");
-		 
-		InputSource is = new InputSource(reader);
-		is.setEncoding("UTF-8");
+		File tmpDir= new File(System.getProperty("java.io.tmpdir")+"/xml2saltTest/");
+		tmpDir.mkdirs();
+		File tmpFile= new File(tmpDir.getAbsolutePath()+System.currentTimeMillis()+".xml");
+		PrintWriter writer=null;
+		try
+		{
+			writer= new PrintWriter(tmpFile, "UTF-8");
+			writer.println(xmlString);
+		}
+		finally
+		{	
+			if (writer!= null)
+				writer.close();
+			}
 		
-		xmlReader.parse(is);
+		
+		this.getFixture().setResourceURI(URI.createFileURI(tmpFile.getAbsolutePath()));
+		this.getFixture().mapSDocument();
 	}	
 	
 	public void testOnlyContainsIgnorableCharacters()
@@ -157,10 +155,10 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0));
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
-		assertEquals(text, this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(text, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}	
 	/**
 	 * Checks if a simple text is mapped, even it is interrupted.
@@ -200,10 +198,10 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0));
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
-		assertEquals(text, this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(text, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
 	/**
 	 * Checks if a simple text is mapped and if a token is created.
@@ -233,12 +231,12 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0));
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0));
 		EList<STYPE_NAME> sRelationTypes= new BasicEList<STYPE_NAME>();
 		sRelationTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		EList<SDataSourceSequence> sequences= this.getFixture().getsDocumentGraph().getOverlappedDSSequences(
-				this.getFixture().getsDocumentGraph().getSTokens().get(0), sRelationTypes);
+		EList<SDataSourceSequence> sequences= this.getFixture().getSDocument().getSDocumentGraph().getOverlappedDSSequences(
+				this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0), sRelationTypes);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getSStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getSEnd());
 	}
@@ -272,16 +270,16 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0));
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0));
 		EList<STYPE_NAME> sRelationTypes= new BasicEList<STYPE_NAME>();
 		sRelationTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		EList<SDataSourceSequence> sequences= this.getFixture().getsDocumentGraph().getOverlappedDSSequences(
-				this.getFixture().getsDocumentGraph().getSTokens().get(0), sRelationTypes);
+		EList<SDataSourceSequence> sequences= this.getFixture().getSDocument().getSDocumentGraph().getOverlappedDSSequences(
+				this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0), sRelationTypes);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getSStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getSEnd());
-		assertNotNull("an SAnnotation with name '"+attName1+"' does not belong to annotation list '"+this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations()+"'", this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
-		assertEquals(attValue1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1).getSValue());
+		assertNotNull("an SAnnotation with name '"+attName1+"' does not belong to annotation list '"+this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations()+"'", this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
+		assertEquals(attValue1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attName1).getSValue());
 	}
 	
 	/**
@@ -299,7 +297,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String attName2= "attName2";
 		String attValue2= "attValue2";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_IGNORE_LIST);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_IGNORE_LIST);
 		prop.setValue("//"+ attName1);
 		String text= "Is this example more complicated than it appears to?";
 		
@@ -315,17 +313,17 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0));
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0));
 		EList<STYPE_NAME> sRelationTypes= new BasicEList<STYPE_NAME>();
 		sRelationTypes.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		EList<SDataSourceSequence> sequences= this.getFixture().getsDocumentGraph().getOverlappedDSSequences(
-				this.getFixture().getsDocumentGraph().getSTokens().get(0), sRelationTypes);
+		EList<SDataSourceSequence> sequences= this.getFixture().getSDocument().getSDocumentGraph().getOverlappedDSSequences(
+				this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0), sRelationTypes);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getSStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getSEnd());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName2));
-		assertEquals(attValue2, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attName2).getSValue());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attName1));
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attName2));
+		assertEquals(attValue2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attName2).getSValue());
 	}
 	
 	/**
@@ -367,8 +365,8 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 	}	
 	/**
 	 * Checks if a fragment with a deeper hierarchie is mapped correctly.
@@ -418,9 +416,9 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
-		assertEquals(4, this.getFixture().getsDocumentGraph().getSDominanceRelations().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+		assertEquals(4, this.getFixture().getSDocument().getSDocumentGraph().getSDominanceRelations().size());
 	}	
 	/**
 	 * Checks if all created {@link SToken} objects got the correct {@link SAnnotation} objects.
@@ -460,14 +458,14 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().size());
-		assertEquals(valB1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotation(attB1).getSValue());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().size());
+		assertEquals(valB1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotation(attB1).getSValue());
 		
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotations());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotations().size());
-		assertEquals(valB2, this.getFixture().getsDocumentGraph().getSTokens().get(1).getSAnnotation(attB2).getSValue());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1).getSAnnotations());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1).getSAnnotations().size());
+		assertEquals(valB2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(1).getSAnnotation(attB2).getSValue());
 	}
 	/**
 	 * Checks that the following snippet is mapped to just one {@link SToken} object.
@@ -494,8 +492,8 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 2, this.getFixture().getsDocumentGraph().getSNodes().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals("all nodes are: '"+this.getFixture().getSDocument().getSDocumentGraph().getSNodes()+"'", 2, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 	}
 	
 	/**
@@ -532,14 +530,14 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 		SStructure sStruct= null;
-		if ("a".equals(this.getFixture().getsDocumentGraph().getSStructures().get(0).getSName()))
-			sStruct=this.getFixture().getsDocumentGraph().getSStructures().get(0);
-		else this.getFixture().getsDocumentGraph().getSStructures().get(1);
-		assertEquals(3, this.getFixture().getsDocumentGraph().getOutEdges(sStruct.getSId()).size());
-		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 6, this.getFixture().getsDocumentGraph().getSNodes().size());
+		if ("a".equals(this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0).getSName()))
+			sStruct=this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0);
+		else this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(1);
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getOutEdges(sStruct.getSId()).size());
+		assertEquals("all nodes are: '"+this.getFixture().getSDocument().getSDocumentGraph().getSNodes()+"'", 6, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 	}
 	
 	/**
@@ -577,14 +575,14 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 		SStructure sStruct= null;
-		if ("a".equals(this.getFixture().getsDocumentGraph().getSStructures().get(0).getSName()))
-			sStruct=this.getFixture().getsDocumentGraph().getSStructures().get(0);
-		else this.getFixture().getsDocumentGraph().getSStructures().get(1);
-		assertEquals(3, this.getFixture().getsDocumentGraph().getOutEdges(sStruct.getSId()).size());
-		assertEquals("all nodes are: '"+this.getFixture().getsDocumentGraph().getSNodes()+"'", 6, this.getFixture().getsDocumentGraph().getSNodes().size());
+		if ("a".equals(this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0).getSName()))
+			sStruct=this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0);
+		else this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(1);
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getOutEdges(sStruct.getSId()).size());
+		assertEquals("all nodes are: '"+this.getFixture().getSDocument().getSDocumentGraph().getSNodes()+"'", 6, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 	}
 	
 	/**
@@ -618,7 +616,7 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		SNode a = null;
 		SNode document = null;
-		for (SNode sNode : this.getFixture().getsDocumentGraph().getSNodes())
+		for (SNode sNode : this.getFixture().getSDocument().getSDocumentGraph().getSNodes())
 		{
 			if ("ns:a".equals(sNode.getSName()))
 				a= sNode;
@@ -657,7 +655,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String attA2="attA2";
 		String valA2="valA2";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_PREFIXED_ANNOS);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_PREFIXED_ANNOS);
 		assertNotNull(prop);
 		prop.setValue("//@"+ attA1);
 		
@@ -673,11 +671,11 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().size());
-		assertEquals(element+"_"+attA1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().get(0).getSName());
-		assertEquals(attA2, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().get(1).getSName());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().size());
+		assertEquals(element+"_"+attA1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().get(0).getSName());
+		assertEquals(attA2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().get(1).getSName());
 	}	
 	/**
 	 * Tests if when the property {@link GenericXMLImporterProperties#PROP_PREFIXED_ANNOS} is set, the {@link SAnnotation} 
@@ -703,7 +701,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String attA2="attA2";
 		String valA2="valA2";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION);
 		assertNotNull(prop);
 		prop.setValue("//@"+ attA1);
 		
@@ -719,13 +717,13 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTokens().get(0).getSMetaAnnotations());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSMetaAnnotations().size());
-		assertEquals(attA1, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSMetaAnnotations().get(0).getSName());
-		assertEquals(attA2, this.getFixture().getsDocumentGraph().getSTokens().get(0).getSAnnotations().get(0).getSName());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSMetaAnnotations());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSMetaAnnotations().size());
+		assertEquals(attA1, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSMetaAnnotations().get(0).getSName());
+		assertEquals(attA2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().get(0).getSAnnotations().get(0).getSName());
 	}
 	/**
 	 * Checks if spans are correctly created in hierarchies when using the prop genericXml.importer.asSSpan
@@ -756,7 +754,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementStuct= "struct";
 		String elementTok= "tok";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop);
 		prop.setValue("//"+elementDocument);
 		
@@ -776,14 +774,14 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertNotNull(this.getFixture().getsDocumentGraph().getSDocument());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotations());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotations().size());
-		assertEquals("John Doe", this.getFixture().getsDocumentGraph().getSDocument().getSMetaAnnotation("author").getSValue());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSDocument());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSDocument().getSMetaAnnotations());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSDocument().getSMetaAnnotations().size());
+		assertEquals("John Doe", this.getFixture().getSDocument().getSDocumentGraph().getSDocument().getSMetaAnnotation("author").getSValue());
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().get(0).getSAnnotations().size());
-		assertEquals("S", this.getFixture().getsDocumentGraph().getSStructures().get(0).getSAnnotation("const").getSValue());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0).getSAnnotations().size());
+		assertEquals("S", this.getFixture().getSDocument().getSDocumentGraph().getSStructures().get(0).getSAnnotation("const").getSValue());
 	}	
 	/**
 	 * Checks if spans are correctly created in hierarchies when using the prop genericXml.importer.asSSpan
@@ -808,7 +806,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementB= "b";
 		String elementC= "c";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
 		assertNotNull(prop);
 		prop.setValue("//"+elementB);
 		
@@ -829,9 +827,9 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSSpans().size());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSSpans().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 	}	
 	/**
 	 * Tests the same as {@link #testElementNodeWithComplexContent()} but with setted flag {@link GenericXMLImporterProperties#PROP_ARTIFICIAL_SSTRUCT}.
@@ -859,7 +857,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String text2= "comes";
 		String text3= "text";
 		
-		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
+		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
 		assertNotNull(prop);
 		prop.setValue(true);
 		
@@ -877,8 +875,8 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(4, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(4, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 	}
 	/**
 	 * Tests the same as {@link #testElementNodeWithComplexContent()} but with setted flag {@link GenericXMLImporterProperties#PROP_ARTIFICIAL_SSTRUCT}.
@@ -906,7 +904,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String text2= "comes";
 		String text3= "text";
 		
-		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
+		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
 		assertNotNull(prop);
 		prop.setValue(true);
 		
@@ -926,8 +924,8 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(5, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(5, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 	}
 	/**
 	 * Checks if spans are correctly created in hierarchies when using the prop genericXml.importer.asSSpan
@@ -952,7 +950,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementB= "b";
 		String elementC= "c";
 		
-		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_TEXT_ONLY);
+		PepperModuleProperty<Boolean> prop= (PepperModuleProperty<Boolean>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_TEXT_ONLY);
 		assertNotNull(prop);
 		prop.setValue(true);
 		
@@ -972,9 +970,9 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTextualDSs().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0));
-		assertEquals(text1+ text2, this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
+		assertEquals(text1+ text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
 	/**
 	 * Tests the use of property {@link GenericXMLImporterProperties#PROP_SMETA_ANNOTATION_SDOCUMENT}.
@@ -1002,7 +1000,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String att1= "att1";
 		String att2= "att2";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop);
 		prop.setValue("//"+elementMeta1+"//, //"+elementMeta1);
 		
@@ -1027,7 +1025,7 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.flush();
 		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
-		this.getFixture().getsDocumentGraph().setSDocument(sDocument);
+		this.getFixture().setSDocument(sDocument);
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
@@ -1036,9 +1034,9 @@ public class XML2SaltMapperTest extends TestCase {
 		assertEquals("val1", sDocument.getSMetaAnnotation(att1).getSValue());
 		assertNotNull(sDocument.getSMetaAnnotation(att2));
 		assertEquals("val2", sDocument.getSMetaAnnotation(att2).getSValue());
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSTextualDSs().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSTextualDSs().get(0));
-		assertEquals(text1+ text2, this.getFixture().getsDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
+		assertEquals(text1+ text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}	
 	
 	/**
@@ -1057,7 +1055,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	public void testProp_sMetaAnnotationSDocument_Attribute() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop);
 		prop.setValue("//b/@att1");
 		
@@ -1075,14 +1073,14 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.flush();
 		
 		SDocument sDocument= SaltFactory.eINSTANCE.createSDocument();
-		this.getFixture().getsDocumentGraph().setSDocument(sDocument);
+		this.getFixture().setSDocument(sDocument);
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
 		SNode a= null;
 		SNode b= null;
 		SNode c= null;
-		for (SNode sNode: this.getFixture().getsDocumentGraph().getSNodes())
+		for (SNode sNode: this.getFixture().getSDocument().getSDocumentGraph().getSNodes())
 		{
 			if ("a".equals(sNode.getSName()))
 				a= sNode;
@@ -1132,7 +1130,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementLayer= "layer";
 		String layerAtt1= "layerAtt1";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
 		assertNotNull(prop);
 		prop.setValue("//"+elementLayer);
 		
@@ -1156,16 +1154,16 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0));
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSStructures().size());
-		assertEquals(5, this.getFixture().getsDocumentGraph().getSNodes().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0));
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+		assertEquals(5, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
-		assertEquals(2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSNodes().size());
+		assertEquals(2, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSRelations().size());
 	}
 	
 	/**
@@ -1211,7 +1209,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String elementLayer= "layer";
 		String layerAtt1= "layerAtt1";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
 		assertNotNull(prop);
 		prop.setValue("//"+elementLayer);
 		
@@ -1246,16 +1244,16 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0));
-		assertEquals(1, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
-		assertNotNull(this.getFixture().getsDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(4, this.getFixture().getsDocumentGraph().getSStructures().size());
-		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSNodes(), 8, this.getFixture().getsDocumentGraph().getSNodes().size());
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0));
+		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSMetaAnnotations().size());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSMetaAnnotation(layerAtt1));
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(4, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+		assertEquals("nodes: "+this.getFixture().getSDocument().getSDocumentGraph().getSNodes(), 8, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 		
-		assertEquals("nodes: "+this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes(), 4, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSNodes().size());
-		assertEquals("relations: "+ this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations(), 2, this.getFixture().getsDocumentGraph().getSLayers().get(0).getSRelations().size());
+		assertEquals("nodes: "+this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSNodes(), 4, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSNodes().size());
+		assertEquals("relations: "+ this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSRelations(), 2, this.getFixture().getSDocument().getSDocumentGraph().getSLayers().get(0).getSRelations().size());
 	}	
 	/**
 	 * Tests if for the given xml fragment artificial {@link SAnnotation} objects containing the name of the element-node as sname and
@@ -1275,7 +1273,7 @@ public class XML2SaltMapperTest extends TestCase {
 		String text2= "comes";
 		String text3= "text";
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_ELEMENTNAME_AS_SANNO);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_ELEMENTNAME_AS_SANNO);
 		assertNotNull(prop);
 		prop.setValue("//b, //b//");
 		
@@ -1298,12 +1296,12 @@ public class XML2SaltMapperTest extends TestCase {
 		String xml= outStream.toString();
 		start(this.getFixture(), xml);
 		
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(3, this.getFixture().getsDocumentGraph().getSStructures().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
 		SNode b= null;
 		SNode c= null;
 		SNode d= null;
-		for (SNode sNode: this.getFixture().getsDocumentGraph().getSNodes())
+		for (SNode sNode: this.getFixture().getSDocument().getSDocumentGraph().getSNodes())
 		{
 			if ("b".equals(sNode.getSName()))
 				b= sNode;
@@ -1332,7 +1330,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	public void testHierarchies() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
-		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop2);
 		prop2.setValue("//document");
 		
@@ -1346,15 +1344,15 @@ public class XML2SaltMapperTest extends TestCase {
 		
 		assertNotNull(template);
 		//TODO: just some tests to check if numbers of elements are equal, this test is a simplifictaion until an isomorphy tests exists for graphs 
-        assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getsDocumentGraph().getSNodes().size());
-        assertEquals(template.getSDocumentGraph().getSRelations().size(), this.getFixture().getsDocumentGraph().getSRelations().size());
-        assertEquals(template.getSDocumentGraph().getSTextualDSs().size(), this.getFixture().getsDocumentGraph().getSTextualDSs().size());
-        assertEquals(template.getSDocumentGraph().getSTokens().size(), this.getFixture().getsDocumentGraph().getSTokens().size());
-        assertEquals(template.getSDocumentGraph().getSStructures().size(), this.getFixture().getsDocumentGraph().getSStructures().size());
-        assertEquals(template.getSDocumentGraph().getSSpans().size(), this.getFixture().getsDocumentGraph().getSSpans().size());
-        assertEquals(template.getSDocumentGraph().getSTextualRelations().size(), this.getFixture().getsDocumentGraph().getSTextualRelations().size());
-        assertEquals(template.getSDocumentGraph().getSDominanceRelations().size(), this.getFixture().getsDocumentGraph().getSDominanceRelations().size());
-        assertEquals(template.getSDocumentGraph().getSSpanningRelations().size(), this.getFixture().getsDocumentGraph().getSSpanningRelations().size());
+        assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
+        assertEquals(template.getSDocumentGraph().getSRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSRelations().size());
+        assertEquals(template.getSDocumentGraph().getSTextualDSs().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
+        assertEquals(template.getSDocumentGraph().getSTokens().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+        assertEquals(template.getSDocumentGraph().getSStructures().size(), this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+        assertEquals(template.getSDocumentGraph().getSSpans().size(), this.getFixture().getSDocument().getSDocumentGraph().getSSpans().size());
+        assertEquals(template.getSDocumentGraph().getSTextualRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTextualRelations().size());
+        assertEquals(template.getSDocumentGraph().getSDominanceRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSDominanceRelations().size());
+        assertEquals(template.getSDocumentGraph().getSSpanningRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSSpanningRelations().size());
 	}
 	
 	/**
@@ -1368,13 +1366,13 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	public void testSpans() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
-		PepperModuleProperty<String> prop1= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
+		PepperModuleProperty<String> prop1= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
 		assertNotNull(prop1);
 		prop1.setValue("//sSpan1, //sSpan2");
-		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
+		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
 		assertNotNull(prop2);
 		prop2.setValue("//document");
-		PepperModuleProperty<String> prop3= (PepperModuleProperty<String>)this.getFixture().getProps().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
+		PepperModuleProperty<String> prop3= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
 		assertNotNull(prop3);
 		prop3.setValue("//"+SaltSample.MORPHOLOGY_LAYER);
 		
@@ -1382,24 +1380,25 @@ public class XML2SaltMapperTest extends TestCase {
 		String xmlDocument= outStream.toString();
 		
 		this.start(this.getFixture(), xmlDocument);
-		this.getFixture().getsDocumentGraph().setSDocument(SaltFactory.eINSTANCE.createSDocument());
-		this.getFixture().getsDocumentGraph().getSDocument().createSMetaAnnotation(null, "author", "John Doe");
+//		this.getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+//		this.getFixture().getSDocument().createSMetaAnnotation(null, "author", "John Doe");
 		
 		SDocument template= SaltFactory.eINSTANCE.createSDocument();
 		SaltSample.createInformationStructureSpan(template);
 		SaltSample.createInformationStructureAnnotations(template);
 		
 		assertNotNull(template);
+		
 		//TODO: just some tests to check if numbers of elements are equal, this test is a simplifictaion until an isomorphy tests exists for graphs 
-		assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getsDocumentGraph().getSNodes().size());
-		assertEquals(template.getSDocumentGraph().getSRelations().size(), this.getFixture().getsDocumentGraph().getSRelations().size());
-		assertEquals(template.getSDocumentGraph().getSTextualDSs().size(), this.getFixture().getsDocumentGraph().getSTextualDSs().size());
-		assertEquals(template.getSDocumentGraph().getSTokens().size(), this.getFixture().getsDocumentGraph().getSTokens().size());
-		assertEquals(template.getSDocumentGraph().getSStructures().size(), this.getFixture().getsDocumentGraph().getSStructures().size());
-		assertEquals(template.getSDocumentGraph().getSSpans().size(), this.getFixture().getsDocumentGraph().getSSpans().size());
-		assertEquals(template.getSDocumentGraph().getSTextualRelations().size(), this.getFixture().getsDocumentGraph().getSTextualRelations().size());
-		assertEquals(template.getSDocumentGraph().getSDominanceRelations().size(), this.getFixture().getsDocumentGraph().getSDominanceRelations().size());
-		assertEquals(template.getSDocumentGraph().getSSpanningRelations().size(), this.getFixture().getsDocumentGraph().getSSpanningRelations().size());
+		assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
+		assertEquals(template.getSDocumentGraph().getSRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSRelations().size());
+		assertEquals(template.getSDocumentGraph().getSTextualDSs().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
+		assertEquals(template.getSDocumentGraph().getSTokens().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(template.getSDocumentGraph().getSStructures().size(), this.getFixture().getSDocument().getSDocumentGraph().getSStructures().size());
+		assertEquals(template.getSDocumentGraph().getSSpans().size(), this.getFixture().getSDocument().getSDocumentGraph().getSSpans().size());
+		assertEquals(template.getSDocumentGraph().getSTextualRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTextualRelations().size());
+		assertEquals(template.getSDocumentGraph().getSDominanceRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSDominanceRelations().size());
+		assertEquals(template.getSDocumentGraph().getSSpanningRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSSpanningRelations().size());
 	}
 	
 	/**
