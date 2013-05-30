@@ -25,7 +25,7 @@
   <parent>
     <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
     <artifactId>pepper-parentModule</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6-SNAPSHOT</version>
   </parent>
   <description>This project provides an importer to map data from any xml to Salt.</description>
   <url>https://korpling.german.hu-berlin.de/p/projects/peppermodules-genericxmlmodules</url>
@@ -94,7 +94,7 @@
       <!-- end: creation of bundle jar -->
       
       
-            <!-- start: maven site plugin -->
+      <!-- start: maven site plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-site-plugin</artifactId>
@@ -251,6 +251,7 @@
         </executions>
       </plugin>
       <!-- start: copying of OSGI-INF -->
+	  <!--
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>${maven-resources-plugin.version}</version>
@@ -290,6 +291,7 @@
 
         </executions>
       </plugin>
+	  -->
       <!-- end of docbook plugin -->
     </plugins>
   </build>
