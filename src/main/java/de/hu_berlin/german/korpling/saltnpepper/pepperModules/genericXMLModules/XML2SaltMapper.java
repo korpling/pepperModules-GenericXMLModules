@@ -33,6 +33,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.Pepper
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
+import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Label;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
@@ -291,12 +292,19 @@ public class XML2SaltMapper extends PepperMapperImpl {
 						if (((GenericXMLImporterProperties)getProperties()).isCreateSStructure())
 		                {//if prop for creating artificial structure is set
 					        SNode sNode= null;
-			                if (this.matches(((GenericXMLImporterProperties)getProperties()).getAsSpans(), currentXPath))
+					        //must be removed and added later on for matches()
+					        currentXPath.removeLastStep();
+					        if (this.matches(((GenericXMLImporterProperties)getProperties()).getAsSpans(), currentXPath))
+			                {
 			                    sNode= SaltFactory.eINSTANCE.createSSpan();
-			                else sNode= SaltFactory.eINSTANCE.createSStructure();
+			                }
+			                else{
+			                	sNode= SaltFactory.eINSTANCE.createSStructure();
+			                }
+					        currentXPath.addStep(XPathExpression.XML_TEXT);
 			                sNode.setSName("art");
 				            this.getsDocumentGraph().addSNode(sNode);
-				                
+				            
 		                    SRelation sRel= null;
 		                    if (sNode instanceof SSpan)
 		                      sRel= SaltFactory.eINSTANCE.createSSpanningRelation();
@@ -312,6 +320,15 @@ public class XML2SaltMapper extends PepperMapperImpl {
 		                            this.sLayerStack.peek().getSRelations().add(sRel);
 		                        }//add to sLayer if exist
 		                    }
+		                    //copy all SAnnotations from SToken to artificial SNode
+		                    for (SAnnotation sAnno: sToken.getSAnnotations()){
+		                    	sNode.addSAnnotation(sAnno);
+		                    }
+		                  //copy all SMetaAnnotations from SToken to artificial SNode
+		                    for (SMetaAnnotation sMetaAnno: sToken.getSMetaAnnotations()){
+		                    	sNode.addSMetaAnnotation(sMetaAnno);
+		                    }
+		                    	
 			                //put current node to open nodes of father node 
 			                if (this.elementNodeStack.size()>1)
 			                	this.elementNodeStack.get(this.elementNodeStack.size()-2).openSNodes.add(sNode);
