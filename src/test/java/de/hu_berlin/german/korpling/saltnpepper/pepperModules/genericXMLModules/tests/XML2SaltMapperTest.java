@@ -1643,4 +1643,56 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter.writeEndDocument();
 		xmlWriter.flush();
 	}
+	
+	/**
+	 * Tests if when the property {@link GenericXMLImporterProperties#PROP_ARTIFICIAL_SSTRUCT} is set to <code>true</code> and
+	 * when {@link GenericXMLImporterProperties#PROP_AS_SPANS} is set to '//' (to every xml-element).
+	 * The xml snippet:
+	 * <br/>
+	 * &lt;a&gt;&lt;b&gt;Is&lt;/b&gt;&lt;b&gt;this&lt;/b&gt;&lt;b&gt;&lt;c&gt;&lt;d&gt;example&lt;/d&gt;&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;
+	 * <br/>
+	 * Shall be mapped to:
+	 * {@link SToken} object having one {@link SAnnotation} having the name a_attB1 and one {@link SAnnotation} having the name attA2.
+	 * @throws XMLStreamException 
+	 * @throws IOException 
+	 * @throws SAXException 
+	 * @throws ParserConfigurationException 
+	 * 
+	 */
+	public void testProp_createArtStruct_and_asSpan() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
+	{
+		PepperModuleProperty<Boolean> prop1= (PepperModuleProperty<Boolean>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);
+		assertNotNull(prop1);
+		prop1.setValue(Boolean.TRUE);
+		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
+		assertNotNull(prop2);
+		prop2.setValue("//");
+		
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("a");
+			xmlWriter.writeStartElement("b");
+				xmlWriter.writeCharacters("Is");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement("b");
+				xmlWriter.writeCData("this");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeStartElement("b");
+				xmlWriter.writeStartElement("c");
+					xmlWriter.writeStartElement("d");
+						xmlWriter.writeCData("example");
+					xmlWriter.writeEndElement();
+				xmlWriter.writeEndElement();
+			xmlWriter.writeEndElement();	
+		xmlWriter.writeEndElement();
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+		
+		String xml= outStream.toString();
+		start(this.getFixture(), xml);
+		
+		assertEquals(3, this.getFixture().getSDocument().getSDocumentGraph().getSTokens().size());
+		assertEquals(6, this.getFixture().getSDocument().getSDocumentGraph().getSSpans().size());
+		assertEquals(10, this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
+		
+	}	
 }
