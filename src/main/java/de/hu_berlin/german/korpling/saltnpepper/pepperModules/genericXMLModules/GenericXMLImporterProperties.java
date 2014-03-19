@@ -23,8 +23,8 @@ import java.util.Vector;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;

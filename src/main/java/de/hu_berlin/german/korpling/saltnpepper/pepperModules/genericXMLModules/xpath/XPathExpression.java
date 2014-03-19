@@ -19,7 +19,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 import java.util.List;
 import java.util.Vector;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
 
 
 
@@ -124,7 +124,7 @@ public class XPathExpression {
 	{
 		if (	(xPathExpression1== null)||
 				(xPathExpression2== null))
-			throw new GenericXMLModuleException("Cannot match against an empty XPath expression.");
+			throw new PepperModuleException("Cannot match against an empty XPath expression.");
 		
 		boolean goOn= true;
 		int step1= 0;

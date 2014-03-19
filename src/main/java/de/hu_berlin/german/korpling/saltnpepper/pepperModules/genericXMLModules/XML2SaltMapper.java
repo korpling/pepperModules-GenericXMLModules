@@ -28,12 +28,11 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Label;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
@@ -60,8 +59,8 @@ public class XML2SaltMapper extends PepperMapperImpl {
 	 * OVERRIDE THIS METHOD FOR CUSTOMIZED MAPPING.
 	 */
 	@Override
-	public MAPPING_RESULT mapSCorpus() {
-		return(MAPPING_RESULT.FINISHED);
+	public DOCUMENT_STATUS mapSCorpus() {
+		return(DOCUMENT_STATUS.COMPLETED);
 	}
 	
 	/**
@@ -70,19 +69,18 @@ public class XML2SaltMapper extends PepperMapperImpl {
 	 * OVERRIDE THIS METHOD FOR CUSTOMIZED MAPPING.
 	 */
 	@Override
-	public MAPPING_RESULT mapSDocument() {
+	public DOCUMENT_STATUS mapSDocument() {
 		if (this.getSDocument().getSDocumentGraph()== null)
 			this.getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		try
-		{
+		try{
 			XMLReader reader= new XMLReader();
 			this.readXMLResource(reader, this.getResourceURI());
 		}catch (Exception e)
 		{
 			e.printStackTrace();
-			return(MAPPING_RESULT.FAILED);
+			return(DOCUMENT_STATUS.FAILED);
 		}
-		return(MAPPING_RESULT.FINISHED); 
+		return(DOCUMENT_STATUS.COMPLETED); 
 	}
 	
 	/**
@@ -90,15 +88,11 @@ public class XML2SaltMapper extends PepperMapperImpl {
      * @param text
      * @return
      */
-    public synchronized boolean onlyContainsIgnorableCharacters(String text)
-    {
+    public synchronized boolean onlyContainsIgnorableCharacters(String text){
         int ignorableCharacters= 0;
-        for (Character ch:text.toCharArray())
-        {
-            for (String ignorableWhitespace: ((GenericXMLImporterProperties)getProperties()).getIgnorableWhitespaces())
-            {
-                if (ignorableWhitespace.equals(ch.toString()))
-                {
+        for (Character ch:text.toCharArray()){
+            for (String ignorableWhitespace: ((GenericXMLImporterProperties)getProperties()).getIgnorableWhitespaces()){
+                if (ignorableWhitespace.equals(ch.toString())){
                     ignorableCharacters++;
                     break;
                 }

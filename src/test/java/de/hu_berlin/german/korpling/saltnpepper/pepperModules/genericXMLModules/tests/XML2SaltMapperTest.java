@@ -33,9 +33,15 @@ import junit.framework.TestCase;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.XML2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
@@ -51,7 +57,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
-public class XML2SaltMapperTest extends TestCase {
+public class XML2SaltMapperTest{
 
 	private XML2SaltMapper fixture= null;
 
@@ -77,7 +83,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 */
 	private GenericXMLImporterProperties props= null;
 	
-	@Override
+	@Before
 	public void setUp() throws XMLStreamException
 	{
 		XML2SaltMapper mapper= new XML2SaltMapper();
@@ -93,9 +99,8 @@ public class XML2SaltMapperTest extends TestCase {
 		xmlWriter= o.createXMLStreamWriter(outStream);		
 	}
 	
-	@Override
-	public void tearDown()
-	{
+	@After
+	public void tearDown(){
 		outStream.reset();
 	}
 	
@@ -121,7 +126,7 @@ public class XML2SaltMapperTest extends TestCase {
 		this.getFixture().setResourceURI(URI.createFileURI(tmpFile.getAbsolutePath()));
 		this.getFixture().mapSDocument();
 	}	
-	
+	@Test
 	public void testOnlyContainsIgnorableCharacters()
 	{
 	    assertTrue(this.getFixture().onlyContainsIgnorableCharacters(" "));
@@ -142,6 +147,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSimpleText() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text= "Is this example more complicated than it appears to?";
@@ -178,6 +184,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSimpleText_Interrupt() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "Is this example more";
@@ -217,6 +224,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSimpleToken() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text= "Is this example more complicated than it appears to?";
@@ -253,6 +261,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSimpleToken_WithAttribute() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text= "Is this example more complicated than it appears to?";
@@ -290,6 +299,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSimpleToken_WithAttributes() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String attName1= "attName1";
@@ -345,6 +355,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testElementNodeWithComplexContent() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "here";
@@ -387,6 +398,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testDeepHierarchie() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "a";
@@ -432,6 +444,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSTokensAndSAnnotations() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "here";
@@ -478,6 +491,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testJustSToken() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "text";
@@ -509,6 +523,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testElementNodeMixedContent() throws XMLStreamException, ParserConfigurationException, SAXException, IOException 
 	{
 		xmlWriter.writeStartDocument();
@@ -554,6 +569,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testElementNodeMixedContent2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException 
 	{
 		xmlWriter.writeStartDocument();
@@ -597,6 +613,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws SAXException
 	 * @throws IOException
 	 */
+	@Test
 	public void testXMLNamespaces() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		xmlWriter.writeStartDocument();
@@ -646,6 +663,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_prefixSAnnotation() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "here";
@@ -692,6 +710,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sMetaAnnotation() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "here";
@@ -747,6 +766,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sMetaAnnotation2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text= "a sample text";
@@ -798,6 +818,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_asSpan() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "a";
@@ -851,6 +872,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testProp_ArtificialStruct() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "here";
@@ -898,6 +920,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testProp_ArtificialStruct2() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "here";
@@ -942,6 +965,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_textOnly() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "a";
@@ -988,6 +1012,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sMetaAnnotationSDocument() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "a";
@@ -1053,6 +1078,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sMetaAnnotationSDocument_Attribute() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
@@ -1120,6 +1146,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sLayer() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "a";
@@ -1197,6 +1224,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_sLayer2() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		String text1= "a";
@@ -1267,6 +1295,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testProp_PrefixElementNameAsSAnno() throws ParserConfigurationException, SAXException, IOException, XMLStreamException
 	{
 		String text1= "here";
@@ -1328,6 +1357,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testHierarchies() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		PepperModuleProperty<String> prop2= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SMETA_ANNOTATION_SDOCUMENT);
@@ -1364,6 +1394,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSpans() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		PepperModuleProperty<String> prop1= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_AS_SPANS);
@@ -1659,6 +1690,7 @@ public class XML2SaltMapperTest extends TestCase {
 	 * @throws ParserConfigurationException 
 	 * 
 	 */
+	@Test
 	public void testProp_createArtStruct_and_asSpan() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		PepperModuleProperty<Boolean> prop1= (PepperModuleProperty<Boolean>)this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT);

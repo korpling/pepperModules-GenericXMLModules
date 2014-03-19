@@ -17,6 +17,10 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,15 +31,15 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.eclipse.emf.common.util.URI;
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.CorpusDefinition;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModulesFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testSuite.moduleTests.PepperImporterTest;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.CorpusDesc;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperImporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporter;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltCommonFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
@@ -43,25 +47,24 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 public class GenericXMLImporterTest extends PepperImporterTest
 {	
 	URI resourceURI= URI.createFileURI(new File(".").getAbsolutePath());
-	URI temproraryURI= URI.createFileURI(System.getProperty("java.io.tmpdir"));	
 	
-	protected void setUp() throws Exception 
+	@Before
+	public void setUp() throws Exception 
 	{
 		super.setFixture(new GenericXMLImporter());
 		
-		super.getFixture().setSaltProject(SaltCommonFactory.eINSTANCE.createSaltProject());
+		super.getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
+		
 		super.setResourcesURI(resourceURI);
-		super.setTemprorariesURI(temproraryURI);
 		
 		//setting temproraries and resources
-		this.getFixture().setTemproraries(temproraryURI);
 		this.getFixture().setResources(resourceURI);
 		
 		//set formats to support
-		FormatDefinition formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
-		formatDef.setFormatName("xml");
-		formatDef.setFormatVersion("1.0");
-		this.supportedFormatsCheck.add(formatDef);
+		FormatDesc formatDesc= new FormatDesc();
+		formatDesc.setFormatName("xml");
+		formatDesc.setFormatVersion("1.0");
+		this.supportedFormatsCheck.add(formatDesc);
 	}
 	
 	/**
@@ -81,6 +84,7 @@ public class GenericXMLImporterTest extends PepperImporterTest
 	 * @throws ParserConfigurationException 
 	 * @throws XMLStreamException 
 	 */
+	@Test
 	public void testSet1() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
 	{
 		//start: create xml-structure
@@ -135,21 +139,22 @@ public class GenericXMLImporterTest extends PepperImporterTest
 		//end: create xml-structure
 		
 		//start: creating and setting corpus definition
-			CorpusDefinition corpDef= PepperModulesFactory.eINSTANCE.createCorpusDefinition();
-			FormatDefinition formatDef= PepperModulesFactory.eINSTANCE.createFormatDefinition();
-			formatDef.setFormatName("xml");
-			formatDef.setFormatVersion("1.0");
-			corpDef.setFormatDefinition(formatDef);
-			corpDef.setCorpusPath(URI.createFileURI(rootCorpus.getAbsolutePath()));
-			this.getFixture().setCorpusDefinition(corpDef);
+			CorpusDesc corpDesc= new CorpusDesc();
+			FormatDesc formatDesc= new FormatDesc();
+			formatDesc.setFormatName("xml");
+			formatDesc.setFormatVersion("1.0");
+			corpDesc.setFormatDesc(formatDesc);
+			corpDesc.setCorpusPath(URI.createFileURI(rootCorpus.getAbsolutePath()));
+			this.getFixture().setCorpusDesc(corpDesc);
 		//end: creating and setting corpus definition
 		
-		SCorpusGraph importedSCorpusGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
-		this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
+//		SCorpusGraph importedSCorpusGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
+//		this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
 		
 		//runs the PepperModule
 		this.start();
 		
+		SCorpusGraph importedSCorpusGraph= getFixture().getSaltProject().getSCorpusGraphs().get(0);
 		//check importCorpusStructure
 		assertNotNull(importedSCorpusGraph.getSCorpora());
 		assertEquals(3, importedSCorpusGraph.getSCorpora().size());
@@ -188,11 +193,5 @@ public class GenericXMLImporterTest extends PepperImporterTest
         assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTextualDSs());
         assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens());
         assertTrue(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens().size()>0);
-		
-		
-//		assertEquals(sDoc13, importedCorpusGraph.getSDocuments().get(0));
-//		assertEquals(sDoc13, importedCorpusGraph.getSDocuments().get(2));
-//		assertEquals(sDoc24, importedCorpusGraph.getSDocuments().get(1));
-//		assertEquals(sDoc24, importedCorpusGraph.getSDocuments().get(3));
 	}
 }
