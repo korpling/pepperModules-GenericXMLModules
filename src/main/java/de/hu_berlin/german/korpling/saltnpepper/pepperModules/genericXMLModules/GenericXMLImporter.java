@@ -30,57 +30,50 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
- * Imports data coming from any XML file. The textual content of an element will be interpreted as a sequence of primary data. When processing the file, the importer will concatenate all
- * these texts to an entire primary text.
+ * Imports data coming from any XML file. The textual content of an element will
+ * be interpreted as a sequence of primary data. When processing the file, the
+ * importer will concatenate all these texts to an entire primary text.
  * 
  * @author Florian Zipser
  * @version 1.0
- *
+ * 
  */
-@Component(name="GenericXMLImporterComponent", factory="PepperImporterComponentFactory")
-public class GenericXMLImporter extends PepperImporterImpl implements PepperImporter
-{
-	public GenericXMLImporter()
-	{
+@Component(name = "GenericXMLImporterComponent", factory = "PepperImporterComponentFactory")
+public class GenericXMLImporter extends PepperImporterImpl implements PepperImporter {
+	public GenericXMLImporter() {
 		super();
 		this.setName("GenericXMLImporter");
 		this.addSupportedFormat(ENDING_XML, "1.0", null);
 		this.setProperties(new GenericXMLImporterProperties());
 	}
-	
+
 	/**
 	 * Called by Pepper framework and initializes supported file endings.
 	 */
 	@Override
-	public boolean isReadyToStart()
-	{
-		Boolean retVal= super.isReadyToStart();
-		List<String> fileEndings= ((GenericXMLImporterProperties)this.getProperties()).getFileEndings();
-		
-		if(		(fileEndings== null)||
-				(fileEndings.size()== 0)){
+	public boolean isReadyToStart() {
+		Boolean retVal = super.isReadyToStart();
+		List<String> fileEndings = ((GenericXMLImporterProperties) this.getProperties()).getFileEndings();
+
+		if ((fileEndings == null) || (fileEndings.size() == 0)) {
 			this.getSDocumentEndings().add(ENDING_XML);
-		}
-		else if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL)){
+		} else if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL)) {
 			this.getSDocumentEndings().add(ENDING_ALL_FILES);
-		}
-		else if (	(fileEndings!= null)&&
-					(!fileEndings.contains(GenericXMLImporterProperties.KW_ALL))){
+		} else if ((fileEndings != null) && (!fileEndings.contains(GenericXMLImporterProperties.KW_ALL))) {
 			this.getSDocumentEndings().addAll(fileEndings);
 		}
-		return(retVal);
+		return (retVal);
 	}
-		
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}.
-	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
+	 * PepperModule#createPepperMapper(SElementId)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId)
-	{
-		XML2SaltMapper mapper= new XML2SaltMapper();
-		URI resource= getSElementId2ResourceTable().get(sElementId);
+	public PepperMapper createPepperMapper(SElementId sElementId) {
+		XML2SaltMapper mapper = new XML2SaltMapper();
+		URI resource = getSElementId2ResourceTable().get(sElementId);
 		mapper.setResourceURI(resource);
-		return(mapper);
+		return (mapper);
 	}
 }

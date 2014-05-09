@@ -44,31 +44,30 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 
-public class GenericXMLImporterTest extends PepperImporterTest
-{	
-	URI resourceURI= URI.createFileURI(new File(".").getAbsolutePath());
-	
+public class GenericXMLImporterTest extends PepperImporterTest {
+	URI resourceURI = URI.createFileURI(new File(".").getAbsolutePath());
+
 	@Before
-	public void setUp() throws Exception 
-	{
+	public void setUp() throws Exception {
 		super.setFixture(new GenericXMLImporter());
-		
+
 		super.getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
-		
+
 		super.setResourcesURI(resourceURI);
-		
-		//setting temproraries and resources
+
+		// setting temproraries and resources
 		this.getFixture().setResources(resourceURI);
-		
-		//set formats to support
-		FormatDesc formatDesc= new FormatDesc();
+
+		// set formats to support
+		FormatDesc formatDesc = new FormatDesc();
 		formatDesc.setFormatName("xml");
 		formatDesc.setFormatVersion("1.0");
 		this.supportedFormatsCheck.add(formatDesc);
 	}
-	
+
 	/**
 	 * Creates a corpus having the following simple corpus structure:
+	 * 
 	 * <pre>
 	 * 			corp1
 	 * 		/			\
@@ -77,121 +76,123 @@ public class GenericXMLImporterTest extends PepperImporterTest
 	 * doc1	doc2		doc3	doc4
 	 * </pre>
 	 * 
-	 * doc1 and doc3 are created with {@link XML2SaltMapperTest#createHierarchy()} and
-	 * doc2 and doc4 are created with {@link XML2SaltMapperTest#createSpan()} and
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws ParserConfigurationException 
-	 * @throws XMLStreamException 
+	 * doc1 and doc3 are created with
+	 * {@link XML2SaltMapperTest#createHierarchy()} and doc2 and doc4 are
+	 * created with {@link XML2SaltMapperTest#createSpan()} and
+	 * 
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 * @throws XMLStreamException
 	 */
 	@Test
-	public void testSet1() throws XMLStreamException, ParserConfigurationException, SAXException, IOException
-	{
-		//start: create xml-structure
-			File tmpFolder= new File(System.getProperty("java.io.tmpdir"));
-			File rootCorpus= new File(tmpFolder.getAbsolutePath()+"/corp1");
-			rootCorpus.mkdirs();
-			File corp2= new File(rootCorpus.getAbsolutePath()+"/corp2");
-			corp2.mkdirs();
-			File corp3= new File(rootCorpus.getAbsolutePath()+"/corp3");
-			corp3.mkdirs();
-			
-			File doc1= new File(corp2.getAbsolutePath()+"/doc1.xml");
-			File doc2= new File(corp2.getAbsolutePath()+"/doc2.xml");
-			File doc3= new File(corp3.getAbsolutePath()+"/doc3.xml");
-			File doc4= new File(corp3.getAbsolutePath()+"/doc4.xml");
-			
-			XMLOutputFactory xof= null;
-			XMLStreamWriter xmlWriter= null;
-			
-			//write doc1
-			xof = XMLOutputFactory.newInstance();
-	        xmlWriter = null;
-	        xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc1.getAbsolutePath()));
-	        XML2SaltMapperTest.createHierarchy(xmlWriter);
-	        xmlWriter.flush();
-	        xmlWriter.close();
-	        
-	      //write doc2
-			xof = XMLOutputFactory.newInstance();
-	        xmlWriter = null;
-	        xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc2.getAbsolutePath()));
-	        XML2SaltMapperTest.createSpan(xmlWriter);
-	        xmlWriter.flush();
-	        xmlWriter.close();
-	        
-	      //write doc3
-			xof = XMLOutputFactory.newInstance();
-	        xmlWriter = null;
-	        xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc3.getAbsolutePath()));
-	        XML2SaltMapperTest.createHierarchy(xmlWriter);
-	        xmlWriter.flush();
-	        xmlWriter.close();
-	        
-	      //write doc4
-			xof = XMLOutputFactory.newInstance();
-	        xmlWriter = null;
-	        xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc4.getAbsolutePath()));
-	        XML2SaltMapperTest.createSpan(xmlWriter);
-	        xmlWriter.flush();
-	        xmlWriter.close();
-			
-		//end: create xml-structure
-		
-		//start: creating and setting corpus definition
-			CorpusDesc corpDesc= new CorpusDesc();
-			FormatDesc formatDesc= new FormatDesc();
-			formatDesc.setFormatName("xml");
-			formatDesc.setFormatVersion("1.0");
-			corpDesc.setFormatDesc(formatDesc);
-			corpDesc.setCorpusPath(URI.createFileURI(rootCorpus.getAbsolutePath()));
-			this.getFixture().setCorpusDesc(corpDesc);
-		//end: creating and setting corpus definition
-		
-//		SCorpusGraph importedSCorpusGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
-//		this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
-		
-		//runs the PepperModule
+	public void testSet1() throws XMLStreamException, ParserConfigurationException, SAXException, IOException {
+		// start: create xml-structure
+		File tmpFolder = new File(System.getProperty("java.io.tmpdir"));
+		File rootCorpus = new File(tmpFolder.getAbsolutePath() + "/corp1");
+		rootCorpus.mkdirs();
+		File corp2 = new File(rootCorpus.getAbsolutePath() + "/corp2");
+		corp2.mkdirs();
+		File corp3 = new File(rootCorpus.getAbsolutePath() + "/corp3");
+		corp3.mkdirs();
+
+		File doc1 = new File(corp2.getAbsolutePath() + "/doc1.xml");
+		File doc2 = new File(corp2.getAbsolutePath() + "/doc2.xml");
+		File doc3 = new File(corp3.getAbsolutePath() + "/doc3.xml");
+		File doc4 = new File(corp3.getAbsolutePath() + "/doc4.xml");
+
+		XMLOutputFactory xof = null;
+		XMLStreamWriter xmlWriter = null;
+
+		// write doc1
+		xof = XMLOutputFactory.newInstance();
+		xmlWriter = null;
+		xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc1.getAbsolutePath()));
+		XML2SaltMapperTest.createHierarchy(xmlWriter);
+		xmlWriter.flush();
+		xmlWriter.close();
+
+		// write doc2
+		xof = XMLOutputFactory.newInstance();
+		xmlWriter = null;
+		xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc2.getAbsolutePath()));
+		XML2SaltMapperTest.createSpan(xmlWriter);
+		xmlWriter.flush();
+		xmlWriter.close();
+
+		// write doc3
+		xof = XMLOutputFactory.newInstance();
+		xmlWriter = null;
+		xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc3.getAbsolutePath()));
+		XML2SaltMapperTest.createHierarchy(xmlWriter);
+		xmlWriter.flush();
+		xmlWriter.close();
+
+		// write doc4
+		xof = XMLOutputFactory.newInstance();
+		xmlWriter = null;
+		xmlWriter = xof.createXMLStreamWriter(new FileWriter(doc4.getAbsolutePath()));
+		XML2SaltMapperTest.createSpan(xmlWriter);
+		xmlWriter.flush();
+		xmlWriter.close();
+
+		// end: create xml-structure
+
+		// start: creating and setting corpus definition
+		CorpusDesc corpDesc = new CorpusDesc();
+		FormatDesc formatDesc = new FormatDesc();
+		formatDesc.setFormatName("xml");
+		formatDesc.setFormatVersion("1.0");
+		corpDesc.setFormatDesc(formatDesc);
+		corpDesc.setCorpusPath(URI.createFileURI(rootCorpus.getAbsolutePath()));
+		this.getFixture().setCorpusDesc(corpDesc);
+		// end: creating and setting corpus definition
+
+		// SCorpusGraph importedSCorpusGraph=
+		// SaltFactory.eINSTANCE.createSCorpusGraph();
+		// this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
+
+		// runs the PepperModule
 		this.start();
-		
-		SCorpusGraph importedSCorpusGraph= getFixture().getSaltProject().getSCorpusGraphs().get(0);
-		//check importCorpusStructure
+
+		SCorpusGraph importedSCorpusGraph = getFixture().getSaltProject().getSCorpusGraphs().get(0);
+		// check importCorpusStructure
 		assertNotNull(importedSCorpusGraph.getSCorpora());
 		assertEquals(3, importedSCorpusGraph.getSCorpora().size());
-		
+
 		assertNotNull(importedSCorpusGraph.getSDocuments());
 		assertEquals(4, importedSCorpusGraph.getSDocuments().size());
-		
-		SDocument sDoc13= SaltFactory.eINSTANCE.createSDocument();
+
+		SDocument sDoc13 = SaltFactory.eINSTANCE.createSDocument();
 		SaltSample.createSyntaxStructure(sDoc13);
 		SaltSample.createSyntaxAnnotations(sDoc13);
-		
-		SDocument sDoc24= SaltFactory.eINSTANCE.createSDocument();
+
+		SDocument sDoc24 = SaltFactory.eINSTANCE.createSDocument();
 		SaltSample.createInformationStructureSpan(sDoc24);
 		SaltSample.createInformationStructureAnnotations(sDoc24);
-		
+
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0));
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTextualDSs());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens());
-		assertTrue(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens().size()>0);
-        
+		assertTrue(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens().size() > 0);
+
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(1));
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTextualDSs());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens());
-        assertTrue(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens().size()>0);
-        
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(2));
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTextualDSs());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens());
-        assertTrue(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens().size()>0);
-        
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(3));
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTextualDSs());
-        assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens());
-        assertTrue(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens().size()>0);
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTextualDSs());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens());
+		assertTrue(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens().size() > 0);
+
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(2));
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTextualDSs());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens());
+		assertTrue(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens().size() > 0);
+
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(3));
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTextualDSs());
+		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens());
+		assertTrue(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens().size() > 0);
 	}
 }
