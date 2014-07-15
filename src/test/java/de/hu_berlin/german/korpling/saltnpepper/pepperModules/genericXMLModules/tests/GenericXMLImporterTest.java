@@ -172,28 +172,24 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 		SaltSample.createInformationStructureAnnotations(sDoc24);
 
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0));
-		importedSCorpusGraph.getSDocuments().get(0).loadSDocumentGraph();
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTextualDSs());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens());
 		assertTrue(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens().size() > 0);
 
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(1));
-		importedSCorpusGraph.getSDocuments().get(1).loadSDocumentGraph();
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTextualDSs());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens());
 		assertTrue(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens().size() > 0);
 
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(2));
-		importedSCorpusGraph.getSDocuments().get(2).loadSDocumentGraph();
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTextualDSs());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens());
 		assertTrue(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens().size() > 0);
 
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(3));
-		importedSCorpusGraph.getSDocuments().get(3).loadSDocumentGraph();
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTextualDSs());
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens());
