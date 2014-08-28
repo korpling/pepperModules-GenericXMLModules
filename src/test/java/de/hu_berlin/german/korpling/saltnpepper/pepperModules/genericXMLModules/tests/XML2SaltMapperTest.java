@@ -55,7 +55,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 
 public class XML2SaltMapperTest {
 
@@ -1426,8 +1426,8 @@ public class XML2SaltMapperTest {
 
 	/**
 	 * Tests the hierarchie structure created in {@link #createHierarchy()} and
-	 * compares it to {@link SaltSample#createSyntaxStructure(SDocument)} and
-	 * {@link SaltSample#createSyntaxAnnotations(SDocument)}.
+	 * compares it to {@link SampleGenerator#createSyntaxStructure(SDocument)} and
+	 * {@link SampleGenerator#createSyntaxAnnotations(SDocument)}.
 	 * 
 	 * @throws IOException
 	 * @throws SAXException
@@ -1445,12 +1445,12 @@ public class XML2SaltMapperTest {
 
 		this.start(this.getFixture(), xmlDocument);
 		SDocument template = SaltFactory.eINSTANCE.createSDocument();
-		SaltSample.createSyntaxStructure(template);
-		SaltSample.createSyntaxAnnotations(template);
+		SampleGenerator.createSyntaxStructure(template);
+		SampleGenerator.createSyntaxAnnotations(template);
 
 		assertNotNull(template);
 		// TODO: just some tests to check if numbers of elements are equal, this
-		// test is a simplifictaion until an isomorphy tests exists for graphs
+		// test is a simplification until an isomorphy tests exists for graphs
 		assertEquals(template.getSDocumentGraph().getSNodes().size(), this.getFixture().getSDocument().getSDocumentGraph().getSNodes().size());
 		assertEquals(template.getSDocumentGraph().getSRelations().size(), this.getFixture().getSDocument().getSDocumentGraph().getSRelations().size());
 		assertEquals(template.getSDocumentGraph().getSTextualDSs().size(), this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
@@ -1464,8 +1464,8 @@ public class XML2SaltMapperTest {
 
 	/**
 	 * Tests the span structure created in {@link #createSpan()} and compares it
-	 * to {@link SaltSample#createInformationStructureSpan(SDocument)} and
-	 * {@link SaltSample#createInformationStructureAnnotations(SDocument)}
+	 * to {@link SampleGenerator#createInformationStructureSpan(SDocument)} and
+	 * {@link SampleGenerator#createInformationStructureAnnotations(SDocument)}
 	 * 
 	 * @throws IOException
 	 * @throws SAXException
@@ -1482,7 +1482,7 @@ public class XML2SaltMapperTest {
 		prop2.setValue("//document");
 		PepperModuleProperty<String> prop3 = (PepperModuleProperty<String>) this.getFixture().getProperties().getProperty(GenericXMLImporterProperties.PROP_SLAYER);
 		assertNotNull(prop3);
-		prop3.setValue("//" + SaltSample.MORPHOLOGY_LAYER);
+		prop3.setValue("//" + SampleGenerator.MORPHOLOGY_LAYER);
 
 		createSpan(xmlWriter);
 		String xmlDocument = outStream.toString();
@@ -1493,8 +1493,8 @@ public class XML2SaltMapperTest {
 		// "author", "John Doe");
 
 		SDocument template = SaltFactory.eINSTANCE.createSDocument();
-		SaltSample.createInformationStructureSpan(template);
-		SaltSample.createInformationStructureAnnotations(template);
+		SampleGenerator.createInformationStructureSpan(template);
+		SampleGenerator.createInformationStructureAnnotations(template);
 
 		assertNotNull(template);
 
@@ -1513,8 +1513,8 @@ public class XML2SaltMapperTest {
 
 	/**
 	 * Reads the following xml-document, which represents the structure of
-	 * {@link SaltSample#createSyntaxStructure(SDocument)} and
-	 * {@link SaltSample#createSyntaxAnnotations(SDocument)}.
+	 * {@link SampleGenerator#createSyntaxStructure(SDocument)} and
+	 * {@link SampleGenerator#createSyntaxAnnotations(SDocument)}.
 	 * 
 	 * <pre>
 	 *  <code>
@@ -1562,94 +1562,99 @@ public class XML2SaltMapperTest {
 	 * @throws ParserConfigurationException
 	 */
 	public static void createHierarchy(XMLStreamWriter xmlWriter) throws XMLStreamException, ParserConfigurationException, SAXException, IOException {
-		String elemDocument = "document";
+		String elemRoot = "root";
 		String elemStruct = "struct";
 		String attConst = "const";
 		String elemTok = "tok";
-
+		
 		xmlWriter.writeStartDocument();
-		xmlWriter.writeStartElement(elemDocument);
+		xmlWriter.writeStartElement(elemRoot);//start of root
 		xmlWriter.writeAttribute("author", "John Doe");
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ_start
 		xmlWriter.writeAttribute(attConst, "SQ");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("Is");
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.NP_start
 		xmlWriter.writeAttribute(attConst, "NP");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("this");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("example");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeEndElement();//SQ.NP_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP_start
 		xmlWriter.writeAttribute(attConst, "ADJP");
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.ADJP_start
 		xmlWriter.writeAttribute(attConst, "ADJP");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("more");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("complicated");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeEndElement();//SQ.ADJP.ADJP_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR_start
 		xmlWriter.writeAttribute(attConst, "SBAR");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("than");
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S_start
 		xmlWriter.writeAttribute(attConst, "S");
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S.NP_start
 		xmlWriter.writeAttribute(attConst, "NP");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("it");
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S.NP_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S.VP_start
 		xmlWriter.writeAttribute(attConst, "VP");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("appears");
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S.VP.S_start
 		xmlWriter.writeAttribute(attConst, "S");
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S.VP.S.VP_start
 		xmlWriter.writeAttribute(attConst, "VP");
 
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("to");
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
 
-		xmlWriter.writeStartElement(elemStruct);
+		xmlWriter.writeStartElement(elemStruct);//SQ.ADJP.SBAR.S.VP.S.VP.VP_start
 		xmlWriter.writeAttribute(attConst, "VP");
-		xmlWriter.writeStartElement(elemTok);
+		xmlWriter.writeStartElement(elemTok);//tok_start
 		xmlWriter.writeCharacters("be");
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
-		xmlWriter.writeEndElement();
+		xmlWriter.writeEndElement();//tok_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S.VP.S.VP.VP_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S.VP.S.VP_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S.VP.S_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S.VP_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR.S_end
+		xmlWriter.writeEndElement();//SQ.ADJP.SBAR_end
+		xmlWriter.writeEndElement();//SQ.ADJP_end
+		xmlWriter.writeEndElement();//SQ_end
+		//inserted "?"
+		xmlWriter.writeStartElement(elemTok);//tok_start
+		xmlWriter.writeCharacters("?");
+		xmlWriter.writeEndElement();//tok_end
+		//end
+		xmlWriter.writeEndElement();//end of root		
 		xmlWriter.writeEndDocument();
 		xmlWriter.flush();
 	}
 
 	/**
 	 * Reads the following xml-document, which represents the structure of
-	 * {@link SaltSample#createInformationStructureSpan(SDocument)} and
-	 * {@link SaltSample#createInformationStructureAnnotations(SDocument)}.
+	 * {@link SampleGenerator#createInformationStructureSpan(SDocument)} and
+	 * {@link SampleGenerator#createInformationStructureAnnotations(SDocument)}.
 	 * 
 	 * <pre>
 	 *  <code>
@@ -1685,7 +1690,7 @@ public class XML2SaltMapperTest {
 	 */
 	public static void createSpan(XMLStreamWriter xmlWriter) throws XMLStreamException, ParserConfigurationException, SAXException, IOException {
 		String elemDocument = "document";
-		String elemMorphologie = SaltSample.MORPHOLOGY_LAYER;
+		String elemMorphologie = SampleGenerator.MORPHOLOGY_LAYER;
 		String attInf = "inf-struct";
 
 		xmlWriter.writeStartDocument();
@@ -1746,8 +1751,11 @@ public class XML2SaltMapperTest {
 
 		xmlWriter.writeStartElement("sTok10");
 		xmlWriter.writeCharacters("be");
-		xmlWriter.writeEndElement();
-		// xmlWriter.writeCharacters("?");
+		xmlWriter.writeEndElement();		
+		
+		xmlWriter.writeStartElement("sTok11");
+		xmlWriter.writeCharacters("?");
+		xmlWriter.writeEndElement();		
 
 		xmlWriter.writeEndElement();
 		xmlWriter.writeEndElement();
