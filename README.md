@@ -3,47 +3,47 @@
 This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework which is build on top of OSGi (see http://www.osgi.org/) to convert linguistic data comming from different formats into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format A to format B consists of two steps. First the data are mapped from format A to Salt and second from Salt to format B. This detour reduces the number of Pepper modules from n2-n (in the case of a direct mapping) to 2n to handle a number of n formats.
 This project provides a Pepper module to import data comming froma a wide range of xml formats to Salt. [[read more]](#GenericXMLImporter)
 
-## install in Pepper
+## Install module
 If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. 
 
-### windows
+### Windows
 
     pepperStart.bat is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-GenericXMLModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-GenericXMLModules_1.1.2.zip
 
-### linux/unix
+### Linux/Unix
 
     bash pepperStart.sh is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-GenericXMLModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-GenericXMLModules_1.1.2.zip
 
 
-## use in Pepper
+## Use in Pepper
 To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>.
 
-### identify the module by name
+### Identify the module by name
 
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS"/>
 ```
 
-### identify the module by formats
+### Identify the module by formats
 ```xml
 <importer formatName="xml" formatVersion="1.0" path="PATH_TO_CORPUS"/>
 ```
 
-### use properties
+### Use properties
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS">
   <property key="PROPERTY_NAME">PROPERTY_VALUE</key>
 </importer>
 ```
 
-## contribute
+## Contribute
 Since this Pepper module is under a free license, please feel free, to fork it from github and improve the module. If you think that even others can benefit from your improvements, don't hesitate to make a pull request, so that your fork can be merged back.
 If you have found any bugs, or have some feature request, please open an issue on github. If you need any help, please write an e-mail to saltnpepper@lists.hu-berlin.de .
 
-## funders
+## Funders
 This project was funded by the [department of corpus linguistics and morphology](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/) of the Humboldt-Universität zu Berlin, the Institut national de recherche en informatique et en automatique ([INRIA](www.inria.fr/en/)) and the [Sonderforschungsbereich 632](https://www.sfb632.uni-potsdam.de/en/). 
 
-## license
+## License
   Copyright 2009 Humboldt University of Berlin, INRIA.
 
   Licensed under the Apache License, Version 2.0 (the "License");
