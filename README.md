@@ -35,6 +35,7 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
 
 ## Usage
 To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
+A detailed description of the Pepper workflow can be found on the [Pepper project](https://github.com/korpling/pepper) site. 
 
 ### a) Identify the module by name
 
