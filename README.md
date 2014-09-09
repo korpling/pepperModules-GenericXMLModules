@@ -1,7 +1,23 @@
 ![by SaltNPepper project](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/forschung/icons/saltnpepper_logo/image)
 # pepperModules-GenericXMLModules
-This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework which is build on top of OSGi (see http://www.osgi.org/) to convert linguistic data comming from different formats into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format A to format B consists of two steps. First the data are mapped from format A to Salt and second from Salt to format B. This detour reduces the number of Pepper modules from n2-n (in the case of a direct mapping) to 2n to handle a number of n formats.
-This project provides a Pepper module to import data comming froma a wide range of xml formats to Salt. [[read more]](#GenericXMLImporter)
+This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like TigerXML, the EXMARaLDA format, PAULA etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format A to format B consists of two steps. First the data is mapped from format A to Salt and second from Salt to format B. This detour reduces the number of Pepper modules from n2-n (in the case of a direct mapping) to 2n to handle a number of n formats.
+
+
+In Pepper there are three different types of modules:
+* importers (to map a format A to a Salt model)
+* manipulators (to map a Salt model to a Salt model, e.g. to add additional annotations, to rename things to merge data etc.)
+* exporters (to map a Salt model to a fromat B).
+For a simple Pepper workflow you need at least one importer and one exporter.
+
+This project provides an importer to import data comming from a wide range of xml formats to Salt. A detailed description of that mapping can be found [[here]](#GenericXMLImporter).
+
+## Requirements
+Since the here provided module is a plugin for Pepper, you need to download it from. Click on the link below and download the latest stable version (not a SNAPSHOT):
+
+> Note:
+> Pepper is a Java based program, therefore you need to have at least Java 7 (JRE or JDK) on your system. You can download Java from https://www.oracle.com/java/index.html or http://openjdk.java.net/ .
+
+If you do not already have downloaded Pepper
 
 ## Install module
 If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. Just open a command line and enter one of the following program calls:
@@ -16,17 +32,20 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
 
 
 ## Use in Pepper
-To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. Since the GenericXMLImporter is just an importer module, we only describe the use of this importer.
+To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
 
-1. Identify the module by name
+### a) Identify the module by name
+
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS"/>
 ```
-2. Identify the module by formats
+
+### b) Identify the module by formats
 ```xml
 <importer formatName="xml" formatVersion="1.0" path="PATH_TO_CORPUS"/>
 ```
-3. Use properties
+
+### c) Use properties
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS">
   <property key="PROPERTY_NAME">PROPERTY_VALUE</key>
@@ -112,9 +131,11 @@ is mapped to a SToken overlapping the text "a sample" and containing a SAnnotati
 
 ### Properties
 
-The following table contains an overview of all available properties to customize the behaviour of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+Properties allow the customization of a mapping in Pepper. In this case to customize the mapping of an xml file to a Salt model. The here described properties impact the mapping to the Salt model and are dependent of the format you want to use to export the data. For instance the mapping of xml data to hierarchies in Salt does not really make sence, if the export format does not support hierarchies. In that case for instance the property genericXml.importer.asSSpan might help.
 
-Some of the here described properties use for their values a small subset of the XPath language for addressing nodes in the xml document to import. This subset contains possibilities to address element-nodes, text-nodes and attribute-nodes in just a simple way via following the descendant axis. The descendant axis can only be used by the shortcut syntax represented by a '/' for a direct descendant and '//' for any descendants. The other axes and predicates as well are not yet supported. The following tables show the use of the supported XPath subset.
+The following table contains an overview of all available properties to customize the behaviour of this Pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+
+Some of the here described properties use a small subset of the XPath language for addressing nodes in the xml document to import. This subset contains possibilities to address element-nodes, text-nodes and attribute-nodes in just a simple way via following the descendant axis. The descendant axis can only be used by the shortcut syntax represented by a '/' for a direct descendant and '//' for any descendants. The other axes and predicates as well are not yet supported. The following tables show the use of the supported XPath subset.
 
 | XPath           | description                                                                                                                                   |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
