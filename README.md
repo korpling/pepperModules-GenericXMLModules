@@ -4,7 +4,7 @@ This project provides a plugin for the linguistic converter framework Pepper (se
 This project provides a Pepper module to import data comming froma a wide range of xml formats to Salt. [[read more]](#GenericXMLImporter)
 
 ## Install module
-If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. 
+If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. Just open a command line and enter one of the following program calls:
 
 ### Windows
 
@@ -16,20 +16,17 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
 
 
 ## Use in Pepper
-To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>.
+To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. Since the GenericXMLImporter is just an importer module, we only describe the use of this importer.
 
-### Identify the module by name
-
+1. Identify the module by name
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS"/>
 ```
-
-### Identify the module by formats
+2. Identify the module by formats
 ```xml
 <importer formatName="xml" formatVersion="1.0" path="PATH_TO_CORPUS"/>
 ```
-
-### Use properties
+3. Use properties
 ```xml
 <importer name="GenericXMLImporter" path="PATH_TO_CORPUS">
   <property key="PROPERTY_NAME">PROPERTY_VALUE</key>
