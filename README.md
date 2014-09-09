@@ -14,12 +14,11 @@ For a simple Pepper workflow you need at least one importer and one exporter.
 This project provides an importer to import data coming from a wide range of xml formats to Salt. A detailed description of that mapping can be found in section [GenericXMLImporter](#details).
 
 ## Requirements
-Since the here provided module is a plugin for Pepper, you need to download it. Click on the link below and download the latest stable version (not a SNAPSHOT):
+Since the here provided module is a plugin for Pepper, you need an instance of the Pepper framework. If you do not already have a running Pepper instance, click on the link below and download the latest stable version (not a SNAPSHOT):
 
 > Note:
 > Pepper is a Java based program, therefore you need to have at least Java 7 (JRE or JDK) on your system. You can download Java from https://www.oracle.com/java/index.html or http://openjdk.java.net/ .
 
-If you have not already downloaded Pepper
 
 ## Install module
 If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. Just open a command line and enter one of the following program calls:
