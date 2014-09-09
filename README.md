@@ -11,7 +11,7 @@ In Pepper there are three different types of modules:
 
 For a simple Pepper workflow you need at least one importer and one exporter.
 
-This project provides an importer to import data comming from a wide range of xml formats to Salt. A detailed description of that mapping can be found in section [GenericXMLImporter][].
+This project provides an importer to import data comming from a wide range of xml formats to Salt. A detailed description of that mapping can be found in section [GenericXMLImporter](#details).
 
 ## Requirements
 Since the here provided module is a plugin for Pepper, you need to download it from. Click on the link below and download the latest stable version (not a SNAPSHOT):
@@ -78,7 +78,7 @@ This project has been funded by the [department of corpus linguistics and morpho
   limitations under the License.
 
 
-##GenericXMLImporter
+##<a name="details"/>GenericXMLImporter
 
 The GenericXMLImporter imports data coming from any xml file to a Salt model in a customizable but generic way. This importer provides a wide range of customizing possibilities via the here described set of properties. Before we talk about the possibility of customizing the mapping, we describe the general and default mapping from an xml file to a Salt model.
 
