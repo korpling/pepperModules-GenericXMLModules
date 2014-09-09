@@ -65,9 +65,9 @@ The GenericXMLImporter imports data coming from any xml file to a Salt model in 
 
 ### Mapping to Salt
 
-The GenericXMLImporter maps element-nodes, text-nodes and attribute-nodes to Salt model objects. Comment-nodes, processing-instruction-nodes etc. will be ignored and not be mapped.
+The GenericXMLImporter maps element-nodes, text-nodes and attribute-nodes to Salt model objects. Comment-nodes (&lt;-- ... -->), processing-instruction-nodes (&lt;?...?>) etc. will be ignored and not be mapped.
 
-The textual value of all text-nodes of the xml document will be concatenated to one single primary text. This primary text is stored in a STextualDS object and can be accessed via the method STextualDS.getSText(). Each element-node containing a primary text and no further element-nodes (called terminal-node) is mapped to a SToken object overlapping the part of the primary data given by the contained text-node. To realize the offset to the start and end position of the overlapping text, a STextualRelation is created connecting the STextualDS and the SToken object.
+The textual value of all text-nodes of the xml document will be concatenated to one single primary text. This primary text is stored as a STextualDS object. Each element-node containing a primary text and no further element-nodes (called terminal-node) is mapped to a SToken object overlapping the part of the primary data given by the contained text-node. To realize the offset to the start and end position of the overlapping text, a STextualRelation is created connecting the STextualDS and the SToken object.
 
 The following xml fragment
 
@@ -115,7 +115,7 @@ is mapped to a SToken overlapping the text "a sample" and containing a SAnnotati
 
 ### Properties
 
-The table ? contains an overview of all usable properties to customize the behaviour of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+The following table contains an overview of all available properties to customize the behaviour of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
 
 Some of the here described properties use for their values a small subset of the XPath language for addressing nodes in the xml document to import. This subset contains possibilities to address element-nodes, text-nodes and attribute-nodes in just a simple way via following the descendant axis. The descendant axis can only be used by the shortcut syntax represented by a '/' for a direct descendant and '//' for any descendants. The other axes and predicates as well are not yet supported. The following tables show the use of the supported XPath subset.
 
@@ -123,8 +123,8 @@ Some of the here described properties use for their values a small subset of the
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | /element        | addresses the xml element-node having the name element and which is the root node                                                             |
 | //element       | addresses the xml element-node having the name element anywhere in the document                                                               |
-| //element//     | addresses all xml element-nodes in the subtree of each element-node having the nameelement                                                    |
-| /father/element | addresses the xml element-node having the name element and its subtree, which is adirect descendant of an element-node having the name father |
+| //element//     | addresses all xml element-nodes in the subtree of each element-node having that name                                                    |
+| /father/element | addresses the xml element-node having the name element and its subtree, which is a direct descendant of an element-node having the name father |
 
 | XPath                | description                                                                                                                                                                        |
 |----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -136,7 +136,7 @@ Some of the here described properties use for their values a small subset of the
 | //text()         | addresses every xml text-node anywhere in the document                                                                                               |
 | //element/text() | addresses every xml text-node belonging to the xml element-node having the name element which is a direct descendant of an element-node named father |
 
-For some properties it is possible, to not only address one element-node, text-node or attribute-node, but to address a set of nodes. For such cases, you can separate XPath expressions by using the ',' character. For instance:
+For some properties it is possible, to not only address  element-node, text-node or attribute-node, but to address a set of nodes. For such cases, you can separate XPath expressions by using the ',' character. For instance:
 
     //element1/text(), //element2/text()
 
@@ -159,11 +159,11 @@ and so on. The size of such a set is unbound.
 
 ### genericXml.importer.ignoreList
 
-The ignore list is a list of nodes (element-nodes , attribute-nodes and text-nodes) which are ignored for the mapping to a Salt model. Imagine for instance the follwing xml fragment
+The ignore list is a list of nodes (element-nodes, attribute-nodes and text-nodes) which are ignored for the mapping to a Salt model. Imagine for instance the follwing xml fragment
 
     <a><b></b></a>
 
-and the property value of ignore-list //b. This list enables, that the element-node \<b\> will completly be ignored.
+and the property value of ignore-list //b. This means that the element-node \<b\> will completly be ignored.
 
 Here we give a sample of the usage of the ignore list:
 
@@ -189,7 +189,7 @@ Here we give a sample of the usage of this property:
 
 ### genericXml.importer.prefixSAnnotationName
 
-In general the `SName` of a SAnnotation is given by the name of the attribute-node given in the xml document. sometimes it might be necessary, to remember the name of the element-node containing the attribute-node. In such cases, you can set this property to prefix the SName of the SAnnotation with the name of the surrounding element-node. The following xml fragment
+In general the `SName` of a SAnnotation is given by the name of the attribute-node given in the xml document. Sometimes it might be necessary, to remember the name of the element-node containing the attribute-node. In such cases, you can set this property to prefix the SName of the SAnnotation with the name of the surrounding element-node. The following xml fragment
 
     <a att="value"/>
 
@@ -199,7 +199,7 @@ will is mapped to a SAnnotation object having the `SName` 'att'. When setting th
 
 ### genericXml.importer.artificialSStruct
 
-In general a terminal-node is mapped to a SToken object. This is necessary, because in Salt only SToken objects can overlap parts of the primary data (given by STextualDS objects). Sometimes, one may want to map the terminal-node also to a SSpan or SStructure node. Using this property will result in an artificial node dominating or spanning the SToken object.
+In general a terminal-node is mapped to a SToken object. This is necessary, because in Salt only SToken objects can overlap parts of the primary data (given by STextualDS objects). In some cases, you may want to map the terminal-node also to a SSpan or SStructure node. Using this property will result in an artificial node dominating or spanning the SToken object.
 
 The xml fragment
 
@@ -213,11 +213,11 @@ results in a SToken object overlapping the primary data "a sample" and a SStruct
 
 > **Note**
 >
-> When using this flag, an artificial SSpan can be created instead of an SStructure object, when adding an XPath expression addressing the terminal-node to the set of expressions of the property ?
+> When using this flag, an artificial SSpan can be created instead of an SStructure object, when adding an XPath expression addressing the terminal-node to the set of expressions of the property genericXml.importer.asSSpan.
 
 ### genericXml.importer.sMetaAnnotation
 
-Usually, an attribute-node is mapped to SAnnotation object. But sometimes you may want to map it to a SMetaAnnotation object instead. A SMetaAnnotation in Salt marks an attribute-value pair to be not directly a linguistic annotation, and therefore not processed or exported as one. Often such annotations are used to mark the annotator of an annotation, or a probability of an annotation and so on.
+Usually, an attribute-node is mapped to SAnnotation object. But sometimes you may want to map it to a SMetaAnnotation object instead. A SMetaAnnotation in Salt marks an attribute-value pair to be not directly a linguistic annotation, and therefore not processed or exported as one. Often such annotations are used to mark the annotator of an annotation, or a probability of an annotation (in case of it was done by an automatic tagger etc.) and so on.
 
 The xml fragment
 
@@ -231,7 +231,7 @@ will result in a a SNode object representing the element-node \<a\> having a SMe
 
 ### genericXml.importer.sMetaAnnotation.sDocument
 
-Xml documents often also contain sections for meta-data of the entire document, for instance the name of the author of the document, the year of creation, or the mothers tongue of the author etc.. For dealing with such a case, you can use this flag, to mark an element or an entire subtree as a meta-data section. Each attribute-node of such an element or subtree is mapped to a SMetaAnnotation object having its name as `SName` and its value as `SValue` and is added to the list of meta-data of the SDocument.
+Xml documents often also contain sections for meta data of the entire document, for instance the name of the author of the document, the year of creation, or the mothers tongue of the author etc.. For dealing with such a case, you can use this flag, to mark an element or an entire subtree as a meta data section. Each attribute-node of such an element or subtree is mapped to a SMetaAnnotation object having its name as `SName` and its value as `SValue` and is added to the list of meta data of the SDocument.
 
 The following xml fragment
 
@@ -245,9 +245,9 @@ results in a SDocument object containing two SMetaAnnotation objects having the 
 
 > **Note**
 >
-> When more than one attribute-nodes have the same name, the mapper will add an '\_' and a number to their name, because in Salt an SDocument cannot have two SMetaAnnotation objects having the same `SName`. To avoid this behaviour, you can use the property ? to concatenate the name of the element-node with the name of the attribute-node.
+> When more than one attribute-nodes have the same name, the mapper will add an '\_' and a number to their name, because in Salt an SDocument cannot have two SMetaAnnotation objects having the same `SName`. To avoid this behaviour, you can use the property genericXml.importer.prefixSAnnotationName to concatenate the name of the element-node with the name of the attribute-node.
 
-To interprete an entire subtree of an xml element as a meta-data containing subtree, use the wildcard notation at the end of your XPath expression.
+To interprete an entire subtree of an xml element as a meta data containing subtree, use the wildcard notation at the end of your XPath expression.
 
 The following xml fragment
 
@@ -262,7 +262,7 @@ when using the property
 
     genericXml.importer.sMetaAnnotation.sDocument=//b, //b//
 
-results in one SToken object overlapping the primary text 'a sample text' being dominated by a SStructure object corresponing to element \<a\>. The xml-element \<b\> and its entire subtree is interpreted as meta-data for the SDocument object.
+results in one SToken object overlapping the primary text 'a sample text' being dominated by a SStructure object corresponing to element \<a\>. The xml-element \<b\> and its entire subtree is interpreted as meta data for the SDocument object.
 
 You can also just address attribute-nodes. In that case only the attribute nodes are mapped to a SMetaAnnotation object. If an attribute-node is mapped to a SMetaAnnotation object, it is not mapped to a usual SAnnotation object. The following xml fragment
 
@@ -316,7 +316,7 @@ with the use of the property
 
     genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '
 
-results in one SToken overlapping the text 'a sample' including th blank.
+results in one SToken overlapping the text 'a sample' including the blank.
 
 #### genericXml.importer.ignoreNamespaces
 
@@ -332,7 +332,7 @@ with the use of the property
 
     genericXml.importer.ignoreNamespaces=true
 
-results in a SStructure object representing the element-node 'document' having no SAnnotation objects. A further SStructure object representing the element-node 'a' is created having the `sName` 'a' and a SAnnotation object hving the `sName` 'att'.
+results in a SStructure object representing the element-node 'document' having no SAnnotation objects. A further SStructure object representing the element-node 'a' is created having the `sName` 'a' and a SAnnotation object having the `sName` 'att'.
 
 The same fragment with the use of the property
 
