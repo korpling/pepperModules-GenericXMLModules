@@ -8,6 +8,7 @@ In Pepper there are three different types of modules:
 * importers (to map a format A to a Salt model)
 * manipulators (to map a Salt model to a Salt model, e.g. to add additional annotations, to rename things to merge data etc.)
 * exporters (to map a Salt model to a fromat B).
+
 For a simple Pepper workflow you need at least one importer and one exporter.
 
 This project provides an importer to import data comming from a wide range of xml formats to Salt. A detailed description of that mapping can be found [[here]](#GenericXMLImporter).
@@ -32,7 +33,7 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
     bash pepperStart.sh is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-GenericXMLModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-GenericXMLModules_1.1.2.zip
 
 
-## Use in Pepper
+## Usage
 To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
 
 ### a) Identify the module by name
@@ -58,7 +59,7 @@ Since this Pepper module is under a free license, please feel free, to fork it f
 If you have found any bugs, or have some feature request, please open an issue on github. If you need any help, please write an e-mail to saltnpepper@lists.hu-berlin.de .
 
 ## Funders
-This project was funded by the [department of corpus linguistics and morphology](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/) of the Humboldt-Universität zu Berlin, the Institut national de recherche en informatique et en automatique ([INRIA](www.inria.fr/en/)) and the [Sonderforschungsbereich 632](https://www.sfb632.uni-potsdam.de/en/). 
+This project has been funded by the [department of corpus linguistics and morphology](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/) of the Humboldt-Universität zu Berlin, the Institut national de recherche en informatique et en automatique ([INRIA](www.inria.fr/en/)) and the [Sonderforschungsbereich 632](https://www.sfb632.uni-potsdam.de/en/). 
 
 ## License
   Copyright 2009 Humboldt University of Berlin, INRIA.
