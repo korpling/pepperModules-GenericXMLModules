@@ -2,7 +2,7 @@
 # pepperModules-GenericXMLModules
 This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like TigerXML, the EXMARaLDA format, PAULA etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format A to format B consists of two steps. First the data is mapped from format A to Salt and second from Salt to format B. This detour reduces the number of Pepper modules from n<sup>2</sup>-n (in the case of a direct mapping) to 2n to handle a number of n formats.
 
-![n:n mappings via SaltNPepper](./md/img/puzzle.png =10x20)
+![n:n mappings via SaltNPepper](./md/img/puzzle.png)
 
 In Pepper there are three different types of modules:
 * importers (to map a format A to a Salt model)
