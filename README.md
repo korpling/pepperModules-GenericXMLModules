@@ -7,7 +7,7 @@ This project provides a plugin for the linguistic converter framework Pepper (se
 In Pepper there are three different types of modules:
 * importers (to map a format A to a Salt model)
 * manipulators (to map a Salt model to a Salt model, e.g. to add additional annotations, to rename things to merge data etc.)
-* exporters (to map a Salt model to a fromat B).
+* exporters (to map a Salt model to a format B).
 
 For a simple Pepper workflow you need at least one importer and one exporter.
 
