@@ -1,13 +1,13 @@
 ![SaltNPepper project](./md/img/SaltNPepper_logo2010.png)
 # pepperModules-GenericXMLModules
-This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like TigerXML, the EXMARaLDA format, PAULA etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
+This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like [TigerXML](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/TIGERSearch/doc/html/TigerXML.html), the [EXMARaLDA format](http://www.exmaralda.org/), [PAULA](http://www.sfb632.uni-potsdam.de/paula.html) etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/salt), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
 
 ![n:n mappings via SaltNPepper](./md/img/puzzle.png)
 
 In Pepper there are three different types of modules:
-* importers (to map a format A to a Salt model)
+* importers (to map a format _A_ to a Salt model)
 * manipulators (to map a Salt model to a Salt model, e.g. to add additional annotations, to rename things to merge data etc.)
-* exporters (to map a Salt model to a format B).
+* exporters (to map a Salt model to a format _B_).
 
 For a simple Pepper workflow you need at least one importer and one exporter.
 
