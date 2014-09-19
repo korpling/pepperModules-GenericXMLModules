@@ -121,9 +121,9 @@ is mapped to three SToken objects _t1_ overlapping the text "This is ", _t2_ ove
 
     <a>This is <b><c>a sample</c></b> text</a>
 
-for which a further SStructure object corresponding with the complex-node \<b\> is created and is dominating the SToken object corresponding with the terminal-node \<c\>.
+for which a further SStructure object corresponding with the complex-node &lt;b\> is created and is dominating the SToken object corresponding with the terminal-node &lt;c\>.
 
-Attribute-nodes are mapped to SAnnotation objects, having the attribute-name as `SName` and the attribute-value as `SValue`. Such a SAnnotation object is added to the list of SAnnotation of a container SNode object.
+Attribute-nodes are mapped to SAnnotation objects, having the attribute-name as `SName` and the attribute-value as `SValue`. Such a SAnnotation object then is added to the containing SNode object.
 
 The following xml fragment
 
@@ -133,9 +133,9 @@ is mapped to a SToken overlapping the text "a sample" and containing a SAnnotati
 
 ### Properties
 
-Properties allow the customization of a mapping in Pepper. In this case to customize the mapping of an xml file to a Salt model. The here described properties impact the mapping to the Salt model and are dependent of the format you want to use to export the data. For instance the mapping of xml data to hierarchies in Salt does not really make sence, if the export format does not support hierarchies. In that case for instance the property genericXml.importer.asSSpan might help.
+Properties allow the customization of a mapping in Pepper. In this case to customize the mapping of an xml file to a Salt model. The here described properties impact the mapping to the Salt model and are dependent of the format you want to use to export the data. For instance the mapping of xml data to hierarchies in Salt does not really make sense, if the export format does not support hierarchies. In that case for instance the property genericXml.importer.asSSpan might help.
 
-The following table contains an overview of all available properties that customize the behaviour of this Pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
 
 Some of the here described properties use a small subset of the XPath language for addressing nodes in the xml document to import. This subset contains possibilities to address element-nodes, text-nodes and attribute-nodes in just a simple way via following the descendant axis. The descendant axis can only be used by the shortcut syntax represented by a '/' for a direct descendant and '//' for any descendants. The other axes and predicates as well are not yet supported. The following tables show the use of the supported XPath subset.
 
@@ -162,6 +162,8 @@ For some properties it is possible, to not only address  element-node, text-node
 
 and so on. The size of such a set is unbound.
 
+The following table contains an overview of all available properties that customize the behaviour of this Pepper module.
+
 | Name of property                              | Type of property | optional/mandatory | default value      |
 |-----------------------------------------------|------------------|--------------------|--------------------|
 | genericXml.importer.ignoreList                | XPath            | optional           | --                 |
@@ -183,7 +185,7 @@ The ignore list is a list of nodes (element-nodes, attribute-nodes and text-node
 
     <a><b></b></a>
 
-and the property value of ignore-list //b. This means that the element-node \<b\> will completly be ignored.
+and the property value of ignore-list //b. This means that the element-node \<b\> will completely be ignored.
 
 Here we give a sample of the usage of the ignore list:
 
@@ -213,9 +215,11 @@ In general the `SName` of a SAnnotation is given by the name of the attribute-no
 
     <a att="value"/>
 
-will is mapped to a SAnnotation object having the `SName` 'att'. When setting the property as shown in the following sample,
+is mapped to a SAnnotation object having the `SName` 'att'. When setting the property as shown in the following sample,
 
     genericXml.importer.prefixSAnnotation=//a/@att
+
+the `SName` would be 'a_att'.
 
 ### genericXml.importer.artificialSStruct
 
@@ -229,7 +233,7 @@ when using the property
 
     genericXml.importer.artificialSStruct= true
 
-results in a SToken object overlapping the primary data "a sample" and a SStructure object dominating the SToken object.
+is mapped to an SToken object overlapping the primary data "a sample" and a SStructure object dominating the SToken object.
 
 > **Note**
 >
@@ -237,7 +241,7 @@ results in a SToken object overlapping the primary data "a sample" and a SStruct
 
 ### genericXml.importer.sMetaAnnotation
 
-Usually, an attribute-node is mapped to SAnnotation object. But sometimes you may want to map it to a SMetaAnnotation object instead. A SMetaAnnotation in Salt marks an attribute-value pair to be not directly a linguistic annotation, and therefore not processed or exported as one. Often such annotations are used to mark the annotator of an annotation, or a probability of an annotation (in case of it was done by an automatic tagger etc.) and so on.
+Usually, an attribute-node is mapped to an SAnnotation object. But sometimes you may want to map it to a SMetaAnnotation object instead. A SMetaAnnotation in Salt marks an attribute-value pair to be not directly a linguistic annotation, which will therefore not be processed or exported as one. Often such annotations are used to mark the annotator of an annotation, or a probability of an annotation (in case of it was done by an automatic tagger etc.) and so on.
 
 The xml fragment
 
@@ -247,11 +251,11 @@ using the property
 
     genericXml.importer.sMetaAnnotation=//a/@att
 
-will result in a a SNode object representing the element-node \<a\> having a SMetaAnnotation object with the `SName` 'att' and the `SValue` "value".
+will be mapped to an SNode object representing the element-node \<a\> having a SMetaAnnotation object with the `SName` 'att' and the `SValue` "value".
 
 ### genericXml.importer.sMetaAnnotation.sDocument
 
-Xml documents often also contain sections for metadata of the entire document, for instance the name of the author of the document, the year of creation, or the mothers tongue of the author etc.. For dealing with such a case, you can use this flag, to mark an element or an entire subtree as a metadata section. Each attribute-node of such an element or subtree is mapped to a SMetaAnnotation object having its name as `SName` and its value as `SValue` and is added to the list of metadata of the SDocument.
+Xml documents often also contain sections for metadata of the entire document, for instance the name of the author of the document, the year of creation, or the mother tongue of the author etc.. For dealing with such a case, you can use this flag to mark an element or an entire subtree as a metadata section. Each attribute-node of such an element or subtree is mapped to a SMetaAnnotation object having its name as `SName` and its value as `SValue` and is added to the list of metadata of the SDocument.
 
 The following xml fragment
 
@@ -267,7 +271,7 @@ results in a SDocument object containing two SMetaAnnotation objects having the 
 >
 > If two or more attribute-nodes have the same name, the mapper will add an '\_' and a number to their name, because in Salt an SDocument cannot have two SMetaAnnotation objects having the same `SName`. To avoid this behaviour, you can use the property genericXml.importer.prefixSAnnotationName to concatenate the name of the element-node with the name of the attribute-node.
 
-To interprete an entire subtree of an xml element as a metadata containing subtree, use the wildcard notation at the end of your XPath expression.
+To interprete an entire subtree of an xml element as containing meta data, use the wildcard notation at the end of your XPath expression.
 
 The following xml fragment
 
@@ -314,9 +318,9 @@ with the use of the property
 
     genericXml.importer.sLayer=//a, //c
 
-results in two SToken t1 and t2 objects, overlapping the text 'a sample' (t1) and 'text' (2). The SToken object t2 is part of a created SLayer object l1 corresponding to the element-node \<c\>. A SStructure object is created containing the SToken objects t1 and t2. This SStructure object and the SToken t1 are not part of the created layer. A second layer l2 is created for the element-node \<a\>. An SAnnotation object having the `SName` 'att' and the `SValue` 'value' is added to l2. All created SNode objects and the SLayer object l2 are contained in the layer l2.
+results in two SToken t1 and t2 objects, overlapping the text 'a sample' (t1) and 'text' (2). The SToken object t2 is part of a created SLayer object l1 corresponding to the element-node \<c\>. A SStructure object is created containing the SToken objects t1 and t2. This SStructure object and the SToken t1 are not part of the created layer. A second layer l2 is created for the element-node \<a\>. An SAnnotation object having the `SName` 'att' and the `SValue` 'value' is added to l2. All created SNode objects and the SLayer object l1 are contained in the layer l2.
 
-#### genericXml.importer.ignoreWhitepsaces
+#### genericXml.importer.ignoreWhitespaces
 
 Determines a list of whitespace characters, that will be ignored, if a text-node only contains characters of this list. This is a necessary property, to avoid for instance the tokenization of blanks.
 
@@ -328,15 +332,15 @@ with the use of the property
 
     genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '
 
-results in three SToken objects overlapping the text 'a', 'sample' and 'text' instead of 5 SToken objects additionally overlapping the blanks ' '. A sequence of characters will only be ignored, if it only contains characters being contained in that list. Therefore, following xml fragment
+is mapped tothree SToken objects overlapping the text 'a', 'sample' and 'text' instead of 5 SToken objects additionally overlapping the blanks ' '. A sequence of characters will only be ignored, if it only contains characters being contained in that list. Therefore the following xml fragment
 
     <a>a sample</a>
 
 with the use of the property
 
-    genericXml.importer.ignoreWhitepsaces='\n','\r','\t',' '
+    genericXml.importer.ignoreWhitepsaces='\n','\r','\t'
 
-results in one SToken overlapping the text 'a sample' including the blank.
+is mapped to one SToken object overlapping the text 'a sample' including the blank.
 
 #### genericXml.importer.ignoreNamespaces
 
@@ -358,7 +362,7 @@ The same fragment with the use of the property
 
     genericXml.importer.ignoreNamespaces=false
 
-results in a SStructure object representing the element-node 'document' having two SAnnotation object. First with `sName` 'xmlns' and `sValue` 'some namespace' and second with `sName` 'xmlns:ns' and `sValue` 'some namespace'. Same goes for the SStructure representing the element-node 'a'.
+results in a SStructure object representing the element-node 'document' having two SAnnotation objects. First with `sName` 'xmlns' and `sValue` 'some namespace' and second with `sName` 'xmlns:ns' and `sValue` 'some namespace'. Same goes for the SStructure representing the element-node 'a'.
 
 #### genericXml.importer.elementNameAsSAnno
 
