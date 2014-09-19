@@ -1,6 +1,6 @@
 ![SaltNPepper project](./md/img/SaltNPepper_logo2010.png)
 # pepperModules-GenericXMLModules
-This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like TigerXML, the EXMARaLDA format, PAULA etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format A to format B consists of two steps. First the data is mapped from format A to Salt and second from Salt to format B. This detour reduces the number of Pepper modules from n<sup>2</sup>-n (in the case of a direct mapping) to 2n to handle a number of n formats.
+This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like TigerXML, the EXMARaLDA format, PAULA etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/pepper), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
 
 ![n:n mappings via SaltNPepper](./md/img/puzzle.png)
 
@@ -33,7 +33,7 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
 
 
 ## Usage
-To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulaor/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
+To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulator/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
 A detailed description of the Pepper workflow can be found on the [Pepper project site](https://github.com/korpling/pepper). 
 
 ### a) Identify the module by name
@@ -79,7 +79,7 @@ This project has been funded by the [department of corpus linguistics and morpho
 
 ##<a name="details"/>GenericXMLImporter
 
-The GenericXMLImporter imports data coming from any xml file to a Salt model in a customizable but generic way. This importer provides a wide range of customizing possibilities via the here described set of properties. Before we talk about the possibility of customizing the mapping, we describe the general and default mapping from an xml file to a Salt model.
+The GenericXMLImporter imports data coming from any xml file to a Salt model in a customizable but generic way. This importer provides a wide range of customization possibilities via the here described set of properties. Before we talk about the possibility of customizing the mapping, we describe the general and default mapping from an xml file to a Salt model.
 
 ### Mapping to Salt
 
@@ -89,21 +89,21 @@ The textual value of all text-nodes of the xml document will be concatenated to 
 
 The following xml fragment
 
-    <a>This is</a><b> a sample text</a>
+    <a>This is</a><b> a sample text</b>
 
 is mapped to a STexualDS object having the sText "This is a sample text" and two SToken objects, one overlapping the text "This is" and one overlapping the text " a sample text".
 
 > **Note**
 >
-> The importer does not take care about the given tokenization and does not retokenize it.
+> The importer does not take care of the given tokenization and does not retokenize it.
 
-An element-node containing further element-nodes (called complex-node) is mapped to a SStructure object in the Salt model. Since SStructure objects in Salt represent a hierarchical structure, a SStructure object is connected to SNode objects corresponding to the element-nodes on the first level of the subtree of the element-node.
+An element-node containing further element-nodes (called complex-node) is mapped to a hierarchical structure in the Salt model. Therefore Salt provides the node type SStructure and the relation type SDominanceRelation, which connects a SStructure object with another SStructure, SToken or SSpan object.
 
 The following xml fragment
 
     <a><b>a sample</b></a>
 
-is mapped to a SToken (corresponding to the element-node \<a\>) object overlapping the primary text "a sample" and a SStructure (corresponding to the element-node \<b\>) object dominating the SToken object. Both nodes are connected with a SDominanceRelation having the SStructure object as source and the SToken object as target. Since SStructure objects are used for hierarchies, the same goes for an element-node containing another element node.
+is mapped to a SToken (corresponding to the element-node &lt;a\>) object overlapping the primary text "a sample" and a SStructure (corresponding to the element-node &lt;b\>) object dominating the SToken object. Both nodes are connected with a SDominanceRelation having the SStructure object as source and the SToken object as target. Since SStructure objects are used for hierarchies, the same goes for an element-node containing another element node.
 
 The following xml fragment
 
@@ -117,7 +117,7 @@ The following xml fragment
 
     <a>This is <!-- t1 --><b>a sample<!-- t2 --></b> text<!-- t3 --></a>
 
-is mapped to three SToken objects t1 overlapping the text "This is ", t2 overlapping the text "a sample" and t3 overlapping the text " text". Because the SToken object t2 is the only one having an existing correspondance to a terminal-node, two artificial SToken objects t1 and t3 are created. The complex-node \<a\> is mapped to a SStructure object dominating the three SToken objects in the order t1, t2 and t3. This mechanism is recursive and will also work for the following xml fragment,
+is mapped to three SToken objects _t1_ overlapping the text "This is ", _t2_ overlapping the text "a sample" and _t3_ overlapping the text " text". Because the SToken object _t2_ is the only one having an existing correspondance to a terminal-node, two artificial SToken objects _t1_ and _t3_ are created. The complex-node \<a\> is mapped to a SStructure object dominating the three SToken objects in the order _t1_, _t2_ and _t3_. This mechanism is recursive and will also work for the following xml fragment,
 
     <a>This is <b><c>a sample</c></b> text</a>
 
