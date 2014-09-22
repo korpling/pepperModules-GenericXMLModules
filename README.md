@@ -77,7 +77,7 @@ This project has been funded by the [department of corpus linguistics and morpho
   limitations under the License.
 
 
-##<a name="details"/>GenericXMLImporter
+#GenericXMLImporter
 
 The GenericXMLImporter imports data coming from any xml file to a Salt model in a customizable but generic way. This importer provides a wide range of customization possibilities via the here described set of properties. Before we talk about the possibility of customizing the mapping, we describe the general and default mapping from an xml file to a Salt model.
 
