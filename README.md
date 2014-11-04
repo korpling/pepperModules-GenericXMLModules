@@ -178,6 +178,7 @@ The following table contains an overview of all available properties that custom
 | genericXml.importer.ignoreNamespaces          | Boolean          | optional           | true               |
 | genericXml.importer.elementNameAsSAnno        | XPath            | optional           | --                 |
 | genericXml.importer.file.endings              | String           | optional           | xml                |
+| genericXml.importer.separateTokens            | String           | optional           | ' '(blank)         |
 
 ### genericXml.importer.ignoreList
 
@@ -366,7 +367,7 @@ results in a SStructure object representing the element-node 'document' having t
 
 #### genericXml.importer.elementNameAsSAnno
 
-Determines a list of element-nodes whose names are mapped to artificial SAnnotation objects added to the corresponding SNode object.The following xml fragment
+Determines a list of element-nodes whose names are mapped to artificial SAnnotation objects added to the corresponding SNode object. The following xml fragment
 
     <a>
         <b/>
@@ -381,3 +382,17 @@ results in one SNode object representing the element-node 'a' which is annotated
 #### genericXml.importer.file.endings
 
 Determines a list containing the file endings whose files are imported. If you want to import all contained files no matter their ending, add the string 'ALL' to the list. If you want a file having a specific ending not to be imported, use the prefix '-'.
+
+#### genericXml.importer.separateTokens
+
+Sets a separator between tokens, the default separator is a blank (' '), but it can be set to any other character or even ot the empty String. The following xml fragment:
+
+    <w>
+        <w>Tout</w>
+        <w>au</w>
+        <w>plus</w>
+    </w>
+
+with the default separator, which is equivalent to setting the property to blank results in the primary text "Tout au plus" instead of "Toutauplus". 
+
+

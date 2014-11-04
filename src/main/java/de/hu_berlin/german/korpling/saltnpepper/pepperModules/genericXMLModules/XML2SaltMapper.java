@@ -19,6 +19,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -85,26 +86,20 @@ public class XML2SaltMapper extends PepperMapperImpl {
 	}
 
 	/**
-	 * returns wether a given text only contains ignorable whitespace characters
-	 * or not.
+	 * Returns whether a given text only contains ignorable whitespace
+	 * characters or not.
 	 * 
 	 * @param text
 	 * @return
 	 */
 	public synchronized boolean onlyContainsIgnorableCharacters(String text) {
-		int ignorableCharacters = 0;
+		Set<String> ignorableCharacters = ((GenericXMLImporterProperties) getProperties()).getIgnorableWhitespaces();
 		for (Character ch : text.toCharArray()) {
-			for (String ignorableWhitespace : ((GenericXMLImporterProperties) getProperties()).getIgnorableWhitespaces()) {
-				if (ignorableWhitespace.equals(ch.toString())) {
-					ignorableCharacters++;
-					break;
-				}
+			if (!ignorableCharacters.contains(ch.toString())) {
+				return (false);
 			}
 		}
-		if (ignorableCharacters == text.length())
-			return (true);
-		else
-			return (false);
+		return (true);
 	}
 
 	private class XMLReader extends DefaultHandler2 {
@@ -125,9 +120,9 @@ public class XML2SaltMapper extends PepperMapperImpl {
 		}
 
 		/**
-		 * Determines if this object is inited.
+		 * Determines if this object is initialized.
 		 */
-		private boolean isInited = false;
+		private boolean isInitialized = false;
 
 		/**
 		 * Initializes this object
@@ -137,7 +132,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 			this.currentSDS = SaltFactory.eINSTANCE.createSTextualDS();
 			this.getsDocumentGraph().addSNode(currentSDS);
 			this.elementNodeStack = new Stack<ElementNodeEntry>();
-			this.isInited = true;
+			this.isInitialized = true;
 			this.sLayerStack = new Stack<SLayer>();
 		}
 
@@ -242,33 +237,35 @@ public class XML2SaltMapper extends PepperMapperImpl {
 		 */
 		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
-			if (!isInited)
+			if (!isInitialized){
 				init();
+			}
 
 			currentXPath.addStep(XPathExpression.XML_TEXT);
-			if (!this.matches(((GenericXMLImporterProperties) getProperties()).getIgnoreList(), currentXPath)) {// if
-																												// text-node
-																												// is
-																												// not
-																												// to
-																												// ignore
+			if (!this.matches(((GenericXMLImporterProperties) getProperties()).getIgnoreList(), currentXPath)) {
+				// if text-node is not to ignore
 				StringBuffer textBuf = new StringBuffer();
-				for (int i = start; i < start + length; i++)
+				for (int i = start; i < start + length; i++){
 					textBuf.append(ch[i]);
-
+				}
 				String text = textBuf.toString();
 
-				if ((text != null) && (text.toString().length() > 0)) {
+				if (	(textBuf.length() > 0)&&
+						(!onlyContainsIgnorableCharacters(text))) {
 					textBuf = new StringBuffer();
 					String containedText = currentSDS.getSText();
-					if (containedText != null)
+					if (containedText != null){
 						textBuf.append(containedText);
-
+						textBuf.append(((GenericXMLImporterProperties) getProperties()).getSeparateToken());
+					}
+					
 					int sStart = textBuf.length();
 					textBuf.append(text);
+					
 					currentSDS.setSText(textBuf.toString());
 					int sEnd = textBuf.length();
-					if ((!((GenericXMLImporterProperties) getProperties()).isTextOnly()) && (!onlyContainsIgnorableCharacters(text))) {
+					
+					if (!((GenericXMLImporterProperties) getProperties()).isTextOnly()) {
 						// create a new SToken object overlapping the current
 						// text-node
 						SToken sToken = SaltFactory.eINSTANCE.createSToken();
@@ -276,13 +273,12 @@ public class XML2SaltMapper extends PepperMapperImpl {
 						getsDocumentGraph().addSNode(sToken);
 
 						this.copySAbstractAnnotations(sToken);
-						if (!this.sLayerStack.isEmpty()) {// add to sLayer if
-															// exist
+						if (!this.sLayerStack.isEmpty()) {
+							// add to sLayer if exist
 							this.sLayerStack.peek().getSNodes().add(sToken);
 						}// add to sLayer if exist
-						// create a new SToken object overlapping the current
-						// text-node
-
+							// create a new SToken object overlapping the
+							// current text-node
 						// create a new STextualRelation object connecting the
 						// SToken and the current STextualDS object
 						STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
@@ -294,14 +290,8 @@ public class XML2SaltMapper extends PepperMapperImpl {
 						// create a new STextualRelation object connecting the
 						// SToken and the current STextualDS object
 
-						if (((GenericXMLImporterProperties) getProperties()).isCreateSStructure()) {// if
-																									// prop
-																									// for
-																									// creating
-																									// artificial
-																									// structure
-																									// is
-																									// set
+						if (((GenericXMLImporterProperties) getProperties()).isCreateSStructure()) {
+							// if prop for creating artificial structure is set
 							SNode sNode = null;
 							// must be removed and added later on for matches()
 							currentXPath.removeLastStep();
@@ -323,9 +313,8 @@ public class XML2SaltMapper extends PepperMapperImpl {
 								sRel.setSSource(sNode);
 								sRel.setSTarget(sToken);
 								this.getsDocumentGraph().addSRelation(sRel);
-								if (!this.sLayerStack.isEmpty()) {// add to
-																	// sLayer if
-																	// exist
+								if (!this.sLayerStack.isEmpty()) {
+									// add to sLayer if exist
 									this.sLayerStack.peek().getSRelations().add(sRel);
 								}// add to sLayer if exist
 							}
@@ -447,7 +436,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-			if (!isInited)
+			if (!isInitialized)
 				init();
 			currentXPath.addStep(qName);
 

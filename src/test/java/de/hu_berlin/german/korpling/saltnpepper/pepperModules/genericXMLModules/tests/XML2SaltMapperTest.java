@@ -160,6 +160,52 @@ public class XML2SaltMapperTest {
 		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 		assertEquals(text, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
+	
+	/**
+	 * Checks if a pretty printed xml is imported ignoring whitespace characters.
+	 * <pre>
+	 * <w>
+	 *     <w>Tout</w>
+	 *	   <w>au</w>
+	 *     <w>plus</w>
+	 * </w>
+	 * </pre>
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws ParserConfigurationException
+	 * @throws XMLStreamException
+	 */
+	@Test
+	public void testPrettyPrintedXML() throws ParserConfigurationException, SAXException, IOException, XMLStreamException {
+		String text = "Tout au plus";
+		xmlWriter.writeStartDocument();
+		xmlWriter.writeStartElement("w");
+			xmlWriter.writeCharacters("\n\t");
+			xmlWriter.writeStartElement("w");
+				xmlWriter.writeCharacters("Tout");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeCharacters("\n\t\t");
+			xmlWriter.writeStartElement("w");
+				xmlWriter.writeCharacters("au");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeCharacters("\n\t\t");
+			xmlWriter.writeStartElement("w");
+				xmlWriter.writeCharacters("plus");
+			xmlWriter.writeEndElement();
+			xmlWriter.writeCharacters("\n\t\t");
+		xmlWriter.writeEndElement();
+		
+		xmlWriter.writeEndDocument();
+		xmlWriter.flush();
+
+		String xml = outStream.toString();
+		start(this.getFixture(), xml);
+
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs());
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
+		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(text, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+	}
 
 	/**
 	 * Checks if a simple text is mapped, even it is interrupted. See: <br/>
@@ -188,8 +234,8 @@ public class XML2SaltMapperTest {
 	@Test
 	public void testSimpleText_Interrupt() throws ParserConfigurationException, SAXException, IOException, XMLStreamException {
 		String text1 = "Is this example more";
-		String text2 = " complicated than it appears to be?";
-		String text = text1 + text2;
+		String text2 = "complicated than it appears to be?";
+		String text = text1 +" "+ text2;
 		xmlWriter.writeStartDocument();
 		xmlWriter.writeStartElement("text");
 		xmlWriter.writeAttribute("no", "text1");
@@ -1061,7 +1107,7 @@ public class XML2SaltMapperTest {
 		start(this.getFixture(), xml);
 		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
 		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
-		assertEquals(text1 + text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(text1 +" "+ text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
 
 	/**
@@ -1130,7 +1176,7 @@ public class XML2SaltMapperTest {
 		assertEquals("val2", sDocument.getSMetaAnnotation(att2).getSValue());
 		assertEquals(1, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().size());
 		assertNotNull(this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0));
-		assertEquals(text1 + text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals(text1 +" "+ text2, this.getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
 	}
 
 	/**

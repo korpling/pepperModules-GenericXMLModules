@@ -18,6 +18,8 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -106,6 +108,12 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	 * imported.
 	 */
 	public static final String PROP_FILE_ENDINGS = PREFIX + "file.endings";
+	/**
+	 * Name of property to set a separator between tokens, the default is a
+	 * blank, but it can be set to any other character or even ot the empty
+	 * String.
+	 **/
+	public static final String PROP_SEPARATE_TOKENS = PREFIX + "separateTokens";
 
 	/**
 	 * When the list of file endings contain this string, all file endings will
@@ -131,6 +139,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_IGNORABLE_NAMESPACES, Boolean.class, "Determines if xml-namespaces and namespace declarations are ignored.", true, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_ELEMENTNAME_AS_SANNO, String.class, " Determines a list of element-nodes whichs names are mapped to SAnnotation objects having that name as sName and sValue", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_TOKENS, String.class, "Sets a separator between tokens, the default is a blank, but it can be set to any other character or even ot the empty String. ", " ", false));
 	}
 
 	public synchronized EList<String> getFileEndings() {
@@ -339,21 +348,21 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	 * list separated by ',' for instance /n,/r, ,... for linefeed, carriage
 	 * return and blank.
 	 */
-	private Collection<String> ignorableWhitespaces = null;
+	private Set<String> ignorableWhitespaces = null;
 
 	/**
-	 * determine which whitespace characters are ignored and add to
+	 * Determine which whitespace characters are ignored and add to
 	 * {@link STextualDS} object, but do not get an own {@link SToken} object. A
 	 * list separated by ',' for instance /n,/r, ,... for linefeed, carriage
 	 * return and blank.
 	 */
-	public Collection<String> getIgnorableWhitespaces() {
+	public Set<String> getIgnorableWhitespaces() {
 		if (ignorableWhitespaces == null) {
 			synchronized (this) {
 				if (ignorableWhitespaces == null) {
 					PepperModuleProperty<String> prop = (PepperModuleProperty<String>) this.getProperty(PROP_IGNORABLE_WHITESPACES);
 					if (prop.getValue() != null) {
-						ignorableWhitespaces = new Vector<String>();
+						ignorableWhitespaces = new HashSet<String>();
 						String[] parts = prop.getValue().split(",");
 						for (String part : parts) {
 							ignorableWhitespaces.add(part.replace("'", ""));
@@ -386,5 +395,18 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 			}
 		}
 		return elementNameAsSAnnoList;
+	}
+	
+	private String separateToken="";
+	/**
+	 * Property to set a separator between tokens, the default is a blank, but
+	 * it can be set to any other character or even ot the empty String.
+	 */
+	public String getSeparateToken() {
+		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) this.getProperty(PROP_SEPARATE_TOKENS);
+		if (prop.getValue() != null) {
+			separateToken= prop.getValue();
+		}
+		return(separateToken);
 	}
 }
