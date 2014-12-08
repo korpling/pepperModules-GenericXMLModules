@@ -315,7 +315,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 								this.getsDocumentGraph().addSRelation(sRel);
 								if (!this.sLayerStack.isEmpty()) {
 									// add to sLayer if exist
-									this.sLayerStack.peek().getSRelations().add(sRel);
+									sRel.getSLayers().add(this.sLayerStack.peek());
 								}// add to sLayer if exist
 							}
 							// copy all SAnnotations from SToken to artificial
@@ -335,7 +335,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 
 							if (!this.sLayerStack.isEmpty()) {// add to sLayer
 																// if exist
-								this.sLayerStack.peek().getSNodes().add(sNode);
+								sNode.getSLayers().add(this.sLayerStack.peek());
 							}// add to sLayer if exist
 						}// if prop for creating artificial structure is set
 						else {// add token to list of open nodes of father
@@ -555,12 +555,9 @@ public class XML2SaltMapper extends PepperMapperImpl {
 											sSpanRel.setSSource(sNode);
 											sSpanRel.setSTarget(((SSpanningRelation) outEdge).getSToken());
 											this.getsDocumentGraph().addSRelation(sSpanRel);
-											if (!this.sLayerStack.isEmpty()) {// add
-																				// to
-																				// sLayer
-																				// if
-																				// exist
-												this.sLayerStack.peek().getSRelations().add(sSpanRel);
+											if (!this.sLayerStack.isEmpty()) {
+												// add to sLayer if exist
+												sSpanRel.getSLayers().add(this.sLayerStack.peek());
 											}// add to sLayer if exist
 										}
 									}
@@ -578,7 +575,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 								if (!this.sLayerStack.isEmpty()) {// add to
 																	// sLayer if
 																	// exist
-									this.sLayerStack.peek().getSRelations().add(sRel);
+									sRel.getSLayers().add(this.sLayerStack.peek());
 								}// add to sLayer if exist
 							}
 						}
@@ -587,7 +584,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 					if (this.elementNodeStack.size() > 1)
 						this.elementNodeStack.get(this.elementNodeStack.size() - 2).openSNodes.add(sNode);
 					if (!this.sLayerStack.isEmpty()) {// add to sLayer if exist
-						this.sLayerStack.peek().getSNodes().add(sNode);
+						sNode.getSLayers().add(this.sLayerStack.peek());
 					}// add to sLayer if exist
 				}// map a complex node
 				this.elementNodeStack.pop();
