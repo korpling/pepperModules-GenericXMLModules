@@ -275,7 +275,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 						this.copySAbstractAnnotations(sToken);
 						if (!this.sLayerStack.isEmpty()) {
 							// add to sLayer if exist
-							this.sLayerStack.peek().getSNodes().add(sToken);
+							sToken.getSLayers().add(this.sLayerStack.peek());
 						}// add to sLayer if exist
 							// create a new SToken object overlapping the
 							// current text-node
