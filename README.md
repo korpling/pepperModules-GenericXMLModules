@@ -39,7 +39,7 @@ pepper> update de.hu_berlin.german.korpling.saltnpepper::pepperModules-GenericXM
 ```
 
 ## Usage
-To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulator/>, &lt;exporter>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
+To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulator/>, &lt;exporter/>. The GenericXMLImporter is an importer module, which can be addressed by one of the following alternatives.
 A detailed description of the Pepper workflow can be found on the [Pepper project site](https://github.com/korpling/pepper). 
 
 ### a) Identify the module by name
