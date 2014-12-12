@@ -35,7 +35,7 @@ bash pepperStart.sh
 
 Then type in command *is* and the path from where to install the module:
 ```
-pepper> is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-GenericXMLModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-GenericXMLModules_1.1.2.zip
+pepper> update de.hu_berlin.german.korpling.saltnpepper::pepperModules-GenericXMLModules::https://korpling.german.hu-berlin.de/maven2/
 ```
 
 ## Usage
