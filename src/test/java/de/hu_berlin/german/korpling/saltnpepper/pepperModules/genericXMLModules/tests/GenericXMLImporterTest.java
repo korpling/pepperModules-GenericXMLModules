@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Humboldt University of Berlin, INRIA.
+ * Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 
 public class GenericXMLImporterTest extends PepperImporterTest {
 	URI resourceURI = URI.createFileURI(new File(".").getAbsolutePath());
@@ -164,12 +164,12 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 		assertEquals(4, importedSCorpusGraph.getSDocuments().size());
 
 		SDocument sDoc13 = SaltFactory.eINSTANCE.createSDocument();
-		SaltSample.createSyntaxStructure(sDoc13);
-		SaltSample.createSyntaxAnnotations(sDoc13);
+		SampleGenerator.createSyntaxStructure(sDoc13);
+		SampleGenerator.createSyntaxAnnotations(sDoc13);
 
 		SDocument sDoc24 = SaltFactory.eINSTANCE.createSDocument();
-		SaltSample.createInformationStructureSpan(sDoc24);
-		SaltSample.createInformationStructureAnnotations(sDoc24);
+		SampleGenerator.createInformationStructureSpan(sDoc24);
+		SampleGenerator.createInformationStructureAnnotations(sDoc24);
 
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0));
 		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph());
