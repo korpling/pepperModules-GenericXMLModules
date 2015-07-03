@@ -43,6 +43,9 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 	public GenericXMLImporter() {
 		super();
 		this.setName("GenericXMLImporter");
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GenericXMLModules"));
+		setDesc("Imports data coming from any XML file. The textual content of an element will be interpreted as a sequence of primary data. When processing the file, the importer will concatenate all these texts to an entire primary text. ");	
 		this.addSupportedFormat(ENDING_XML, "1.0", null);
 		this.setProperties(new GenericXMLImporterProperties());
 	}
