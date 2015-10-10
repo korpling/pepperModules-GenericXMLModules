@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.tests;
+package org.corpus_tools.peppermodules.genericXMLModules.tests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,6 +33,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.corpus_tools.pepper.common.CorpusDesc;
 import org.corpus_tools.pepper.common.FormatDesc;
 import org.corpus_tools.pepper.testFramework.PepperImporterTest;
+import org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporter;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SCorpusGraph;
 import org.corpus_tools.salt.common.SDocument;
@@ -41,8 +42,6 @@ import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporter;
 
 public class GenericXMLImporterTest extends PepperImporterTest {
 	URI resourceURI = URI.createFileURI(new File(".").getAbsolutePath());

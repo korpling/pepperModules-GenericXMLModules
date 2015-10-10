@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules;
+package org.corpus_tools.peppermodules.genericXMLModules;
 
 import java.util.List;
 

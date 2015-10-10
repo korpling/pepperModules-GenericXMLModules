@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath;
+package org.corpus_tools.peppermodules.genericXMLModules.xpath;
 
 import java.util.List;
 import java.util.Vector;

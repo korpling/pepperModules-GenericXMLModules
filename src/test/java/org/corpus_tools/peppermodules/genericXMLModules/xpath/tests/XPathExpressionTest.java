@@ -15,10 +15,11 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.tests;
+package org.corpus_tools.peppermodules.genericXMLModules.xpath.tests;
+
+import org.corpus_tools.peppermodules.genericXMLModules.xpath.XPathExpression;
 
 import junit.framework.TestCase;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
 
 public class XPathExpressionTest extends TestCase {
 
