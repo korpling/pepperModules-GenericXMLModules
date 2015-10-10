@@ -19,15 +19,12 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 
 import java.util.List;
 
+import org.corpus_tools.pepper.impl.PepperImporterImpl;
+import org.corpus_tools.pepper.modules.PepperImporter;
+import org.corpus_tools.pepper.modules.PepperMapper;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * Imports data coming from any XML file. The textual content of an element will
@@ -59,23 +56,23 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 		List<String> fileEndings = ((GenericXMLImporterProperties) this.getProperties()).getFileEndings();
 
 		if ((fileEndings == null) || (fileEndings.size() == 0)) {
-			this.getSDocumentEndings().add(ENDING_XML);
+			this.getDocumentEndings().add(ENDING_XML);
 		} else if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL)) {
-			this.getSDocumentEndings().add(ENDING_ALL_FILES);
+			this.getDocumentEndings().add(ENDING_ALL_FILES);
 		} else if ((fileEndings != null) && (!fileEndings.contains(GenericXMLImporterProperties.KW_ALL))) {
-			this.getSDocumentEndings().addAll(fileEndings);
+			this.getDocumentEndings().addAll(fileEndings);
 		}
 		return (retVal);
 	}
 
 	/**
 	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(SElementId)}
+	 * PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId) {
+	public PepperMapper createPepperMapper(Identifier sElementId) {
 		XML2SaltMapper mapper = new XML2SaltMapper();
-		URI resource = getSElementId2ResourceTable().get(sElementId);
+		URI resource = getIdentifier2ResourceTable().get(sElementId);
 		mapper.setResourceURI(resource);
 		return (mapper);
 	}

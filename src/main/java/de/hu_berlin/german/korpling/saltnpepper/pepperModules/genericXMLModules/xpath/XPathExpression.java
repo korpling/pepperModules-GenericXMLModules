@@ -20,7 +20,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules
 import java.util.List;
 import java.util.Vector;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 
 /**
  * Splits an XPath expression into steps. The main function of this class is to

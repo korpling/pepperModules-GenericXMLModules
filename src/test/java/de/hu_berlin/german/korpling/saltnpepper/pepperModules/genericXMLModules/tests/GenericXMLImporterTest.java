@@ -30,19 +30,19 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.corpus_tools.pepper.common.CorpusDesc;
+import org.corpus_tools.pepper.common.FormatDesc;
+import org.corpus_tools.pepper.testFramework.PepperImporterTest;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SCorpusGraph;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.samples.SampleGenerator;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.CorpusDesc;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.FormatDesc;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.testFramework.PepperImporterTest;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.GenericXMLImporter;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.samples.SampleGenerator;
 
 public class GenericXMLImporterTest extends PepperImporterTest {
 	URI resourceURI = URI.createFileURI(new File(".").getAbsolutePath());
@@ -51,12 +51,12 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 	public void setUp() throws Exception {
 		super.setFixture(new GenericXMLImporter());
 
-		super.getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
+		super.getFixture().setSaltProject(SaltFactory.createSaltProject());
 
 		super.setResourcesURI(resourceURI);
 
 		// setting temproraries and resources
-		this.getFixture().setResources(resourceURI);
+		getFixture().setResources(resourceURI);
 
 		// set formats to support
 		FormatDesc formatDesc = new FormatDesc();
@@ -145,54 +145,54 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 		formatDesc.setFormatVersion("1.0");
 		corpDesc.setFormatDesc(formatDesc);
 		corpDesc.setCorpusPath(URI.createFileURI(rootCorpus.getAbsolutePath()));
-		this.getFixture().setCorpusDesc(corpDesc);
+		getFixture().setCorpusDesc(corpDesc);
 		// end: creating and setting corpus definition
 
 		// SCorpusGraph importedSCorpusGraph=
-		// SaltFactory.eINSTANCE.createSCorpusGraph();
-		// this.getFixture().getSaltProject().getSCorpusGraphs().add(importedSCorpusGraph);
+		// SaltFactory.createSCorpusGraph();
+		// getFixture().getSaltProject().getCorpusGraphs().add(importedSCorpusGraph);
 
 		// runs the PepperModule
 		this.start();
 
-		SCorpusGraph importedSCorpusGraph = getFixture().getSaltProject().getSCorpusGraphs().get(0);
+		SCorpusGraph importedSCorpusGraph = getFixture().getSaltProject().getCorpusGraphs().get(0);
 		// check importCorpusStructure
-		assertNotNull(importedSCorpusGraph.getSCorpora());
-		assertEquals(3, importedSCorpusGraph.getSCorpora().size());
+		assertNotNull(importedSCorpusGraph.getCorpora());
+		assertEquals(3, importedSCorpusGraph.getCorpora().size());
 
-		assertNotNull(importedSCorpusGraph.getSDocuments());
-		assertEquals(4, importedSCorpusGraph.getSDocuments().size());
+		assertNotNull(importedSCorpusGraph.getDocuments());
+		assertEquals(4, importedSCorpusGraph.getDocuments().size());
 
-		SDocument sDoc13 = SaltFactory.eINSTANCE.createSDocument();
+		SDocument sDoc13 = SaltFactory.createSDocument();
 		SampleGenerator.createSyntaxStructure(sDoc13);
 		SampleGenerator.createSyntaxAnnotations(sDoc13);
 
-		SDocument sDoc24 = SaltFactory.eINSTANCE.createSDocument();
+		SDocument sDoc24 = SaltFactory.createSDocument();
 		SampleGenerator.createInformationStructureSpan(sDoc24);
 		SampleGenerator.createInformationStructureAnnotations(sDoc24);
 
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(0));
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTextualDSs());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens());
-		assertTrue(importedSCorpusGraph.getSDocuments().get(0).getSDocumentGraph().getSTokens().size() > 0);
+		assertNotNull(importedSCorpusGraph.getDocuments().get(0));
+		assertNotNull(importedSCorpusGraph.getDocuments().get(0).getDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(0).getDocumentGraph().getTextualDSs());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(0).getDocumentGraph().getTokens());
+		assertTrue(importedSCorpusGraph.getDocuments().get(0).getDocumentGraph().getTokens().size() > 0);
 
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(1));
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTextualDSs());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens());
-		assertTrue(importedSCorpusGraph.getSDocuments().get(1).getSDocumentGraph().getSTokens().size() > 0);
+		assertNotNull(importedSCorpusGraph.getDocuments().get(1));
+		assertNotNull(importedSCorpusGraph.getDocuments().get(1).getDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(1).getDocumentGraph().getTextualDSs());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(1).getDocumentGraph().getTokens());
+		assertTrue(importedSCorpusGraph.getDocuments().get(1).getDocumentGraph().getTokens().size() > 0);
 
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(2));
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTextualDSs());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens());
-		assertTrue(importedSCorpusGraph.getSDocuments().get(2).getSDocumentGraph().getSTokens().size() > 0);
+		assertNotNull(importedSCorpusGraph.getDocuments().get(2));
+		assertNotNull(importedSCorpusGraph.getDocuments().get(2).getDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(2).getDocumentGraph().getTextualDSs());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(2).getDocumentGraph().getTokens());
+		assertTrue(importedSCorpusGraph.getDocuments().get(2).getDocumentGraph().getTokens().size() > 0);
 
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(3));
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTextualDSs());
-		assertNotNull(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens());
-		assertTrue(importedSCorpusGraph.getSDocuments().get(3).getSDocumentGraph().getSTokens().size() > 0);
+		assertNotNull(importedSCorpusGraph.getDocuments().get(3));
+		assertNotNull(importedSCorpusGraph.getDocuments().get(3).getDocumentGraph());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(3).getDocumentGraph().getTextualDSs());
+		assertNotNull(importedSCorpusGraph.getDocuments().get(3).getDocumentGraph().getTokens());
+		assertTrue(importedSCorpusGraph.getDocuments().get(3).getDocumentGraph().getTokens().size() > 0);
 	}
 }

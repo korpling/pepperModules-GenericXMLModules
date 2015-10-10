@@ -17,26 +17,26 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.pepper.modules.PepperModuleProperties;
+import org.corpus_tools.pepper.modules.PepperModuleProperty;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.SStructuredNode;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SMetaAnnotation;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.genericXMLModules.xpath.XPathExpression;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructuredNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 
 /**
  * Defines the properties to be used for the {@link GenericXMLImporter}.
@@ -142,8 +142,8 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_TOKENS, String.class, "Sets a separator between tokens, the default is a blank, but it can be set to any other character or even ot the empty String. ", " ", false));
 	}
 
-	public synchronized EList<String> getFileEndings() {
-		EList<String> retVal = new BasicEList<String>();
+	public synchronized List<String> getFileEndings() {
+		List<String> retVal = new ArrayList<String>();
 		String endingList = (String) this.getProperty(PROP_FILE_ENDINGS).getValue();
 		String[] endings = endingList.split(",");
 		if (endings != null) {
@@ -240,7 +240,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	 * 
 	 * @return
 	 */
-	public Collection<XPathExpression> getSMetaAnnotationList() {
+	public Collection<XPathExpression> getMetaAnnotationList() {
 		if (sMetaAnnoList == null) {
 			synchronized (this) {
 				if (sMetaAnnoList == null) {
@@ -265,7 +265,7 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	 * 
 	 * @return
 	 */
-	public Collection<XPathExpression> getSMetaAnnotationSDocumentList() {
+	public Collection<XPathExpression> getMetaAnnotationSDocumentList() {
 		if (sMetaAnnoSDocumentList == null) {
 			synchronized (this) {
 				if (sMetaAnnoSDocumentList == null) {
