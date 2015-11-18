@@ -289,9 +289,10 @@ public class XML2SaltMapperTest {
 
 		assertEquals(1, getFixture().getDocument().getDocumentGraph().getTokens().size());
 		assertNotNull(getFixture().getDocument().getDocumentGraph().getTokens().get(0));
-		List<SALT_TYPE> sRelationTypes = new ArrayList<SALT_TYPE>();
-		sRelationTypes.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
-		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph().getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph().getTokens().get(0), sRelationTypes);
+
+		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph()
+            .getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph()
+                .getTokens().get(0), SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getEnd());
 	}
@@ -327,9 +328,10 @@ public class XML2SaltMapperTest {
 
 		assertEquals(1, getFixture().getDocument().getDocumentGraph().getTokens().size());
 		assertNotNull(getFixture().getDocument().getDocumentGraph().getTokens().get(0));
-		List<SALT_TYPE> sRelationTypes = new ArrayList<SALT_TYPE>();
-		sRelationTypes.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
-		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph().getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph().getTokens().get(0), sRelationTypes);
+
+		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph()
+            .getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph()
+                .getTokens().get(0), SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getEnd());
 		assertNotNull("an SAnnotation with name '" + attName1 + "' does not belong to annotation list '" + getFixture().getDocument().getDocumentGraph().getTokens().get(0).getAnnotations() + "'", getFixture().getDocument().getDocumentGraph().getTokens().get(0).getAnnotation(attName1));
@@ -371,9 +373,10 @@ public class XML2SaltMapperTest {
 
 		assertEquals(1, getFixture().getDocument().getDocumentGraph().getTokens().size());
 		assertNotNull(getFixture().getDocument().getDocumentGraph().getTokens().get(0));
-		List<SALT_TYPE> sRelationTypes = new ArrayList<SALT_TYPE>();
-		sRelationTypes.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
-		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph().getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph().getTokens().get(0), sRelationTypes);
+
+		List<DataSourceSequence> sequences = getFixture().getDocument().getDocumentGraph()
+            .getOverlappedDataSourceSequence(getFixture().getDocument().getDocumentGraph()
+                .getTokens().get(0), SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		assertEquals(Integer.valueOf(0), sequences.get(0).getStart());
 		assertEquals(Integer.valueOf(text.length()), sequences.get(0).getEnd());
 		assertNotNull(getFixture().getDocument().getDocumentGraph().getTokens().get(0).getAnnotation(attName1));
