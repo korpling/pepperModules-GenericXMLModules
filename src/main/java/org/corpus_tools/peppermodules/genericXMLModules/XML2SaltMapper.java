@@ -272,7 +272,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 						this.copySAbstractAnnotations(sToken);
 						if (!this.sLayerStack.isEmpty()) {
 							// add to sLayer if exist
-							sToken.addLayer(this.sLayerStack.peek());
+							this.sLayerStack.peek().addNode(sToken);
 						}// add to sLayer if exist
 							// create a new SToken object overlapping the
 							// current text-node
@@ -535,7 +535,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 								sRel = SaltFactory.createSDominanceRelation();
 							else if ((sNode instanceof SSpan) && (childSNode instanceof SSpan)) {
 
-								List<SRelation<SNode, SNode>> outRelations = getsDocumentGraph().getOutRelations(childSNode.getId());
+								List<SRelation<?, ?>> outRelations = getsDocumentGraph().getOutRelations(childSNode.getId());
 								if (outRelations != null) {
 									for (Relation outRelation : outRelations) {
 										if (outRelation instanceof SSpanningRelation) {
@@ -558,7 +558,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 								this.getsDocumentGraph().addRelation(sRel);
 								if (!this.sLayerStack.isEmpty()) {
 									// add to sLayer if exist
-									sRel.addLayer(this.sLayerStack.peek());
+									this.sLayerStack.peek().addRelation(sRel);
 								}// add to sLayer if exist
 							}
 						}
@@ -567,7 +567,7 @@ public class XML2SaltMapper extends PepperMapperImpl {
 					if (this.elementNodeStack.size() > 1)
 						this.elementNodeStack.get(this.elementNodeStack.size() - 2).openSNodes.add(sNode);
 					if (!this.sLayerStack.isEmpty()) {// add to sLayer if exist
-						sNode.addLayer(this.sLayerStack.peek());
+						this.sLayerStack.peek().addNode(sNode);
 					}// add to sLayer if exist
 				}// map a complex node
 				this.elementNodeStack.pop();
