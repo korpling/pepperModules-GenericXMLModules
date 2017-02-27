@@ -7,7 +7,7 @@
 	</parent>
 	<artifactId>pepperModules-GenericXMLModules</artifactId>
 	<name>${project.groupId}.${project.artifactId}</name>
-	<version>1.1.6-SNAPSHOT</version>
+	<version>1.1.6</version>
 	<packaging>bundle</packaging>
 	<description>This project provides an importer to map data from any xml to Salt.</description>
 	<url>https://github.com/korpling/pepperModules-GenericXMLModules</url>
@@ -21,12 +21,12 @@
 	</ciManagement>
 	<inceptionYear>2012</inceptionYear>
 	<organization>
-		<name>Humboldt-Universit&#228;t zu Berlin, INRIA</name>
+		<name>Humboldt-Universität zu Berlin, INRIA</name>
 	</organization>
 	<scm>
 		<connection>scm:git:git://github.com/korpling/pepperModules-GenericXMLModules.git</connection>
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-GenericXMLModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-GenericXMLModules</url>
-	  <tag>HEAD</tag>
+	  <tag>pepperModules-GenericXMLModules-1.1.6</tag>
   </scm>
 </project>
