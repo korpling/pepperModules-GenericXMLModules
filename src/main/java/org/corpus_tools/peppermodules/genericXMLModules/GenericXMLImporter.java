@@ -17,8 +17,15 @@
  */
 package org.corpus_tools.peppermodules.genericXMLModules;
 
-import java.util.List;
+import static org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporterProperties.PROP_ARTIFICIAL_SSTRUCT;
+import static org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporterProperties.PROP_AS_SPANS;
+import static org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporterProperties.PROP_ELEMENTNAME_AS_SANNO;
 
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.corpus_tools.pepper.core.SelfTestDesc;
 import org.corpus_tools.pepper.impl.PepperImporterImpl;
 import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
@@ -37,14 +44,17 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(name = "GenericXMLImporterComponent", factory = "PepperImporterComponentFactory")
 public class GenericXMLImporter extends PepperImporterImpl implements PepperImporter {
+	public static final String FORMAT_NAME = ENDING_XML;
+	public static final String FORMAT_VERSION = "1.0";
+
 	public GenericXMLImporter() {
 		super();
-		this.setName("GenericXMLImporter");
+		setName("GenericXMLImporter");
 		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GenericXMLModules"));
-		setDesc("Imports data coming from any XML file. The textual content of an element will be interpreted as a sequence of primary data. When processing the file, the importer will concatenate all these texts to an entire primary text. ");	
-		this.addSupportedFormat(ENDING_XML, "1.0", null);
-		this.setProperties(new GenericXMLImporterProperties());
+		setDesc("Imports data coming from any XML file. The textual content of an element will be interpreted as a sequence of primary data. When processing the file, the importer will concatenate all these texts to an entire primary text. ");
+		addSupportedFormat(FORMAT_NAME, FORMAT_VERSION, null);
+		setProperties(new GenericXMLImporterProperties());
 	}
 
 	/**
@@ -55,19 +65,47 @@ public class GenericXMLImporter extends PepperImporterImpl implements PepperImpo
 		Boolean retVal = super.isReadyToStart();
 		List<String> fileEndings = ((GenericXMLImporterProperties) this.getProperties()).getFileEndings();
 
-		if ((fileEndings == null) || (fileEndings.size() == 0)) {
+		if (!fileEndings.isEmpty()) {
 			this.getDocumentEndings().add(ENDING_XML);
 		} else if (fileEndings.contains(GenericXMLImporterProperties.KW_ALL)) {
 			this.getDocumentEndings().add(ENDING_ALL_FILES);
-		} else if ((fileEndings != null) && (!fileEndings.contains(GenericXMLImporterProperties.KW_ALL))) {
+		} else if (!fileEndings.contains(GenericXMLImporterProperties.KW_ALL)) {
 			this.getDocumentEndings().addAll(fileEndings);
 		}
 		return (retVal);
 	}
 
+	@Override
+	public Double isImportable(URI corpusPath) {
+		Double retValue = 0.0;
+		for (String content : sampleFileContent(corpusPath)) {
+			Pattern pattern = Pattern.compile("<?xml version=(\"|')1[.]0(\"|')");
+			Matcher matcher = pattern.matcher(content);
+			if (matcher.find()) {
+				retValue = 1.0;
+				break;
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public SelfTestDesc getSelfTestDesc() {
+		getProperties().setPropertyValue(PROP_AS_SPANS,
+				"//body//, //body, //p//, //p, //persName//, //persName, //label//, //label, //state//, //state");
+		getProperties().setPropertyValue(PROP_ELEMENTNAME_AS_SANNO,
+				"//body//, //body, //p//, //p, //persName//, //persName, //label//, //label, //state//, //state");
+		getProperties().setPropertyValue(PROP_ARTIFICIAL_SSTRUCT, true);
+		return new SelfTestDesc(
+				getResources().appendSegment("selfTests").appendSegment("genericXmlImporter").appendSegment("in")
+						.appendSegment("rootCorpus"),
+				getResources().appendSegment("selfTests").appendSegment("genericXmlImporter")
+						.appendSegment("expected"));
+	}
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(Identifier)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}.
+	 * {@inheritDoc PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
 	public PepperMapper createPepperMapper(Identifier sElementId) {

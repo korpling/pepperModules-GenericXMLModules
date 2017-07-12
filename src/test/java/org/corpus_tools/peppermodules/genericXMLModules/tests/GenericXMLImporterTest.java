@@ -17,6 +17,8 @@
  */
 package org.corpus_tools.peppermodules.genericXMLModules.tests;
 
+import static org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporter.FORMAT_NAME;
+import static org.corpus_tools.peppermodules.genericXMLModules.GenericXMLImporter.FORMAT_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -44,24 +46,12 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 public class GenericXMLImporterTest extends PepperImporterTest {
-	URI resourceURI = URI.createFileURI(new File(".").getAbsolutePath());
 
 	@Before
-	public void setUp() throws Exception {
+	public void beforeEach() {
 		super.setFixture(new GenericXMLImporter());
-
-		super.getFixture().setSaltProject(SaltFactory.createSaltProject());
-
-		super.setResourcesURI(resourceURI);
-
-		// setting temproraries and resources
-		getFixture().setResources(resourceURI);
-
-		// set formats to support
-		FormatDesc formatDesc = new FormatDesc();
-		formatDesc.setFormatName("xml");
-		formatDesc.setFormatVersion("1.0");
-		this.supportedFormatsCheck.add(formatDesc);
+		addFormatWhichShouldBeSupported(
+				new FormatDesc.FormatDescBuilder().withName(FORMAT_NAME).withVersion(FORMAT_VERSION).build());
 	}
 
 	/**
@@ -79,10 +69,6 @@ public class GenericXMLImporterTest extends PepperImporterTest {
 	 * {@link XML2SaltMapperTest#createHierarchy()} and doc2 and doc4 are
 	 * created with {@link XML2SaltMapperTest#createSpan()} and
 	 * 
-	 * @throws IOException
-	 * @throws SAXException
-	 * @throws ParserConfigurationException
-	 * @throws XMLStreamException
 	 */
 	@Test
 	public void testSet1() throws XMLStreamException, ParserConfigurationException, SAXException, IOException {

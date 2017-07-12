@@ -126,19 +126,42 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	public static final String DEFAULT_WHITESPACES = "'\n','\r','\t',' '";
 
 	public GenericXMLImporterProperties() {
-		this.addProperty(new PepperModuleProperty<String>(PROP_IGNORE_LIST, String.class, "IgnoreList is a list of nodes (element nodes , attribute -nodes and text-nodes, which shall be ignored while processing. Note that if an element node is part of the ignore list, its subtree will also be ignored)", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_AS_SPANS, String.class, "In case of you don't want to map an element node to an SStructure, you can map it to an SSpan. Note that this is only possible, if the element node directly contains a text node.", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_PREFIXED_ANNOS, String.class, "You can set this flag to prefix the SName of the SAnnotation with the name of the surrounding element node.", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_SMETA_ANNOTATION, String.class, "Determines a list a list of attribute names mapped to SMetaAnnotation objects instead of SAnnotationobjects.", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_SMETA_ANNOTATION_SDOCUMENT, String.class, "Determines a list of element-nodes which subtrees are mapped to meta-data on entire SDocument.", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_SLAYER, String.class, "Determines a list of element-nodes which are mapped to a SLayer object.", false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ARTIFICIAL_SSTRUCT, Boolean.class, "If set to true, for each text node an artificial SStructuredNode will be created and overlap the also created (always even if this property is set to false) SToken node.", false, false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_TEXT_ONLY, Boolean.class, "Determines if only text-nodes are mapped.", false, false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_IGNORABLE_WHITESPACES, String.class, "Determine which whitespace characters are ignored and add to {@link STextualDS} object,     * but do not get an own {@link SToken} object. A list separated by ',' for instance \\n,\\r, ,... for linefeed, carriage return and blank.", DEFAULT_WHITESPACES, false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_IGNORABLE_NAMESPACES, Boolean.class, "Determines if xml-namespaces and namespace declarations are ignored.", true, false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_ELEMENTNAME_AS_SANNO, String.class, " Determines a list of element-nodes whichs names are mapped to SAnnotation objects having that name as sName and sValue", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class, "Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ", "ALL", false));
-		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_TOKENS, String.class, "Sets a separator between tokens, the default is a blank, but it can be set to any other character or even ot the empty String. ", " ", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_IGNORE_LIST, String.class,
+				"IgnoreList is a list of nodes (element nodes , attribute -nodes and text-nodes, which shall be ignored while processing. Note that if an element node is part of the ignore list, its subtree will also be ignored)",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_AS_SPANS, String.class,
+				"In case of you don't want to map an element node to an SStructure, you can map it to an SSpan. Note that this is only possible, if the element node directly contains a text node.",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_PREFIXED_ANNOS, String.class,
+				"You can set this flag to prefix the SName of the SAnnotation with the name of the surrounding element node.",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SMETA_ANNOTATION, String.class,
+				"Determines a list a list of attribute names mapped to SMetaAnnotation objects instead of SAnnotationobjects.",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SMETA_ANNOTATION_SDOCUMENT, String.class,
+				"Determines a list of element-nodes which subtrees are mapped to meta-data on entire SDocument.",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SLAYER, String.class,
+				"Determines a list of element-nodes which are mapped to a SLayer object.", false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ARTIFICIAL_SSTRUCT, Boolean.class,
+				"If set to true, for each text node an artificial SStructuredNode will be created and overlap the also created (always even if this property is set to false) SToken node.",
+				false, false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_TEXT_ONLY, Boolean.class,
+				"Determines if only text-nodes are mapped.", false, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_IGNORABLE_WHITESPACES, String.class,
+				"Determine which whitespace characters are ignored and add to {@link STextualDS} object,     * but do not get an own {@link SToken} object. A list separated by ',' for instance \\n,\\r, ,... for linefeed, carriage return and blank.",
+				DEFAULT_WHITESPACES, false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_IGNORABLE_NAMESPACES, Boolean.class,
+				"Determines if xml-namespaces and namespace declarations are ignored.", true, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_ELEMENTNAME_AS_SANNO, String.class,
+				" Determines a list of element-nodes whichs names are mapped to SAnnotation objects having that name as sName and sValue",
+				false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENDINGS, String.class,
+				"Determines a list, containing the file endings, which files shall be imported. If you want to import all contained files no matter to their ending, add the string 'ALL' to the list. ",
+				"ALL", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_TOKENS, String.class,
+				"Sets a separator between tokens, the default is a blank, but it can be set to any other character or even ot the empty String. ",
+				" ", false));
 	}
 
 	public synchronized List<String> getFileEndings() {
@@ -146,8 +169,9 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 		String endingList = (String) this.getProperty(PROP_FILE_ENDINGS).getValue();
 		String[] endings = endingList.split(",");
 		if (endings != null) {
-			for (String ending : endings)
+			for (String ending : endings) {
 				retVal.add(ending.trim());
+			}
 		}
 		return (retVal);
 	}
@@ -359,7 +383,8 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 		if (ignorableWhitespaces == null) {
 			synchronized (this) {
 				if (ignorableWhitespaces == null) {
-					PepperModuleProperty<String> prop = (PepperModuleProperty<String>) this.getProperty(PROP_IGNORABLE_WHITESPACES);
+					PepperModuleProperty<String> prop = (PepperModuleProperty<String>) this
+							.getProperty(PROP_IGNORABLE_WHITESPACES);
 					if (prop.getValue() != null) {
 						ignorableWhitespaces = new HashSet<String>();
 						String[] parts = prop.getValue().split(",");
@@ -395,8 +420,9 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 		}
 		return elementNameAsSAnnoList;
 	}
-	
-	private String separateToken="";
+
+	private String separateToken = "";
+
 	/**
 	 * Property to set a separator between tokens, the default is a blank, but
 	 * it can be set to any other character or even ot the empty String.
@@ -404,8 +430,8 @@ public class GenericXMLImporterProperties extends PepperModuleProperties {
 	public String getSeparateToken() {
 		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) this.getProperty(PROP_SEPARATE_TOKENS);
 		if (prop.getValue() != null) {
-			separateToken= prop.getValue();
+			separateToken = prop.getValue();
 		}
-		return(separateToken);
+		return (separateToken);
 	}
 }
